@@ -1,6 +1,6 @@
-from client.connection_handler import ConnectionHandler
-from search import min_max
-from state import StateExchanger
+from tablut.client.connection_handler import ConnectionHandler
+from tablut.search import min_max
+from tablut.state import StateExchanger
 
 class Client(ConnectionHandler):
     """Extends ConnectionHandler, handling the connection between client and server."""
