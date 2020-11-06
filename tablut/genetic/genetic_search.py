@@ -13,7 +13,9 @@ N_PARAM = 8
 MAX_PARAM_VALUE = 500
 MIN_PARAM_VALUE = -500
 MAX_ITER = 5000
-PERC_NEW_POP = .5
+PERC_NEW_POP = .3
+EPS = 100
+MAX_ITER_NO_BETTER = 200
 
 
 def eval_match(sol1, sol2):
@@ -69,25 +71,39 @@ def eval_pop(solutions):
             num_games[index_sol1] += 2
             num_games[index_sol2] += 2
             old_index = index_sol2
+    prob_surv = np.array(prob_surv)
     prob_surv /= 3*num_games
     return prob_surv
 
+
+def test_eval(solutions):
+    max_dist = []
+    for sol in solutions:
+        par_first = 0
+        par_second = 0
+        for u in range(0, int(N_PARAM/2)):
+            par_first += sol[u]
+        for u in range(int(N_PARAM/2), N_PARAM):
+            par_second += sol[u]
+        max_dist.append(np.abs(float(par_first-par_second)) if par_first>=par_second else 0.0)
+
+    max_dist = np.array(max_dist)
+    max_dist /= 4000
+    return max_dist
 
 def mate(sol1, sol2):
     """
     Create a new individual by applying crossover.
     """
-    perc_sol1 = np.random.rand()
-    perc_sol2 = np.random.rand()
-    start_index_sol1 = int(N_PARAM * perc_sol1) - 1 if np.random.rand() > 0.5 else 0
-    sol1_newborn = int(N_PARAM * perc_sol1) -1 if np.random.rand() > 0.5 else 0
-    start_index_sol2 = int(N_PARAM * perc_sol2) - 1 if np.random.rand() > 0.5 else 0
-    m_newborn = []
-    for i in range(0, int(perc_sol1*N_PARAM)):
-        m_newborn[sol1_newborn+i] = sol1[start_index_sol1+i]
-    if sol1_newborn == 0:
-        for i in range(0, int(perc_sol2*N_PARAM)):
-            m_newborn[sol1_newborn+perc_sol1*N_PARAM+1+i] = sol2[start_index_sol2+i]
+    perc_sol1 = np.random.randint(1, N_PARAM)
+    perc_sol2 = N_PARAM-perc_sol1
+    start_index_sol1 = np.random.randint(0, N_PARAM-perc_sol1)
+    start_index_sol2 = np.random.randint(0, N_PARAM-perc_sol2)
+    m_newborn = [0 for x in range(N_PARAM)]
+    for p in range(0, perc_sol1):
+        m_newborn[p] = sol1[start_index_sol1+p]
+    for p in range(0, perc_sol2):
+        m_newborn[perc_sol1+p] = sol2[start_index_sol2+p]
     return m_newborn
 
 
@@ -110,11 +126,19 @@ def mutations(solutions, prob_surv):
         for k in range(number_poss_mutations):
             param_index = np.random.randint(0, N_PARAM)  # Choosing parameter to mutate
             random_mutation = np.random.rand()
-            if random_mutation > prob_surv[i]:
+            if random_mutation > prob_surv[j]:
                 if np.random.rand() > 0.5:
-                    solutions[j][param_index] += int((random_mutation-prob_surv[j])*solutions[j][param_index])
+                    solutions[j][param_index] += int((random_mutation-prob_surv[j])*EPS)
+                    if solutions[j][param_index] > MAX_PARAM_VALUE:
+                        solutions[j][param_index] = MAX_PARAM_VALUE
+                    elif solutions[j][param_index] < MIN_PARAM_VALUE:
+                        solutions[j][param_index] = MIN_PARAM_VALUE
                 else:
-                    solutions[j][param_index] -= int((random_mutation - prob_surv[j]) * solutions[j][param_index])
+                    solutions[j][param_index] -= int((random_mutation - prob_surv[j]) * EPS)
+                    if solutions[j][param_index] > MAX_PARAM_VALUE:
+                        solutions[j][param_index] = MAX_PARAM_VALUE
+                    elif solutions[j][param_index] < MIN_PARAM_VALUE:
+                        solutions[j][param_index] = MIN_PARAM_VALUE
 
 
 def find_best_sol(solutions):
@@ -136,7 +160,10 @@ population = []
 for i in range(N_POP):  # Randomly initializing population
     population.append([np.random.randint(MIN_PARAM_VALUE, MAX_PARAM_VALUE+1) for x in range(N_PARAM)])
 prob_survival = eval_pop(population)  # First evaluation of pop
-while num_iter <= MAX_ITER:
+best_sol = []
+best_sol_prob = 0.0
+no_best_sol = 0
+while num_iter <= MAX_ITER and no_best_sol <= MAX_ITER_NO_BETTER:
     i = 0
     while i <= PERC_NEW_POP*N_POP:
         index_par1 = np.random.randint(0, N_POP)  # Picking random parents
@@ -147,12 +174,21 @@ while num_iter <= MAX_ITER:
             index_par2 = np.random.randint(0, N_POP)
         newborn = mate(population[index_par1], population[index_par2])  # Creating new individual
         add_newborn(newborn, population, prob_survival)  # Add new individual by removing less strong old ones
-        mutations(population, prob_survival)  # Mutations hit less strong individual with higher probability
         i += 1
+    mutations(population, prob_survival)  # Mutations hit less strong individual with higher probability
     prob_survival = eval_pop(population)  # Population evaluation
+    best_sol_find_index = int(np.argmax(prob_survival))
+    if best_sol_prob < prob_survival[best_sol_find_index]:
+        best_sol = population[best_sol_find_index]
+        best_sol_prob = prob_survival[best_sol_find_index]
+        no_best_sol = 0
+    print("Best sol: ", population[best_sol_find_index])
+    print("Value: ", prob_survival[best_sol_find_index])
+    print("Iteration: ", num_iter)
     num_iter += 1
+    no_best_sol += 1
 
 index_best_sol = find_best_sol(population)
-print(population[index_best_sol])
+print("Best sol: ", population[int(index_best_sol)])
 
 
