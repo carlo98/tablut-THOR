@@ -9,13 +9,13 @@ import numpy as np
 
 N_POP = 200  # Number of solutions in population.
 NUM_MATCH = 1  # Percentage of solutions to play against.
-N_PARAM = 8
-MAX_PARAM_VALUE = 500
-MIN_PARAM_VALUE = -500
-MAX_ITER = 5000
-PERC_NEW_POP = .3
-EPS = 100
-MAX_ITER_NO_BETTER = 200
+N_PARAM = 8  # Number of parameter of each solution
+MAX_PARAM_VALUE = 500  # Maximum value allowed for each parameter
+MIN_PARAM_VALUE = -500  # Minimum value allowed for each parameter
+MAX_ITER = 5000  # Maximum number of iterations
+PERC_NEW_POP = .3  # Percentage of new individuals at each iteration
+EPS = MAX_PARAM_VALUE / 5  # Maximum change of each parameter due to mutation
+MAX_ITER_NO_BETTER = 100  # Maximum number of iterations without better solution
 
 
 def eval_match(sol1, sol2):
@@ -85,11 +85,12 @@ def test_eval(solutions):
             par_first += sol[u]
         for u in range(int(N_PARAM/2), N_PARAM):
             par_second += sol[u]
-        max_dist.append(np.abs(float(par_first-par_second)) if par_first>=par_second else 0.0)
+        max_dist.append(np.abs(float(par_first-par_second)) if par_first >= par_second else 0.0)
 
     max_dist = np.array(max_dist)
     max_dist /= 4000
     return max_dist
+
 
 def mate(sol1, sol2):
     """

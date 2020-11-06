@@ -5,11 +5,15 @@ from tablut.state import StateExchanger
 class Client(ConnectionHandler):
     """Extends ConnectionHandler, handling the connection between client and server."""
 
-    def __init__(self, port, color, max_time):
+    def __init__(self, port, color, max_time, weights=None):
         super().__init__(port, "localhost")
         self.player_name = "THOR"
         self.color = color
         self.max_time = max_time
+        if weights is None:
+            self.weights = [120, 30, 20, 10, 5, 1, 7, 4]  # Best weights find by our genetic algorithm
+        else:
+            self.weights = weights  # Searching best params
 
     def run(self):
         """Client's body."""
@@ -20,7 +24,7 @@ class Client(ConnectionHandler):
             
             while True:  # Playing
                 if self.color == state.turn:  # check turn
-                    action, value = min_max.choose_action(#TODO) # Retrieving best action and its value
+                    action, value = min_max.choose_action(#TODO) # Retrieving best action and its value and pass weights
                     self.send_string(action.to_server_format())
                     print("Choosen action:", action.to_server_format())
                 state = StateExchanger().load_state_from_json(self.read_string(), self.color)
