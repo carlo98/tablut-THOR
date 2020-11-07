@@ -5,6 +5,7 @@ Author: Carlo Cena & Giacomo Zamprogno
 Population-based search for best weight of heuristic's component.
 """
 from tablut.client.tablut_client import Client
+from threading import Thread
 import numpy as np
 
 N_POP = 200  # Number of solutions in population.
@@ -25,25 +26,36 @@ def eval_match(sol1, sol2):
     """
     sol1_points = 0
     sol2_points = 0
+    result = []
     client_white = Client("5000", "WHITE", 60, weights=sol1)
     client_black = Client("5001", "BLACK", 60, weights=sol2)
-    result = client_white.run()
-    client_black.run()
-    if result == "win":
+    white_thread = Thread(target=client_white.run(), args=result)
+    # Important, pass list just to one of the two threads, to avoid synchronization problems
+    black_thread = Thread(target=client_black.run())
+    white_thread.run()
+    black_thread.run()
+    white_thread.join()
+    black_thread.join()
+    if result[0] == "win":
         sol1_points += 3
-    elif result == "loose":
+    elif result[0] == "loose":
         sol2_points += 3
     else:
         sol1_points += 1
         sol2_points += 1
 
+    result = []
     client_white = Client("5000", "WHITE", 60, weights=sol2)
     client_black = Client("5001", "BLACK", 60, weights=sol1)
-    result = client_white.run()
-    client_black.run()
-    if result == "win":
+    white_thread = Thread(target=client_white.run(), args=result)
+    black_thread = Thread(target=client_black.run())
+    white_thread.run()
+    black_thread.run()
+    white_thread.join()
+    black_thread.join()
+    if result[0] == "win":
         sol2_points += 3
-    elif result == "loose":
+    elif result[0] == "loose":
         sol1_points += 3
     else:
         sol2_points += 1
@@ -59,6 +71,7 @@ def eval_pop(solutions):
     """
     prob_surv = [.0 for x in range(N_POP)]
     num_games = [0 for x in range(N_POP)]
+    np.random.shuffle(solutions)
     for index_sol1 in range(len(solutions)):
         old_index = index_sol1
         for l in range(NUM_MATCH):
