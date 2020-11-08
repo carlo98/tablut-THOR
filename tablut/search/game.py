@@ -1,25 +1,24 @@
 """
 Date: 08/11/2020
-Author:
+Author: Carlo Cena
 
-
+Implementation of method required by tablut game.
 """
+import time
+from threading import Thread
 
 
 class Game:
-    """
+    def __init__(self, max_time, weights):
+        self.max_time = max_time
+        self.weights = weights
 
-    """
-    def __init__(self):
+    def produce_actions(self, state, turn, time_start):
         """
 
         """
-        pass
-
-    def produce_actions(self, state, turn):
-        """
-
-        """
+        # Iterate over action, if time.time() - time_start >= self.max_time stop
+        # Use Threads
         pass
 
     def apply_action(self, state, action):

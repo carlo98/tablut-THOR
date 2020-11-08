@@ -5,29 +5,28 @@ Author: Carlo Cena
 Implementation of minmax algorithm with alpha-beta pruning.
 """
 import numpy as np
-from tablut.search.game import Game
 from tablut.search.heuristics import compute_heuristic
 import time
 
 
-def max_value(state, turn, alpha, beta, depth, max_depth, max_time, time_start):
-    if cutoff_test(state, depth, max_depth, max_time, time_start):
+def max_value(state, turn, game, alpha, beta, depth, max_depth, time_start):
+    if cutoff_test(state, depth, max_depth, game.max_time, time_start):
         return compute_heuristic(state)
     v = -np.inf
-    for a in Game.produce_actions(state, turn):
-        v = max(v, min_value(Game.apply_action(state, a), turn, alpha, beta, depth + 1, max_depth, max_time, time_start))
+    for a in game.produce_actions(state, turn, time_start):
+        v = max(v, min_value(game.apply_action(state, a), turn, game, alpha, beta, depth + 1, max_depth, time_start))
         if v >= beta:
             return v
         alpha = max(alpha, v)
     return v
 
 
-def min_value(state, turn, alpha, beta, depth, max_depth, max_time, time_start):
-    if cutoff_test(state, depth, max_depth, max_time, time_start):
+def min_value(state, turn, game, alpha, beta, depth, max_depth, time_start):
+    if cutoff_test(state, depth, max_depth, game.max_time, time_start):
         return compute_heuristic(state)
     v = np.inf
-    for a in Game.produce_actions(state,turn):
-        v = min(v, max_value(Game.apply_action(state, a), turn, alpha, beta, depth + 1, max_depth, max_time, time_start))
+    for a in game.produce_actions(state, turn, time_start):
+        v = min(v, max_value(game.apply_action(state, a), turn, game, alpha, beta, depth + 1, max_depth, time_start))
         if v <= alpha:
             return v
         beta = min(beta, v)
@@ -41,7 +40,7 @@ def cutoff_test(state, depth, max_depth, max_time, time_start):
     return depth >= max_depth or time.time()-time_start >= max_time
 
 
-def choose_action(state, turn, max_time):
+def choose_action(state, turn, game):
     """
 
     """
@@ -52,13 +51,17 @@ def choose_action(state, turn, max_time):
     best_action = None
     best_action_end = None
     max_depth = 0
-    while time.time()-time_start < max_time:
+    while time.time()-time_start < game.max_time:
         max_depth += 1
-        for a in Game.produce_actions(state, turn):
-            v = min_value(Game.apply_action(state, a), turn, best_score, beta, 1, max_depth, max_time, time_start)
+        all_actions = game.produce_actions(state, turn, time_start)
+        cont = 0
+        for a in all_actions:
+            v = min_value(game.apply_action(state, a), turn, game, best_score, beta, 1, max_depth, time_start)
+            cont += 1
             if v > best_score:
                 best_score = v
                 best_action = a
-        best_score_end = best_score
-        best_action_end = best_action
+        if cont == len(all_actions):
+            best_score_end = best_score
+            best_action_end = best_action
     return best_action_end, best_score_end
