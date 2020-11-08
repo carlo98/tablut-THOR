@@ -11,7 +11,7 @@ import time
 
 def max_value(state, turn, game, alpha, beta, depth, max_depth, time_start):
     if cutoff_test(state, depth, max_depth, game.max_time, time_start):
-        return compute_heuristic(state)
+        return compute_heuristic(state, game)
     v = -np.inf
     for a in game.produce_actions(state, turn, time_start):
         v = max(v, min_value(game.apply_action(state, a), turn, game, alpha, beta, depth + 1, max_depth, time_start))
@@ -23,7 +23,7 @@ def max_value(state, turn, game, alpha, beta, depth, max_depth, time_start):
 
 def min_value(state, turn, game, alpha, beta, depth, max_depth, time_start):
     if cutoff_test(state, depth, max_depth, game.max_time, time_start):
-        return compute_heuristic(state)
+        return compute_heuristic(state, game)
     v = np.inf
     for a in game.produce_actions(state, turn, time_start):
         v = min(v, max_value(game.apply_action(state, a), turn, game, alpha, beta, depth + 1, max_depth, time_start))
