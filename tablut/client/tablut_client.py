@@ -1,6 +1,7 @@
 from tablut.client.connection_handler import ConnectionHandler
 from tablut.search import min_max
-from tablut.state import StateExchanger
+from tablut.state.tablut_state import StateExchanger
+
 
 class Client(ConnectionHandler):
     """Extends ConnectionHandler, handling the connection between client and server."""
@@ -24,13 +25,15 @@ class Client(ConnectionHandler):
             
             while True:  # Playing
                 if self.color == state.turn:  # check turn
-                    action, value = min_max.choose_action(#TODO) # Retrieving best action and its value and pass weights
+                    action, value = min_max.choose_action(state, self.color, self.max_time)  # Retrieving best action and its value and pass weights
                     self.send_string(action.to_server_format())
                     print("Choosen action:", action.to_server_format())
-                state = StateExchanger().load_   state_from_json(self.read_string(), self.color)
+                state = StateExchanger().load_state_from_json(self.read_string(), self.color)
+                if state.win != "NO":
+                    break
 
             if result_search is not None:
-                result_search.append(# TODO: append winning color for genetic algorithm)
+                result_search.append(state.win)  # Append winning color for genetic algorithm
         except Exception as e:
             print(e)
         finally:

@@ -33,6 +33,7 @@ def eval_match(sol1, sol2):
     # Important, pass list just to one of the two threads, to avoid synchronization problems
     black_thread = Thread(target=client_black.run())
     white_thread.run()
+
     black_thread.run()
     white_thread.join()
     black_thread.join()
