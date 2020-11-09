@@ -3,7 +3,7 @@ from tablut.utils import bitboards
 MAX_VAL_HEURISTIC = 200
 
 "cancellare le bitboards"
-=======
+
 from tablut.utils.bitboards import *
 import numpy as np
 
