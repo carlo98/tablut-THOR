@@ -6,14 +6,20 @@ Implementation of minmax algorithm with alpha-beta pruning.
 """
 import numpy as np
 import time
+from tablut.state.tablut_state import State
+from tablut.utils.state_utils import MAX_VAL_HEURISTIC
 
 
 def max_value(state, game, alpha, beta, depth, max_depth, time_start):
-    if cutoff_test(state, depth, max_depth, game.max_time, time_start):
+    result_cutoff = cutoff_test(state, depth, max_depth, game.max_time, time_start)
+    if result_cutoff == 0:
         return state.compute_heuristic(game.weights)
+    elif result_cutoff == 1:
+        return MAX_VAL_HEURISTIC
+
     v = -np.inf
     for a in game.produce_actions(state):
-        v = max(v, min_value(game.apply_action(state, a), game, alpha, beta, depth + 1, max_depth, time_start))
+        v = max(v, min_value(State(state, a[0], a[1], a[2], a[3], a[4]), game, alpha, beta, depth + 1, max_depth, time_start))
         if v >= beta:
             return v
         alpha = max(alpha, v)
@@ -21,11 +27,15 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start):
 
 
 def min_value(state, game, alpha, beta, depth, max_depth, time_start):
-    if cutoff_test(state, depth, max_depth, game.max_time, time_start):
+    result_cutoff = cutoff_test(state, depth, max_depth, game.max_time, time_start)
+    if result_cutoff == 0:
         return state.compute_heuristic(game.weights)
+    elif result_cutoff == 1:
+        return MAX_VAL_HEURISTIC
+
     v = np.inf
     for a in game.produce_actions(state):
-        v = min(v, max_value(game.apply_action(state, a), game, alpha, beta, depth + 1, max_depth, time_start))
+        v = min(v, max_value(State(state, a[0], a[1], a[2], a[3], a[4]), game, alpha, beta, depth + 1, max_depth, time_start))
         if v <= alpha:
             return v
         beta = min(beta, v)
@@ -36,7 +46,11 @@ def cutoff_test(state, depth, max_depth, max_time, time_start):
     """
 
     """
-    return depth >= max_depth or time.time()-time_start >= max_time
+    if state:  #TODO: Add end state
+        return 1
+    if depth >= max_depth or time.time()-time_start >= max_time:
+        return 0
+    return -1
 
 
 def choose_action(state, game):
@@ -55,7 +69,7 @@ def choose_action(state, game):
         all_actions = game.produce_actions(state)
         cont = 0
         for a in all_actions:
-            v = min_value(game.apply_action(state, a), game, best_score, beta, 1, max_depth, time_start)
+            v = min_value(State(state, a[0], a[1], a[2], a[3], a[4]), game, best_score, beta, 1, max_depth, time_start)
             cont += 1
             if v > best_score:
                 best_score = v

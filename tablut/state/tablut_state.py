@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 from tablut.utils.state_utils import *
-from tablut.utils.bitboard import *
+from tablut.utils.bitboards import *
 
 
 class State:

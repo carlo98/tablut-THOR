@@ -1,5 +1,7 @@
 from tablut.utils import bitboards
 
+MAX_VAL_HEURISTIC = 200
+
 "cancellare le bitboards"
 
 escape_bitboard = []
