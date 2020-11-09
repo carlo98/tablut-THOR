@@ -4,37 +4,15 @@ Author: Carlo Cena
 
 Implementation of method required by tablut game.
 """
-import time
-from threading import Thread
 import numpy as np
-
+from tablut.utils.bitboards import castle_bitboard, camps_bitboard
 
 class Game:
     def __init__(self, max_time, weights):
         self.max_time = max_time
         self.weights = weights
-        self.castle_bitboard = np.zeros(shape=9, dtype=int)
-        self.escapes_bitboard = np.zeros(shape=9, dtype=int)
-        self.camps_bitboard = np.zeros(shape=9, dtype=int)
         self.possible_actions_hor = np.empty(shape=(9, 9), dtype=int)
         self.possible_actions_ver = np.empty(shape=(9, 9), dtype=int)
-
-        self.castle_bitboard[4] = 0b000010000
-
-        self.escapes_bitboard[0] = 0b011000110
-        self.escapes_bitboard[1] = 0b100000001
-        self.escapes_bitboard[2] = 0b100000001
-        self.escapes_bitboard[6] = 0b100000001
-        self.escapes_bitboard[7] = 0b100000001
-        self.escapes_bitboard[8] = 0b011000110
-
-        self.camps_bitboard[0] = 0b000111000
-        self.camps_bitboard[1] = 0b000010000
-        self.camps_bitboard[3] = 0b100000001
-        self.camps_bitboard[4] = 0b110000011
-        self.camps_bitboard[5] = 0b100000001
-        self.camps_bitboard[7] = 0b000010000
-        self.camps_bitboard[8] = 0b000111000
 
         # Create possible actions from each position
         self.possible_actions_hor[0][0] = 0b011000000
@@ -89,11 +67,38 @@ class Game:
 
         self.possible_actions_ver = np.transpose(self.possible_actions_hor)
 
-    def produce_actions(self, state, turn, time_start):
+    def produce_actions(self, state):
         """
 
         """
-        # Iterate over action, if time.time() - time_start >= self.max_time stop
-        # Use Threads
-        pass
+        action_list = []
+        if state.turn == "WHITE":
+            for r, row in enumerate(self.possible_actions_hor):  # Horizontal actions
+                for c, col in enumerate(row):
+                    curr_pos_mask = (1 << (8-c))
+                    if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
+                        poss_actions_mask = state.white_bitboard[r] ^ col
+                        poss_actions_mask ^= (state.king_bitboard[r] & ~castle_bitboard[r])
+                        poss_actions_mask ^= (state.black_bitboard[r] & ~camps_bitboard[r])
+                        i = 1
+                        new_pos_mask = curr_pos_mask << i
+                        while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left
+                            action_list.append([False, r, c, r, i])
+                            i += 1
+                            if i <= c:
+                                new_pos_mask = curr_pos_mask << i
+                        i = 1
+                        new_pos_mask = int(curr_pos_mask / (2**1))
+
+
+            for r, row in enumerate(self.possible_actions_ver):  # Vertical actions
+                for c, col in enumerate(row):
+                    curr_pos_mask = (1 << (8-c))
+                    if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
+                        row_index = 0
+                        while state.white_bitboard[row_index] &
+
+        else:
+            pass
+        return action_list
 
