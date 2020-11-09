@@ -1,13 +1,13 @@
 import numpy as np
+import copy
+from tablut.utils.state_utils import *
+from tablut.utils.bitboard import *
 
 
 class State:
 
-    def __init__(self):
-        pass
-
     def __init__(self, json_string):
-        white_bitboard= np.zeros(9, dtype=int)
+        white_bitboard = np.zeros(9, dtype=int)
         black_bitboard = np.zeros(9, dtype=int)
         king_bitboard = np.zeros(9, dtype=int)
 
@@ -24,12 +24,35 @@ class State:
             white_bitboard[i_row] <<= 1
             black_bitboard[i_row] <<= 1
             king_bitboard[i_row] <<= 1
-        i_row +=1
+        i_row += 1
         pass
 
-    def __init__(self, turn, start_pos, end_pos):
+    def __init__(self, s, k, start_row, start_col, end_row, end_col):
+        """"
+        s= original state,
+        k == True -> king moves, k==False ->pawn moves
+        start_row,start_col -> pieces coordinates
+        end_row, end_col -> final coordinates
+        """
+        self = copy.deepcopy(s)
+        if s.turn == "WHITE":
+            "in the original state, white moves, so in the new state black moves"
+            self.turn = "BLACK"
+            if k:
+                self.white_bitboard[start_row] -= (1 << (8 - start_col))
+                self.white_bitboard[end_row] += (1 << (8 - end_col))
+            else:
+                self.king_bitboard[start_row] -= (1 << (8 - start_col))
+                self.king_bitboard[end_row] += (1 << (8 - end_col))
+
+        else:
+            self.turn = "WHITE"
+            self.black_bitboard[start_row] -= (1 << (8 - start_col))
+            self.black_bitboard[end_row] += (1 << (8 - end_col))
+
         pass
 
-    def compute_heuristic(game):
-        total_value = 0
-        return total_value
+    def compute_heuristic(self,weights):
+        h=0
+        return h
+
