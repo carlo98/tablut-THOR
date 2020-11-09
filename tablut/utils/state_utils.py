@@ -1,6 +1,6 @@
 from tablut.utils import bitboards
 
-MAX_VAL_HEURISTIC = 200
+MAX_VAL_HEURISTIC = 200  # TODO: to be set at maximum value achievable by heuristic
 
 "cancellare le bitboards"
 

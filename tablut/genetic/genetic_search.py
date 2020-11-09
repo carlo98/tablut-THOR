@@ -16,7 +16,7 @@ MIN_PARAM_VALUE = -500  # Minimum value allowed for each parameter
 MAX_ITER = 5000  # Maximum number of iterations
 PERC_NEW_POP = .3  # Percentage of new individuals at each iteration
 EPS = MAX_PARAM_VALUE / 5  # Maximum change of each parameter due to mutation
-MAX_ITER_NO_BETTER = 100  # Maximum number of iterations without better solution
+MAX_ITER_NO_BETTER = 10  # Maximum number of iterations without better solution
 
 
 def eval_match(sol1, sol2):
@@ -109,16 +109,18 @@ def test_eval(solutions):
 def mate(sol1, sol2):
     """
     Create a new individual by applying crossover.
+    Linear combination with random weights between 0 and 1
     """
-    perc_sol1 = np.random.randint(1, N_PARAM)
-    perc_sol2 = N_PARAM-perc_sol1
-    start_index_sol1 = np.random.randint(0, N_PARAM-perc_sol1)
-    start_index_sol2 = np.random.randint(0, N_PARAM-perc_sol2)
-    m_newborn = [0 for x in range(N_PARAM)]
-    for p in range(0, perc_sol1):
-        m_newborn[p] = sol1[start_index_sol1+p]
-    for p in range(0, perc_sol2):
-        m_newborn[perc_sol1+p] = sol2[start_index_sol2+p]
+    lambda_1 = np.random.rand()
+    lambda_2 = np.random.rand()
+    m_newborn = []
+    for x in range(N_PARAM):
+        new_value = lambda_1*sol1[x] + lambda_2*sol2[x]
+        if new_value > MAX_PARAM_VALUE:
+            new_value = MAX_PARAM_VALUE
+        elif new_value < MIN_PARAM_VALUE:
+            new_value = MIN_PARAM_VALUE
+        m_newborn.append(new_value)
     return m_newborn
 
 

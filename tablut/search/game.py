@@ -5,7 +5,7 @@ Author: Carlo Cena
 Implementation of method required by tablut game.
 """
 import numpy as np
-from tablut.utils.bitboards import castle_bitboard, camps_bitboard
+
 
 class Game:
     def __init__(self, max_time, weights):
@@ -77,9 +77,9 @@ class Game:
                 curr_pos_mask = (1 << (8 - c))
                 if state.turn == "WHITE":
                     if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
-                        poss_actions_mask = state.white_bitboard[r] ^ col
-                        poss_actions_mask ^= (state.king_bitboard[r] & ~castle_bitboard[r])
-                        poss_actions_mask ^= (state.black_bitboard[r] & ~camps_bitboard[r])
+                        poss_actions_mask = ~state.white_bitboard[r] & col
+                        poss_actions_mask &= state.king_bitboard[r]
+                        poss_actions_mask &= state.black_bitboard[r]
                         i = 1
                         new_pos_mask = curr_pos_mask << i
                         while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left
@@ -95,8 +95,8 @@ class Game:
                             if i <= c:
                                 new_pos_mask = int(curr_pos_mask / (2 ** i))
                     elif state.king_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by the king
-                        poss_actions_mask = state.white_bitboard[r] ^ col
-                        poss_actions_mask ^= (state.black_bitboard[r] & ~camps_bitboard[r])
+                        poss_actions_mask = ~state.white_bitboard[r] & col
+                        poss_actions_mask &= ~state.black_bitboard[r]
                         i = 1
                         new_pos_mask = curr_pos_mask << i
                         while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left
@@ -112,6 +112,26 @@ class Game:
                             if i <= c:
                                 new_pos_mask = int(curr_pos_mask / (2 ** i))
 
+                if state.turn == "BLACK":
+                    if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
+                        poss_actions_mask = ~state.white_bitboard[r] & col
+                        poss_actions_mask &= ~state.king_bitboard[r]
+                        poss_actions_mask &= ~state.black_bitboard[r]
+                        i = 1
+                        new_pos_mask = curr_pos_mask << i
+                        while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left
+                            action_list.append([False, r, c, r, c - i])
+                            i += 1
+                            if i <= c:
+                                new_pos_mask = curr_pos_mask << i
+                        i = 1
+                        new_pos_mask = int(curr_pos_mask / (2 ** i))
+                        while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
+                            action_list.append([False, r, c, r, i + c])
+                            i += 1
+                            if i <= c:
+                                new_pos_mask = int(curr_pos_mask / (2 ** i))
+
         for r, row in enumerate(self.possible_actions_ver):  # Vertical actions
             for c, col in enumerate(row):
                 curr_pos_mask = (1 << (8 - c))
@@ -119,9 +139,9 @@ class Game:
                     if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
                         i = 1
                         while i <= r:  # Actions up
-                            poss_actions_mask = state.white_bitboard[r - i] ^ col
-                            poss_actions_mask ^= (state.king_bitboard[r - i] & ~castle_bitboard[r - 1])
-                            poss_actions_mask ^= (state.black_bitboard[r - i] & ~camps_bitboard[r - 1])
+                            poss_actions_mask = ~state.white_bitboard[r - i] & col
+                            poss_actions_mask &= ~state.king_bitboard[r - i]
+                            poss_actions_mask &= ~state.black_bitboard[r - i]
                             if poss_actions_mask & curr_pos_mask != 0:
                                 action_list.append([False, r, c, r - 1, c])
                                 i += 1
@@ -130,9 +150,9 @@ class Game:
 
                         i = 1
                         while i <= (8 - r):  # Actions down
-                            poss_actions_mask = state.white_bitboard[r + i] ^ col
-                            poss_actions_mask ^= (state.king_bitboard[r + i] & ~castle_bitboard[r + 1])
-                            poss_actions_mask ^= (state.black_bitboard[r + i] & ~camps_bitboard[r + 1])
+                            poss_actions_mask = ~state.white_bitboard[r + i] & col
+                            poss_actions_mask &= ~state.king_bitboard[r + i]
+                            poss_actions_mask &= ~state.black_bitboard[r + i]
                             if poss_actions_mask & curr_pos_mask != 0:
                                 action_list.append([False, r, c, r + 1, c])
                                 i += 1
@@ -141,8 +161,8 @@ class Game:
                     elif state.king_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by the king
                         i = 1
                         while i <= r:  # Actions up
-                            poss_actions_mask = state.white_bitboard[r - i] ^ col
-                            poss_actions_mask ^= (state.black_bitboard[r - i] & ~camps_bitboard[r - 1])
+                            poss_actions_mask = ~state.white_bitboard[r - i] & col
+                            poss_actions_mask &= ~state.black_bitboard[r - i]
                             if poss_actions_mask & curr_pos_mask != 0:
                                 action_list.append([True, r, c, r - 1, c])
                                 i += 1
@@ -151,10 +171,34 @@ class Game:
 
                         i = 1
                         while i <= (8 - r):  # Actions down
-                            poss_actions_mask = state.white_bitboard[r + i] ^ col
-                            poss_actions_mask ^= (state.black_bitboard[r + i] & ~camps_bitboard[r + 1])
+                            poss_actions_mask = ~state.white_bitboard[r + i] & col
+                            poss_actions_mask &= ~state.black_bitboard[r + i]
                             if poss_actions_mask & curr_pos_mask != 0:
                                 action_list.append([True, r, c, r + 1, c])
+                                i += 1
+                            else:
+                                break
+
+                if state.turn == "BLACK":
+                    if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
+                        i = 1
+                        while i <= r:  # Actions up
+                            poss_actions_mask = ~state.white_bitboard[r - i] & col
+                            poss_actions_mask &= ~state.king_bitboard[r - i]
+                            poss_actions_mask &= ~state.black_bitboard[r - i]
+                            if poss_actions_mask & curr_pos_mask != 0:
+                                action_list.append([False, r, c, r - 1, c])
+                                i += 1
+                            else:
+                                break
+
+                        i = 1
+                        while i <= (8 - r):  # Actions down
+                            poss_actions_mask = ~state.white_bitboard[r + i] & col
+                            poss_actions_mask &= ~state.king_bitboard[r + i]
+                            poss_actions_mask &= ~state.black_bitboard[r + i]
+                            if poss_actions_mask & curr_pos_mask != 0:
+                                action_list.append([False, r, c, r + 1, c])
                                 i += 1
                             else:
                                 break
