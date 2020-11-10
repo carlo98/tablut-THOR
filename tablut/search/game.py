@@ -7,6 +7,7 @@ Implementation of method required by tablut game.
 import numpy as np
 from tablut.utils.bitboards import escapes_bitboard
 
+
 class Game:
     def __init__(self, max_time, color, weights):
         self.max_time = max_time

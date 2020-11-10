@@ -1,14 +1,26 @@
 from tablut.utils.bitboards import *
 import numpy as np
+import time
 
 MAX_VAL_HEURISTIC = 200  # TODO: to be set at maximum value achievable by heuristic
 
 
-def bit(n):
+def bit_original(n):
     while n:
+        time.sleep(0.01)
         b = n & (~n + 1)
         yield b
         n ^= b
+
+
+def bit(n):
+    mask = 0b000000001
+    i = 0
+    while i <= 8:
+        b = n & mask
+        yield b
+        mask = mask << i
+        i += 1
 
 
 def black_tries_capture_white_pawn(black_bitboard, white_bitboard, row, col):
@@ -130,3 +142,17 @@ def white_tries_capture_black_pawn(white_bitboard, black_bitboard, row, col):
                 black_bitboard[row] ^= binary_column << 1
 
     return black_bitboard
+
+
+def action_to_server_format(action):
+    """
+    Return format required by server.
+    """
+    start_row = action[1] + 1
+    end_row = action[3] + 1
+    start_col = chr(65+action[2])
+    end_col = chr(65+action[4])
+    return {
+        'from': str(start_col) + str(start_row),
+        'to': str(end_col) + str(end_row)
+    }

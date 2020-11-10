@@ -9,8 +9,11 @@ import time
 from tablut.state.tablut_state import State
 from tablut.utils.state_utils import MAX_VAL_HEURISTIC
 
+#TODO: remove num_state_visited, use just in test phase
 
-def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
+
+def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table, num_state_visited):
+    num_state_visited[0] += 1
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         quad_prob = 1
         pot = 1
@@ -53,7 +56,8 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     return v
 
 
-def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
+def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table, num_state_visited):
+    num_state_visited[0] += 1
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         quad_prob = 1
         pot = 1
@@ -135,6 +139,7 @@ def choose_action(state, game):
     best_action = None
     best_action_end = None
     max_depth = 0
+    num_state_visited = [0]
     state_hash_table = dict()
     while time.time()-time_start < game.max_time:
         max_depth += 1  # Iteratively increasing depth
@@ -142,12 +147,13 @@ def choose_action(state, game):
         cont = 0
         for a in all_actions:
             v = min_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
-                          game, alpha, best_score, 1, max_depth, time_start, state_hash_table)
+                          game, alpha, best_score, 1, max_depth, time_start, state_hash_table, num_state_visited)
             cont += 1
-            if v > best_score:
+            if v < best_score:
                 best_score = v
                 best_action = a
         if cont == len(all_actions):  # If search at current maximum depth is finished, update best action
             best_score_end = best_score
             best_action_end = best_action
+    print(num_state_visited, " state visited state in ", time.time()-time_start, " seconds.")
     return best_action_end, best_score_end

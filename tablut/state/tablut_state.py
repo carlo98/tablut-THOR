@@ -41,9 +41,9 @@ class State:
             start_col = second_init_args[3]
             end_row = second_init_args[4]
             end_col = second_init_args[5]
-            self.white_bitboard = s.white_bitboard
-            self.black_bitboard = s.black_bitboard
-            self.king_bitboard = s.king_bitboard
+            self.white_bitboard = copy.deepcopy(s.white_bitboard)
+            self.black_bitboard = copy.deepcopy(s.black_bitboard)
+            self.king_bitboard = copy.deepcopy(s.king_bitboard)
 
             if s.turn == "WHITE":
                 "in the original state, white moves, so in the new state black moves"
@@ -122,12 +122,12 @@ class State:
         False otherwise.
         """
         for row in range(len(self.white_bitboard)):  # Check white bitboard
-            if self.white_bitboard[row] ^ m_bitboards["white"] != 0:
+            if self.white_bitboard[row] ^ m_bitboards["white"][row] != 0:
                 return False
         for row in range(len(self.black_bitboard)):  # Check black bitboard
-            if self.black_bitboard[row] ^ m_bitboards["black"] != 0:
+            if self.black_bitboard[row] ^ m_bitboards["black"][row] != 0:
                 return False
         for row in range(len(self.king_bitboard)):  # Check king bitboard
-            if self.king_bitboard[row] ^ m_bitboards["king"] != 0:
+            if self.king_bitboard[row] ^ m_bitboards["king"][row] != 0:
                 return False
         return True
