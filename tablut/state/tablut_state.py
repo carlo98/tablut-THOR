@@ -20,18 +20,19 @@ class State:
 
             self.turn = json_string["turn"]
             i_row = 0
-            for row in json_string["board"]:
+            for row in json_string.get("board"):
                 for col in row:
+                    self.white_bitboard[i_row] <<= 1
+                    self.black_bitboard[i_row] <<= 1
+                    self.king_bitboard[i_row] <<= 1
                     if col == "WHITE":
                         self.white_bitboard[i_row] ^= 1
                     elif col == "BLACK":
                         self.black_bitboard[i_row] ^= 1
                     elif col == "KING":
                         self.king_bitboard[i_row] ^= 1
-                self.white_bitboard[i_row] <<= 1
-                self.black_bitboard[i_row] <<= 1
-                self.king_bitboard[i_row] <<= 1
-            i_row += 1
+                i_row += 1
+
             pass
         elif second_init_args is not None:
             s = second_init_args[0]
@@ -60,6 +61,7 @@ class State:
                                                                      end_col)
                 self.king_bitboard = black_tries_capture_king(self.black_bitboard, self.king_bitboard, end_row, end_col)
             pass
+
 
     def check_victory(self):
         if np.count_nonzero(self.king_bitboard) == 0:
