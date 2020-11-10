@@ -70,12 +70,12 @@ def eval_pop(solutions):
     Evaluates solutions, returns a list of floats, between 0 and 1
     (probabilities of survival and reproduction).
     """
-    prob_surv = [.0 for x in range(N_POP)]
-    num_games = [0 for x in range(N_POP)]
+    prob_surv = np.zeros(N_POP, dtype=np.float)
+    num_games = np.zeros(N_POP, dtype=np.int)
     np.random.shuffle(solutions)
     for index_sol1 in range(len(solutions)):
         old_index = index_sol1
-        for l in range(NUM_MATCH):
+        for match_num in range(NUM_MATCH):
             index_sol2 = np.random.randint(old_index, N_POP)
             while index_sol2 == old_index:
                 index_sol2 = np.random.randint(0, N_POP)
@@ -162,7 +162,7 @@ def find_best_sol(solutions):
     """
     Finding best solution, by evaluating all possible couples.
     """
-    points = [0 for x in range(N_POP)]
+    points = np.zeros(N_POP, dtype=np.int)
     for index_sol1 in range(len(solutions)):
         for index_sol2 in range(len(solutions)):
             if index_sol2 > index_sol1:
@@ -207,5 +207,3 @@ while num_iter <= MAX_ITER and no_best_sol <= MAX_ITER_NO_BETTER:
 
 index_best_sol = find_best_sol(population)
 print("Best sol: ", population[int(index_best_sol)])
-
-

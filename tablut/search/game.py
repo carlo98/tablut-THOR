@@ -93,14 +93,14 @@ class Game:
                 action_list.append([True, r, c, r, c - i])
                 i += 1
                 if i <= c:
-                    new_pos_mask = curr_pos_mask << i
+                    new_pos_mask = new_pos_mask << 1
             i = 1
-            new_pos_mask = int(curr_pos_mask >> i)
+            new_pos_mask = curr_pos_mask >> i
             while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right, checkers cannot jump
                 action_list.append([True, r, c, r, c + i])
                 i += 1
-                if i <= c:
-                    new_pos_mask = int(curr_pos_mask >> i)
+                if i <= (8 - c):
+                    new_pos_mask = new_pos_mask >> 1
             i = 1
             while i <= r:  # Actions up
                 poss_actions_mask = ~state.white_bitboard[r - i] & self.possible_actions_ver[r][c]  # Vertical actions
@@ -127,22 +127,22 @@ class Game:
                         # If current position is occupied by a white pawn
                         if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:
                             poss_actions_mask = ~state.white_bitboard[r] & self.possible_actions_hor[r][c]  #Horizontal moves
-                            poss_actions_mask &= state.king_bitboard[r]
-                            poss_actions_mask &= state.black_bitboard[r]
+                            poss_actions_mask &= ~state.king_bitboard[r]
+                            poss_actions_mask &= ~state.black_bitboard[r]
                             i = 1
                             new_pos_mask = curr_pos_mask << i
                             while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left, checkers cannot jump
                                 action_list.append([False, r, c, r, c - i])
                                 i += 1
                                 if i <= c:
-                                    new_pos_mask = curr_pos_mask << i
+                                    new_pos_mask = new_pos_mask << 1
                             i = 1
-                            new_pos_mask = int(curr_pos_mask >> i)
+                            new_pos_mask = curr_pos_mask >> i
                             while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right, checkers cannot jump
                                 action_list.append([False, r, c, r, c + i])
                                 i += 1
-                                if i <= c:
-                                    new_pos_mask = int(curr_pos_mask >> i)
+                                if i <= (8 - c):
+                                    new_pos_mask = new_pos_mask >> 1
                             i = 1
                             while i <= r:  # Actions up
                                 poss_actions_mask = ~state.white_bitboard[r - i] & self.possible_actions_ver[r][c]  # Vertical actions
@@ -180,14 +180,14 @@ class Game:
                                 action_list.append([False, r, c, r, c - i])
                                 i += 1
                                 if i <= c:
-                                    new_pos_mask = curr_pos_mask << i
+                                    new_pos_mask = new_pos_mask << 1
                             i = 1
-                            new_pos_mask = int(curr_pos_mask >> i)
+                            new_pos_mask = curr_pos_mask >> i
                             while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right, checkers cannot jump
                                 action_list.append([False, r, c, r, c + i])
                                 i += 1
-                                if i <= c:
-                                    new_pos_mask = int(curr_pos_mask >> i)
+                                if i <= (8 - c):
+                                    new_pos_mask = new_pos_mask >> 1
                             i = 1
                             while i <= r:  # Actions up
                                 poss_actions_mask = ~state.white_bitboard[r - i] & self.possible_actions_ver[r][c]  # Vertical actions
