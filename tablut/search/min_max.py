@@ -13,18 +13,27 @@ from tablut.utils.state_utils import MAX_VAL_HEURISTIC
 def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         quad_prob = 1
-        hash_result = state_hash_table.get(state.get_hash() + quad_prob ** quad_prob)
+        pot = 1
+        state_hash = state.get_hash()
+        m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
+        hash_result = state_hash_table.get(m_key)
+
         while hash_result is not None:
             if state.equal(hash_result["bitboards"]):
                 return hash_result["value"]  # If state previously evaluated don't recompute heuristic
             quad_prob += 1
-            hash_result = state_hash_table.get(state.get_hash() + quad_prob ** quad_prob)
+            pot = quad_prob ** quad_prob
+            m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
+            hash_result = state_hash_table.get(m_key)
+
         value = state.compute_heuristic(game.weights)  # If state not previously evaluated
-        add_to_hash(state_hash_table, state, value)  # Add state and value to hash table
+        add_to_hash(state_hash_table, state, state_hash, value)  # Add state and value to hash table
         return value
+
     if state.is_terminal():  # TODO: Evaluate if could be useful to check if state is in hash before checking if it's terminal
         return MAX_VAL_HEURISTIC
 
+    # Body
     v = -np.inf
     for a in game.produce_actions(state):
         v = max(v, min_value(State(state, a[0], a[1], a[2], a[3], a[4]),
@@ -38,18 +47,27 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
 def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         quad_prob = 1
-        hash_result = state_hash_table.get(state.get_hash() + quad_prob ** quad_prob)
+        pot = 1
+        state_hash = state.get_hash()
+        m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
+        hash_result = state_hash_table.get(m_key)
+
         while hash_result is not None:
             if state.equal(hash_result["bitboards"]):
                 return hash_result["value"]  # If state previously evaluated don't recompute heuristic
             quad_prob += 1
-            hash_result = state_hash_table.get(state.get_hash() + quad_prob ** quad_prob)
+            pot = quad_prob**quad_prob
+            m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
+            hash_result = state_hash_table.get(m_key)
+
         value = state.compute_heuristic(game.weights)  # If state not previously evaluated
-        add_to_hash(state_hash_table, state, value)  # Add state and value to hash table
+        add_to_hash(state_hash_table, state, state_hash, value)  # Add state and value to hash table
         return value
+
     if state.is_terminal():  # TODO: Evaluate if could be useful to check if state is in hash before checking if it's terminal
         return MAX_VAL_HEURISTIC
 
+    # Body
     v = np.inf
     for a in game.produce_actions(state):
         v = min(v, max_value(State(state, a[0], a[1], a[2], a[3], a[4]),
@@ -60,15 +78,17 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     return v
 
 
-def add_to_hash(table, state, value):
+def add_to_hash(table, state, state_hash, value):
     """
     Adds current state and its value to hash table.
     """
     quad_prob = 1
-    m_key = state.get_hash() + quad_prob ** quad_prob
+    pot = 1
+    m_key = (state_hash[0]+pot, state_hash[1]+pot, state_hash[2]+pot)
     while table.get(m_key) is not None:
         quad_prob += 1
-        m_key = state.get_hash() + quad_prob ** quad_prob
+        pot = quad_prob ** quad_prob
+        m_key = (state_hash[0]+pot, state_hash[1]+pot, state_hash[2]+pot)
     table[m_key] = {"bitboards": {"black": state.black_bitboard, "white": state.white_bitboard,
                                   "king": state.king_bitboard},
                     "value": value}
@@ -80,8 +100,8 @@ def cutoff_test(depth, max_depth, max_time, time_start):
     False if search is to be continued
     """
     if depth >= max_depth or time.time()-time_start >= max_time:
-        return 0
-    return -1
+        return True
+    return False
 
 
 def choose_action(state, game):

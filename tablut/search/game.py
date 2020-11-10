@@ -67,8 +67,7 @@ class Game:
 
         self.possible_actions_ver = np.transpose(self.possible_actions_hor)
 
-    def produce_actions(self, state):  # TODO: update it to create ordered action with respect to their expected value
-                                        #TODO: DONE: King hor
+    def produce_actions(self, state):
         """
         Returns a list of possible actions, each action is:
         [k, start_row, start_col, end_row, end_col]
@@ -86,141 +85,127 @@ class Game:
             curr_pos_mask = (1 << (8 - c))
             while state.king_bitboard[r] & curr_pos_mask != curr_pos_mask:  # Searching king column
                 c += 1
-            poss_actions_mask = ~state.white_bitboard[r] & self.possible_actions_hor[r][c]
+            poss_actions_mask = ~state.white_bitboard[r] & self.possible_actions_hor[r][c]  # Horizontal actions
             poss_actions_mask &= ~state.black_bitboard[r]
             i = 1
             new_pos_mask = curr_pos_mask << i
-            while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left
+            while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left, checkers cannot jump
                 action_list.append([True, r, c, r, c - i])
                 i += 1
                 if i <= c:
                     new_pos_mask = curr_pos_mask << i
             i = 1
             new_pos_mask = int(curr_pos_mask >> i)
-            while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
-                action_list.append([True, r, c, r, i + c])
+            while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right, checkers cannot jump
+                action_list.append([True, r, c, r, c + i])
                 i += 1
                 if i <= c:
                     new_pos_mask = int(curr_pos_mask >> i)
+            i = 1
+            while i <= r:  # Actions up
+                poss_actions_mask = ~state.white_bitboard[r - i] & self.possible_actions_ver[r][c]  # Vertical actions
+                poss_actions_mask &= ~state.black_bitboard[r - i]
+                if poss_actions_mask & curr_pos_mask != 0:  # Checkers cannot jump
+                    action_list.append([True, r, c, r - i, c])
+                    i += 1
+                else:
+                    break
+            i = 1
+            while i <= (8 - r):  # Actions down
+                poss_actions_mask = ~state.white_bitboard[r + i] & self.possible_actions_ver[r][c]  # Vertical actions
+                poss_actions_mask &= ~state.black_bitboard[r + i]
+                if poss_actions_mask & curr_pos_mask != 0:  # Checkers cannot jump
+                    action_list.append([True, r, c, r + i, c])
+                    i += 1
+                else:
+                    break
 
-                                                    
-        for r, row in enumerate(self.possible_actions_hor):  # Horizontal actions
-            for c, col in enumerate(row):
-                curr_pos_mask = (1 << (8 - c))
-                if state.turn == "WHITE":
-                    # If current position is occupied by a white pawn
-                    if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:
-                        poss_actions_mask = ~state.white_bitboard[r] & col
-                        poss_actions_mask &= state.king_bitboard[r]
-                        poss_actions_mask &= state.black_bitboard[r]
-                        i = 1
-                        new_pos_mask = curr_pos_mask << i
-                        while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left
-                            action_list.append([False, r, c, r, c - i])
-                            i += 1
-                            if i <= c:
-                                new_pos_mask = curr_pos_mask << i
-                        i = 1
-                        new_pos_mask = int(curr_pos_mask >> i)
-                        while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
-                            action_list.append([False, r, c, r, i + c])
-                            i += 1
-                            if i <= c:
-                                new_pos_mask = int(curr_pos_mask >> i)
-
-                if state.turn == "BLACK":
-                    # If current position is occupied by a black pawn
-                    if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:
-                        poss_actions_mask = ~state.white_bitboard[r] & col
-                        poss_actions_mask &= ~state.king_bitboard[r]
-                        poss_actions_mask &= ~state.black_bitboard[r]
-                        i = 1
-                        new_pos_mask = curr_pos_mask << i
-                        while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left
-                            action_list.append([False, r, c, r, c - i])
-                            i += 1
-                            if i <= c:
-                                new_pos_mask = curr_pos_mask << i
-                        i = 1
-                        new_pos_mask = int(curr_pos_mask >> i)
-                        while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
-                            action_list.append([False, r, c, r, i + c])
-                            i += 1
-                            if i <= c:
-                                new_pos_mask = int(curr_pos_mask >> i)
-
-        for r, row in enumerate(self.possible_actions_ver):  # Vertical actions
-            for c, col in enumerate(row):
-                curr_pos_mask = (1 << (8 - c))
-                if state.turn == "WHITE":
-                    # If current position is occupied by a white pawn
-                    if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:
-                        i = 1
-                        while i <= r:  # Actions up
-                            poss_actions_mask = ~state.white_bitboard[r - i] & col
-                            poss_actions_mask &= ~state.king_bitboard[r - i]
-                            poss_actions_mask &= ~state.black_bitboard[r - i]
-                            if poss_actions_mask & curr_pos_mask != 0:
-                                action_list.append([False, r, c, r - 1, c])
+            for r in range(len(state.white_bitboard)):  # Searching white pawns
+                if state.white_bitboard[r] != 0:
+                    for c in range(len(state.white_bitboard)):
+                        curr_pos_mask = (1 << (8 - c))
+                        # If current position is occupied by a white pawn
+                        if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:
+                            poss_actions_mask = ~state.white_bitboard[r] & self.possible_actions_hor[r][c]  #Horizontal moves
+                            poss_actions_mask &= state.king_bitboard[r]
+                            poss_actions_mask &= state.black_bitboard[r]
+                            i = 1
+                            new_pos_mask = curr_pos_mask << i
+                            while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left, checkers cannot jump
+                                action_list.append([False, r, c, r, c - i])
                                 i += 1
-                            else:
-                                break
-
-                        i = 1
-                        while i <= (8 - r):  # Actions down
-                            poss_actions_mask = ~state.white_bitboard[r + i] & col
-                            poss_actions_mask &= ~state.king_bitboard[r + i]
-                            poss_actions_mask &= ~state.black_bitboard[r + i]
-                            if poss_actions_mask & curr_pos_mask != 0:
-                                action_list.append([False, r, c, r + 1, c])
+                                if i <= c:
+                                    new_pos_mask = curr_pos_mask << i
+                            i = 1
+                            new_pos_mask = int(curr_pos_mask >> i)
+                            while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right, checkers cannot jump
+                                action_list.append([False, r, c, r, c + i])
                                 i += 1
-                            else:
-                                break
-                    # If current position is occupied by the king
-                    elif state.king_bitboard[r] & curr_pos_mask == curr_pos_mask:
-                        i = 1
-                        while i <= r:  # Actions up
-                            poss_actions_mask = ~state.white_bitboard[r - i] & col
-                            poss_actions_mask &= ~state.black_bitboard[r - i]
-                            if poss_actions_mask & curr_pos_mask != 0:
-                                action_list.append([True, r, c, r - 1, c])
-                                i += 1
-                            else:
-                                break
+                                if i <= c:
+                                    new_pos_mask = int(curr_pos_mask >> i)
+                            i = 1
+                            while i <= r:  # Actions up
+                                poss_actions_mask = ~state.white_bitboard[r - i] & self.possible_actions_ver[r][c]  # Vertical actions
+                                poss_actions_mask &= ~state.king_bitboard[r - i]
+                                poss_actions_mask &= ~state.black_bitboard[r - i]
+                                if poss_actions_mask & curr_pos_mask != 0:  # Checkers cannot jump
+                                    action_list.append([False, r, c, r - i, c])
+                                    i += 1
+                                else:
+                                    break
+                            i = 1
+                            while i <= (8 - r):  # Actions down
+                                poss_actions_mask = ~state.white_bitboard[r + i] & self.possible_actions_ver[r][c]
+                                poss_actions_mask &= ~state.king_bitboard[r + i]
+                                poss_actions_mask &= ~state.black_bitboard[r + i]
+                                if poss_actions_mask & curr_pos_mask != 0:  # Checkers cannot jump
+                                    action_list.append([False, r, c, r + i, c])
+                                    i += 1
+                                else:
+                                    break
 
-                        i = 1
-                        while i <= (8 - r):  # Actions down
-                            poss_actions_mask = ~state.white_bitboard[r + i] & col
-                            poss_actions_mask &= ~state.black_bitboard[r + i]
-                            if poss_actions_mask & curr_pos_mask != 0:
-                                action_list.append([True, r, c, r + 1, c])
+        if state.turn == "BLACK":
+            for r in range(len(state.black_bitboard)):  # Searching black pawns
+                if state.black_bitboard[r] != 0:
+                    for c in range(len(state.black_bitboard)):
+                        curr_pos_mask = (1 << (8 - c))
+                        # If current position is occupied by a black pawn
+                        if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:
+                            poss_actions_mask = ~state.white_bitboard[r] & self.possible_actions_hor[r][c]  # Horizontal actions
+                            poss_actions_mask &= ~state.king_bitboard[r]
+                            poss_actions_mask &= ~state.black_bitboard[r]
+                            i = 1
+                            new_pos_mask = curr_pos_mask << i
+                            while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left, checkers cannot jump
+                                action_list.append([False, r, c, r, c - i])
                                 i += 1
-                            else:
-                                break
-
-                if state.turn == "BLACK":
-                    # If current position is occupied by a black pawn
-                    if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:
-                        i = 1
-                        while i <= r:  # Actions up
-                            poss_actions_mask = ~state.white_bitboard[r - i] & col
-                            poss_actions_mask &= ~state.king_bitboard[r - i]
-                            poss_actions_mask &= ~state.black_bitboard[r - i]
-                            if poss_actions_mask & curr_pos_mask != 0:
-                                action_list.append([False, r, c, r - 1, c])
+                                if i <= c:
+                                    new_pos_mask = curr_pos_mask << i
+                            i = 1
+                            new_pos_mask = int(curr_pos_mask >> i)
+                            while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right, checkers cannot jump
+                                action_list.append([False, r, c, r, c + i])
                                 i += 1
-                            else:
-                                break
-
-                        i = 1
-                        while i <= (8 - r):  # Actions down
-                            poss_actions_mask = ~state.white_bitboard[r + i] & col
-                            poss_actions_mask &= ~state.king_bitboard[r + i]
-                            poss_actions_mask &= ~state.black_bitboard[r + i]
-                            if poss_actions_mask & curr_pos_mask != 0:
-                                action_list.append([False, r, c, r + 1, c])
-                                i += 1
-                            else:
-                                break
-
+                                if i <= c:
+                                    new_pos_mask = int(curr_pos_mask >> i)
+                            i = 1
+                            while i <= r:  # Actions up
+                                poss_actions_mask = ~state.white_bitboard[r - i] & self.possible_actions_ver[r][c]  # Vertical actions
+                                poss_actions_mask &= ~state.king_bitboard[r - i]
+                                poss_actions_mask &= ~state.black_bitboard[r - i]
+                                if poss_actions_mask & curr_pos_mask != 0:  # Checkers cannot jump
+                                    action_list.append([False, r, c, r - i, c])
+                                    i += 1
+                                else:
+                                    break
+                            i = 1
+                            while i <= (8 - r):  # Actions down
+                                poss_actions_mask = ~state.white_bitboard[r + i] & self.possible_actions_ver[r][c]
+                                poss_actions_mask &= ~state.king_bitboard[r + i]
+                                poss_actions_mask &= ~state.black_bitboard[r + i]
+                                if poss_actions_mask & curr_pos_mask != 0:  # Checkers cannot jump
+                                    action_list.append([False, r, c, r + i, c])
+                                    i += 1
+                                else:
+                                    break
         return action_list
