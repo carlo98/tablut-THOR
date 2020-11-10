@@ -45,7 +45,7 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     if len(all_actions) == 0:
         return -MAX_VAL_HEURISTIC
     for a in all_actions:
-        v = max(v, min_value(State(state, a[0], a[1], a[2], a[3], a[4]),
+        v = max(v, min_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                              game, alpha, beta, depth + 1, max_depth, time_start, state_hash_table))
         if v >= beta:
             return v
@@ -88,7 +88,7 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     if len(all_actions) == 0:
         return MAX_VAL_HEURISTIC
     for a in all_actions:
-        v = min(v, max_value(State(state, a[0], a[1], a[2], a[3], a[4]),
+        v = min(v, max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                              game, alpha, beta, depth + 1, max_depth, time_start, state_hash_table))
         if v <= alpha:
             return v
@@ -141,7 +141,7 @@ def choose_action(state, game):
         all_actions = game.produce_actions(state)  # Getting all possible actions given state
         cont = 0
         for a in all_actions:
-            v = min_value(State(state, a[0], a[1], a[2], a[3], a[4]),
+            v = min_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                           game, alpha, best_score, 1, max_depth, time_start, state_hash_table)
             cont += 1
             if v > best_score:

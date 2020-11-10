@@ -6,57 +6,63 @@ from tablut.utils.bitboards import *
 
 class State:
 
-    def __init__(self, json_string):
-        self.white_bitboard = np.zeros(9, dtype=int)
-        self.black_bitboard = np.zeros(9, dtype=int)
-        self.king_bitboard = np.zeros(9, dtype=int)
-
-        self.turn = json_string["turn"]
-        i_row = 0
-        for row in json_string["board"]:
-            for col in row:
-                if col == "WHITE":
-                    self.white_bitboard[i_row] ^= 1
-                elif col == "BLACK":
-                    self.black_bitboard[i_row] ^= 1
-                elif col == "KING":
-                    self.king_bitboard[i_row] ^= 1
-            self.white_bitboard[i_row] <<= 1
-            self.black_bitboard[i_row] <<= 1
-            self.king_bitboard[i_row] <<= 1
-        i_row += 1
-        pass
-
-    def __init__(self, s, k, start_row, start_col, end_row, end_col):
+    def __init__(self, json_string=None, second_init_args=None):
         """"
         s= original state,
         k == True -> king moves, k==False ->pawn moves
         start_row,start_col -> pieces coordinates
         end_row, end_col -> final coordinates
         """
-        self = copy.deepcopy(s)
-        if s.turn == "WHITE":
-            "in the original state, white moves, so in the new state black moves"
-            self.turn = "BLACK"
-            if k:
-                self.white_bitboard[start_row] -= (1 << (8 - start_col))
-                self.white_bitboard[end_row] += (1 << (8 - end_col))
+        if json_string is not None:
+            self.white_bitboard = np.zeros(9, dtype=int)
+            self.black_bitboard = np.zeros(9, dtype=int)
+            self.king_bitboard = np.zeros(9, dtype=int)
+
+            self.turn = json_string["turn"]
+            i_row = 0
+            for row in json_string["board"]:
+                for col in row:
+                    if col == "WHITE":
+                        self.white_bitboard[i_row] ^= 1
+                    elif col == "BLACK":
+                        self.black_bitboard[i_row] ^= 1
+                    elif col == "KING":
+                        self.king_bitboard[i_row] ^= 1
+                self.white_bitboard[i_row] <<= 1
+                self.black_bitboard[i_row] <<= 1
+                self.king_bitboard[i_row] <<= 1
+            i_row += 1
+            pass
+        elif second_init_args is not None:
+            s = second_init_args[0]
+            k = second_init_args[1]
+            start_row = second_init_args[2]
+            start_col = second_init_args[3]
+            end_row = second_init_args[4]
+            end_col = second_init_args[5]
+            self = copy.deepcopy(s)
+            if s.turn == "WHITE":
+                "in the original state, white moves, so in the new state black moves"
+                self.turn = "BLACK"
+                if k:
+                    self.white_bitboard[start_row] -= (1 << (8 - start_col))
+                    self.white_bitboard[end_row] += (1 << (8 - end_col))
+                else:
+                    self.king_bitboard[start_row] -= (1 << (8 - start_col))
+                    self.king_bitboard[end_row] += (1 << (8 - end_col))
+                self.black_bitboard = white_tries_capture_black_pawn(self.white_bitboard + self.king_bitboard,
+                                                                     self.black_bitboard, end_row, end_col)
             else:
-                self.king_bitboard[start_row] -= (1 << (8 - start_col))
-                self.king_bitboard[end_row] += (1 << (8 - end_col))
-            self.black_bitboard = white_tries_capture_black_pawn(self.white_bitboard + self.king_bitboard,
-                                                                 self.black_bitboard, end_row, end_col)
-        else:
-            self.turn = "WHITE"
-            self.black_bitboard[start_row] -= (1 << (8 - start_col))
-            self.black_bitboard[end_row] += (1 << (8 - end_col))
-            self.white_bitboard = black_tries_capture_white_pawn(self.black_bitboard, self.white_bitboard, end_row,
-                                                                 end_col)
-            self.king_bitboard = black_tries_capture_king(self.black_bitboard, self.king_bitboard, end_row, end_col)
-        pass
+                self.turn = "WHITE"
+                self.black_bitboard[start_row] -= (1 << (8 - start_col))
+                self.black_bitboard[end_row] += (1 << (8 - end_col))
+                self.white_bitboard = black_tries_capture_white_pawn(self.black_bitboard, self.white_bitboard, end_row,
+                                                                     end_col)
+                self.king_bitboard = black_tries_capture_king(self.black_bitboard, self.king_bitboard, end_row, end_col)
+            pass
 
     def check_victory(self):
-        if np.count_nonzero(self.king_biboard) == 0:
+        if np.count_nonzero(self.king_bitboard) == 0:
             "king captured"
             return -1
         if np.count_nonzero(self.king_bitboard & escapes_bitboard) != 0:

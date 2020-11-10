@@ -86,6 +86,7 @@ class Game:
             curr_pos_mask = (1 << (8 - c))
             while state.king_bitboard[r] & curr_pos_mask != curr_pos_mask:  # Searching king column
                 c += 1
+                curr_pos_mask = (1 << (8 - c))
             # First look for actions that lead to escapes
             camp_0 = 0b100000000  # TODO: remove same actions below
             camp_1 = 0b000000001
