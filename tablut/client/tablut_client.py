@@ -23,7 +23,7 @@ class Client(ConnectionHandler):
             self.connect()
             self.send_string(self.player_name)
             state = State(self.read_string())
-            game = Game(self.max_time, self.weights)
+            game = Game(self.max_time, self.color, self.weights)
             
             while True:  # Playing
                 if self.color == state.turn:  # check turn
@@ -31,7 +31,7 @@ class Client(ConnectionHandler):
                     self.send_string(action.to_server_format())
                     print("Choosen action:", action.to_server_format())
                 state = State(self.read_string())
-                if state.win != "NO":  # TODO: Look at how win is returned by state
+                if result_search is not None and state.win != "NO":  # TODO: Look at how win is returned by state
                     break
 
             if result_search is not None:

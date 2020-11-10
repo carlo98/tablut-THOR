@@ -30,12 +30,21 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         add_to_hash(state_hash_table, state, state_hash, value)  # Add state and value to hash table
         return value
 
-    if state.is_terminal():  # TODO: Evaluate if could be useful to check if state is in hash before checking if it's terminal
+    if state.check_victory() == -1 and game.color == "BLACK":  # king captured and black player -> Win
+        return -MAX_VAL_HEURISTIC
+    elif state.check_victory() == -1 and game.color == "WHITE":  # King captured and white player -> Lose
         return MAX_VAL_HEURISTIC
+    elif state.check_victory() == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
+        return MAX_VAL_HEURISTIC
+    elif state.check_victory() == 1 and game.color == "WHITE":  # King escaped and white player -> Win
+        return -MAX_VAL_HEURISTIC
 
     # Body
     v = -np.inf
-    for a in game.produce_actions(state):
+    all_actions = game.produce_actions(state)
+    if len(all_actions) == 0:
+        return -MAX_VAL_HEURISTIC
+    for a in all_actions:
         v = max(v, min_value(State(state, a[0], a[1], a[2], a[3], a[4]),
                              game, alpha, beta, depth + 1, max_depth, time_start, state_hash_table))
         if v >= beta:
@@ -64,12 +73,21 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         add_to_hash(state_hash_table, state, state_hash, value)  # Add state and value to hash table
         return value
 
-    if state.is_terminal():  # TODO: Evaluate if could be useful to check if state is in hash before checking if it's terminal
+    if state.check_victory() == -1 and game.color == "BLACK":  # king captured and black player -> Win
+        return -MAX_VAL_HEURISTIC
+    elif state.check_victory() == -1 and game.color == "WHITE":  # King captured and white player -> Lose
         return MAX_VAL_HEURISTIC
+    elif state.check_victory() == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
+        return MAX_VAL_HEURISTIC
+    elif state.check_victory() == 1 and game.color == "WHITE":  # King escaped and white player -> Win
+        return -MAX_VAL_HEURISTIC
 
     # Body
     v = np.inf
-    for a in game.produce_actions(state):
+    all_actions = game.produce_actions(state)
+    if len(all_actions) == 0:
+        return MAX_VAL_HEURISTIC
+    for a in all_actions:
         v = min(v, max_value(State(state, a[0], a[1], a[2], a[3], a[4]),
                              game, alpha, beta, depth + 1, max_depth, time_start, state_hash_table))
         if v <= alpha:
@@ -123,7 +141,7 @@ def choose_action(state, game):
         all_actions = game.produce_actions(state)  # Getting all possible actions given state
         cont = 0
         for a in all_actions:
-            v = min_value(State(state, a[0], a[1], a[2], a[3], a[4]),  # TODO: add is_terminal method in tablut_state
+            v = min_value(State(state, a[0], a[1], a[2], a[3], a[4]),
                           game, alpha, best_score, 1, max_depth, time_start, state_hash_table)
             cont += 1
             if v > best_score:

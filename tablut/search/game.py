@@ -8,8 +8,9 @@ import numpy as np
 
 
 class Game:
-    def __init__(self, max_time, weights):
+    def __init__(self, max_time, color, weights):
         self.max_time = max_time
+        self.color = color
         self.weights = weights
         self.possible_actions_hor = np.empty(shape=(9, 9), dtype=int)
         self.possible_actions_ver = np.empty(shape=(9, 9), dtype=int)
