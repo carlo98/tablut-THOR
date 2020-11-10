@@ -67,11 +67,43 @@ class Game:
 
         self.possible_actions_ver = np.transpose(self.possible_actions_hor)
 
-    def produce_actions(self, state):
+    def produce_actions(self, state):  # TODO: update it to create ordered action with respect to their expected value
+                                        #TODO: DONE: King hor
         """
-
+        Returns a list of possible actions, each action is:
+        [k, start_row, start_col, end_row, end_col]
+        where
+        k == True -> king moves, k==False ->pawn moves
+        start_row,start_col -> pieces coordinates
+        end_row, end_col -> final coordinates
         """
         action_list = []
+        if state.turn == "WHITE":
+            r = 0
+            while state.king_bitboard[r] == 0:  # Searching king row
+                r += 1
+            c = 0
+            curr_pos_mask = (1 << (8 - c))
+            while state.king_bitboard[r] & curr_pos_mask != curr_pos_mask:  # Searching king column
+                c += 1
+            poss_actions_mask = ~state.white_bitboard[r] & self.possible_actions_hor[r][c]
+            poss_actions_mask &= ~state.black_bitboard[r]
+            i = 1
+            new_pos_mask = curr_pos_mask << i
+            while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left
+                action_list.append([True, r, c, r, c - i])
+                i += 1
+                if i <= c:
+                    new_pos_mask = curr_pos_mask << i
+            i = 1
+            new_pos_mask = int(curr_pos_mask >> i)
+            while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
+                action_list.append([True, r, c, r, i + c])
+                i += 1
+                if i <= c:
+                    new_pos_mask = int(curr_pos_mask >> i)
+
+                                                    
         for r, row in enumerate(self.possible_actions_hor):  # Horizontal actions
             for c, col in enumerate(row):
                 curr_pos_mask = (1 << (8 - c))
@@ -92,24 +124,6 @@ class Game:
                         new_pos_mask = int(curr_pos_mask >> i)
                         while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
                             action_list.append([False, r, c, r, i + c])
-                            i += 1
-                            if i <= c:
-                                new_pos_mask = int(curr_pos_mask >> i)
-                    # If current position is occupied by the king
-                    elif state.king_bitboard[r] & curr_pos_mask == curr_pos_mask:
-                        poss_actions_mask = ~state.white_bitboard[r] & col
-                        poss_actions_mask &= ~state.black_bitboard[r]
-                        i = 1
-                        new_pos_mask = curr_pos_mask << i
-                        while i <= c and poss_actions_mask & new_pos_mask != 0:  # Actions to the left
-                            action_list.append([True, r, c, r, c - i])
-                            i += 1
-                            if i <= c:
-                                new_pos_mask = curr_pos_mask << i
-                        i = 1
-                        new_pos_mask = int(curr_pos_mask >> i)
-                        while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
-                            action_list.append([True, r, c, r, i + c])
                             i += 1
                             if i <= c:
                                 new_pos_mask = int(curr_pos_mask >> i)
@@ -210,4 +224,3 @@ class Game:
                                 break
 
         return action_list
-
