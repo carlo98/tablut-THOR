@@ -28,7 +28,8 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
 
     v = -np.inf
     for a in game.produce_actions(state):
-        v = max(v, min_value(State(state, a[0], a[1], a[2], a[3], a[4]), game, alpha, beta, depth + 1, max_depth, time_start))
+        v = max(v, min_value(State(state, a[0], a[1], a[2], a[3], a[4]),
+                             game, alpha, beta, depth + 1, max_depth, time_start))
         if v >= beta:
             return v
         alpha = max(alpha, v)
@@ -53,7 +54,8 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
 
     v = np.inf
     for a in game.produce_actions(state):
-        v = min(v, max_value(State(state, a[0], a[1], a[2], a[3], a[4]), game, alpha, beta, depth + 1, max_depth, time_start))
+        v = min(v, max_value(State(state, a[0], a[1], a[2], a[3], a[4]),
+                             game, alpha, beta, depth + 1, max_depth, time_start))
         if v <= alpha:
             return v
         beta = min(beta, v)
@@ -105,7 +107,8 @@ def choose_action(state, game):
         all_actions = game.produce_actions(state)  # Getting all possible actions given state
         cont = 0
         for a in all_actions:
-            v = min_value(State(state, a[0], a[1], a[2], a[3], a[4]), game, alpha, best_score, 1, max_depth, time_start, state_hash_table)
+            v = min_value(State(state, a[0], a[1], a[2], a[3], a[4]),  #TODO: add is_terminal method in tablut_state
+                          game, alpha, best_score, 1, max_depth, time_start, state_hash_table)
             cont += 1
             if v > best_score:
                 best_score = v

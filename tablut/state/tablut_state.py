@@ -63,7 +63,7 @@ class State:
         """
         state_id = 0
         for row in range(len(self.white_bitboard)):
-            state_id += row*(self.white_bitboard[row] + self.black_bitboard[row] + self.king_bitboard[row])
+            state_id += (row+1)*(self.white_bitboard[row] + self.black_bitboard[row] + self.king_bitboard[row])
         return state_id
 
     def equal(self, m_bitboards):

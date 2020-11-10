@@ -76,7 +76,8 @@ class Game:
             for c, col in enumerate(row):
                 curr_pos_mask = (1 << (8 - c))
                 if state.turn == "WHITE":
-                    if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
+                    # If current position is occupied by a white pawn
+                    if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:
                         poss_actions_mask = ~state.white_bitboard[r] & col
                         poss_actions_mask &= state.king_bitboard[r]
                         poss_actions_mask &= state.black_bitboard[r]
@@ -94,7 +95,8 @@ class Game:
                             i += 1
                             if i <= c:
                                 new_pos_mask = int(curr_pos_mask >> i)
-                    elif state.king_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by the king
+                    # If current position is occupied by the king
+                    elif state.king_bitboard[r] & curr_pos_mask == curr_pos_mask:
                         poss_actions_mask = ~state.white_bitboard[r] & col
                         poss_actions_mask &= ~state.black_bitboard[r]
                         i = 1
@@ -113,7 +115,8 @@ class Game:
                                 new_pos_mask = int(curr_pos_mask >> i)
 
                 if state.turn == "BLACK":
-                    if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
+                    # If current position is occupied by a black pawn
+                    if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:
                         poss_actions_mask = ~state.white_bitboard[r] & col
                         poss_actions_mask &= ~state.king_bitboard[r]
                         poss_actions_mask &= ~state.black_bitboard[r]
@@ -136,7 +139,8 @@ class Game:
             for c, col in enumerate(row):
                 curr_pos_mask = (1 << (8 - c))
                 if state.turn == "WHITE":
-                    if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
+                    # If current position is occupied by a white pawn
+                    if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:
                         i = 1
                         while i <= r:  # Actions up
                             poss_actions_mask = ~state.white_bitboard[r - i] & col
@@ -158,7 +162,8 @@ class Game:
                                 i += 1
                             else:
                                 break
-                    elif state.king_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by the king
+                    # If current position is occupied by the king
+                    elif state.king_bitboard[r] & curr_pos_mask == curr_pos_mask:
                         i = 1
                         while i <= r:  # Actions up
                             poss_actions_mask = ~state.white_bitboard[r - i] & col
@@ -180,7 +185,8 @@ class Game:
                                 break
 
                 if state.turn == "BLACK":
-                    if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
+                    # If current position is occupied by a black pawn
+                    if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:
                         i = 1
                         while i <= r:  # Actions up
                             poss_actions_mask = ~state.white_bitboard[r - i] & col
