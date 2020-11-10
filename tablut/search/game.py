@@ -5,7 +5,7 @@ Author: Carlo Cena
 Implementation of method required by tablut game.
 """
 import numpy as np
-
+from tablut.utils.bitboards import escapes_bitboard
 
 class Game:
     def __init__(self, max_time, color, weights):
@@ -86,6 +86,22 @@ class Game:
             curr_pos_mask = (1 << (8 - c))
             while state.king_bitboard[r] & curr_pos_mask != curr_pos_mask:  # Searching king column
                 c += 1
+            # First look for actions that lead to escapes
+            camp_0 = 0b100000000
+            camp_1 = 0b000000001
+            if camp_0 & escapes_bitboard[r] == camp_0:  # If escape present horizontally left
+                if (camp_0 & ~state.white_bitboard[r]) & ~state.black_bitboard[r] == camp_0:  # If path free
+                    action_list.append([True, r, c, r, 0])
+            if camp_1 & escapes_bitboard[r] == camp_1:  # If escape present horizontally right
+                if (camp_1 & ~state.white_bitboard[r]) & ~state.black_bitboard[r] == camp_1:  # If path free
+                    action_list.append([True, r, c, r, 8])
+            if camp_0 & escapes_bitboard[0] == camp_0:  # If escape present vertically up
+                if (camp_0 & ~state.white_bitboard[0]) & ~state.black_bitboard[0] == camp_0:  # If path free
+                    action_list.append([True, r, c, 0, c])
+            if camp_1 & escapes_bitboard[8] == camp_1:  # If escape present vertically down
+                if (camp_1 & ~state.white_bitboard[8]) & ~state.black_bitboard[8] == camp_1:  # If path free
+                    action_list.append([True, r, c, 8, c])
+
             poss_actions_mask = ~state.white_bitboard[r] & self.possible_actions_hor[r][c]  # Horizontal actions
             poss_actions_mask &= ~state.black_bitboard[r]
             i = 1
