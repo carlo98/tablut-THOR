@@ -52,14 +52,15 @@ def black_tries_capture_white_pawn(black_bitboard, white_bitboard, row, col):
 
 def black_tries_capture_king(black_bitboard, king_bitboard, row, col):
     king_row = np.nonzero(king_bitboard)[0]
-    king_col = 8 - np.log2(king_bitboard[king_row])
+    king_col = int(8 - np.log2(king_bitboard[king_row]))
+
     if king_row in (0, 8) or king_col in (0, 8) \
             or (row, col) not in (
             (king_row, king_col + 1), (king_row, king_col - 1), (king_row + 1, king_col), (king_row - 1, king_col)):
         "the move does not attack the king, or the king cannot be attacked (last rows/cols)"
         return king_bitboard
 
-    king_bin_col = 1 << (8 - king_col)
+    king_bin_col = (1 << (8 - king_col))
     if king_row == 4 and king_col == 4:
         if 16 in bit(black_bitboard[king_row - 1]) and 16 in bit(black_bitboard[king_row + 1]) \
                 and 32 in bit(black_bitboard[king_row]) and 8 in bit(black_bitboard[king_row]):

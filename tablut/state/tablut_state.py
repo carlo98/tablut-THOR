@@ -41,11 +41,14 @@ class State:
             start_col = second_init_args[3]
             end_row = second_init_args[4]
             end_col = second_init_args[5]
-            self = copy.deepcopy(s)
+            self.white_bitboard = s.white_bitboard
+            self.black_bitboard = s.black_bitboard
+            self.king_bitboard = s.king_bitboard
+
             if s.turn == "WHITE":
                 "in the original state, white moves, so in the new state black moves"
                 self.turn = "BLACK"
-                if k:
+                if k is False:
                     self.white_bitboard[start_row] -= (1 << (8 - start_col))
                     self.white_bitboard[end_row] += (1 << (8 - end_col))
                 else:
