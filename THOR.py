@@ -17,8 +17,8 @@ else:
 max_time = args.max_time
 
 if color == "WHITE":
-    server_port = "5000" 
+    server_port = 5000
 else:
-    server_port = "5001"
+    server_port = 5001
 
 Client(server_port, color, max_time-1).run()
