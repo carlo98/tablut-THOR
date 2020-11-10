@@ -1,15 +1,7 @@
-from tablut.utils import bitboards
-
-MAX_VAL_HEURISTIC = 200  # TODO: to be set at maximum value achievable by heuristic
-
-"cancellare le bitboards"
-
 from tablut.utils.bitboards import *
 import numpy as np
 
-escape_bitboard = []
-camps_bitboard = []
-castle_bitboard = []
+MAX_VAL_HEURISTIC = 200  # TODO: to be set at maximum value achievable by heuristic
 
 
 def bit(n):
@@ -63,7 +55,7 @@ def black_tries_capture_king(black_bitboard, king_bitboard, row, col):
     king_col = 8 - np.log2(king_bitboard[king_row])
     if king_row in (0, 8) or king_col in (0, 8) \
             or (row, col) not in (
-    (king_row, king_col + 1), (king_row, king_col - 1), (king_row + 1, king_col), (king_row - 1, king_col)):
+            (king_row, king_col + 1), (king_row, king_col - 1), (king_row + 1, king_col), (king_row - 1, king_col)):
         "the move does not attack the king, or the king cannot be attacked (last rows/cols)"
         return king_bitboard
 
@@ -104,7 +96,7 @@ def white_tries_capture_black_pawn(white_bitboard, black_bitboard, row, col):
     binary_column = 1 << (8 - col)
     if row >= 2:
         "upwards capture"
-        if binary_column in bit(black_bitboard[row - 1]) and (row,col) != (2,4):
+        if binary_column in bit(black_bitboard[row - 1]) and (row, col) != (2, 4):
             "a black pawn is above"
             if binary_column in bit(white_bitboard[row - 2] or binary_column in bit(camps_bitboard[row - 2]) \
                                     or binary_column in bit(castle_bitboard[row - 2])):
@@ -113,7 +105,7 @@ def white_tries_capture_black_pawn(white_bitboard, black_bitboard, row, col):
 
     if col <= 6:
         "right capture"
-        if (binary_column >> 1) in bit(black_bitboard[row]) and (row,col) != (4,6):
+        if (binary_column >> 1) in bit(black_bitboard[row]) and (row, col) != (4, 6):
             "a black pawn is right"
             if (binary_column >> 2) in bit(white_bitboard[row]) or (binary_column >> 2) in bit(camps_bitboard[row]) \
                     or (binary_column >> 2) in bit(castle_bitboard[row]):
@@ -122,7 +114,7 @@ def white_tries_capture_black_pawn(white_bitboard, black_bitboard, row, col):
     if row <= 6:
         "downwards capture"
         binary_column = 1 << (8 - col)
-        if binary_column in bit(black_bitboard[row + 1]) and (row,col) != (6,4):
+        if binary_column in bit(black_bitboard[row + 1]) and (row, col) != (6, 4):
             "a black pawn is below"
             if binary_column in bit(white_bitboard[row + 2] or binary_column in bit(camps_bitboard[row + 2]) \
                                     or binary_column in bit(castle_bitboard[row + 2])):
@@ -130,7 +122,7 @@ def white_tries_capture_black_pawn(white_bitboard, black_bitboard, row, col):
                 black_bitboard[row + 1] ^= binary_column
     if col >= 2:
         "left capture"
-        if (binary_column << 1) in bit(black_bitboard[row]) and (row,col) != (4,2):
+        if (binary_column << 1) in bit(black_bitboard[row]) and (row, col) != (4, 2):
             "a black pawn is left"
             if (binary_column << 2) in bit(white_bitboard[row]) or (binary_column << 2) in bit(camps_bitboard[row]) \
                     or (binary_column << 2) in bit(castle_bitboard[row]):
