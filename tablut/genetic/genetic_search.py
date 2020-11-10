@@ -10,7 +10,7 @@ import numpy as np
 
 N_POP = 200  # Number of solutions in population.
 NUM_MATCH = 1  # Percentage of solutions to play against.
-N_PARAM = 8  # Number of parameter of each solution
+N_PARAM = 5  # Number of parameter of each solution
 MAX_PARAM_VALUE = 500  # Maximum value allowed for each parameter
 MIN_PARAM_VALUE = -500  # Minimum value allowed for each parameter
 MAX_ITER = 5000  # Maximum number of iterations
