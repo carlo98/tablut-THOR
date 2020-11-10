@@ -87,7 +87,7 @@ class Game:
             while state.king_bitboard[r] & curr_pos_mask != curr_pos_mask:  # Searching king column
                 c += 1
             # First look for actions that lead to escapes
-            camp_0 = 0b100000000
+            camp_0 = 0b100000000  # TODO: remove same actions below
             camp_1 = 0b000000001
             if camp_0 & escapes_bitboard[r] == camp_0:  # If escape present horizontally left
                 if (camp_0 & ~state.white_bitboard[r]) & ~state.black_bitboard[r] == camp_0:  # If path free
