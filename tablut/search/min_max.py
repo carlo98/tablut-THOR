@@ -10,11 +10,20 @@ from tablut.state.tablut_state import State
 from tablut.utils.state_utils import MAX_VAL_HEURISTIC
 
 
-def max_value(state, game, alpha, beta, depth, max_depth, time_start):
-    result_cutoff = cutoff_test(state, depth, max_depth, game.max_time, time_start)
-    if result_cutoff == 0:
-        return state.compute_heuristic(game.weights)
-    elif result_cutoff == 1:
+def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
+    quad_prob = 1
+    hash_result = state_hash_table.get(state.get_hash() + quad_prob ** quad_prob)
+    while hash_result is not None:
+        if state.equal(hash_result["bitboards"]):
+            return hash_result["value"]
+        quad_prob += 1
+        hash_result = state_hash_table.get(state.get_hash() + quad_prob ** quad_prob)
+
+    if cutoff_test(depth, max_depth, game.max_time, time_start):
+        value = state.compute_heuristic(game.weights)
+        add_to_hash(state_hash_table, state, value)
+        return value
+    if state.is_terminal():
         return MAX_VAL_HEURISTIC
 
     v = -np.inf
@@ -26,11 +35,20 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start):
     return v
 
 
-def min_value(state, game, alpha, beta, depth, max_depth, time_start):
-    result_cutoff = cutoff_test(state, depth, max_depth, game.max_time, time_start)
-    if result_cutoff == 0:
-        return state.compute_heuristic(game.weights)
-    elif result_cutoff == 1:
+def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
+    quad_prob = 1
+    hash_result = state_hash_table.get(state.get_hash() + quad_prob ** quad_prob)
+    while hash_result is not None:
+        if state.equal(hash_result["bitboards"]):
+            return hash_result["value"]
+        quad_prob += 1
+        hash_result = state_hash_table.get(state.get_hash() + quad_prob ** quad_prob)
+
+    if cutoff_test(depth, max_depth, game.max_time, time_start):
+        value = state.compute_heuristic(game.weights)
+        add_to_hash(state_hash_table, state, value)
+        return value
+    if state.is_terminal():
         return MAX_VAL_HEURISTIC
 
     v = np.inf
@@ -42,13 +60,27 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start):
     return v
 
 
-def cutoff_test(state, depth, max_depth, max_time, time_start):
+def add_to_hash(table, state, value):
     """
-    Returns 1 if state is terminal, 0 if reached maximum depth or finished time
-    -1 if search is to be continued
+    Adds current state and its value to hash table.
     """
-    if state.is_end():  #TODO: Add end state
-        return 1
+    quad_prob = 1
+    pot = 1
+    hash_result = table.get(state.get_hash() + quad_prob ** quad_prob)
+    while hash_result is not None:
+        quad_prob += 1
+        pot = quad_prob ** quad_prob
+        hash_result = table.get(state.get_hash() + pot)
+    table[state.get_hash() + pot] = {"bitboards": {"black": state.black_bitboard, "white": state.white_bitboard,
+                                                   "king": state.king_bitboard},
+                                     "value": value}
+
+
+def cutoff_test(depth, max_depth, max_time, time_start):
+    """
+    Returns True if reached maximum depth or finished time
+    False if search is to be continued
+    """
     if depth >= max_depth or time.time()-time_start >= max_time:
         return 0
     return -1
@@ -67,12 +99,13 @@ def choose_action(state, game):
     best_action = None
     best_action_end = None
     max_depth = 0
+    state_hash_table = dict()
     while time.time()-time_start < game.max_time:
         max_depth += 1  # Iteratively increasing depth
         all_actions = game.produce_actions(state)  # Getting all possible actions given state
         cont = 0
         for a in all_actions:
-            v = min_value(State(state, a[0], a[1], a[2], a[3], a[4]), game, alpha, best_score, 1, max_depth, time_start)
+            v = min_value(State(state, a[0], a[1], a[2], a[3], a[4]), game, alpha, best_score, 1, max_depth, time_start, state_hash_table)
             cont += 1
             if v > best_score:
                 best_score = v

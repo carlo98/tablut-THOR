@@ -56,3 +56,29 @@ class State:
         h=0
         return h
 
+    def get_hash(self):
+        """
+        Returns an identifier for the state.
+        Identifier is not unique, probing required in eventual has table.
+        """
+        state_id = 0
+        for row in range(len(self.white_bitboard)):
+            state_id += row*(self.white_bitboard[row] + self.black_bitboard[row] + self.king_bitboard[row])
+        return state_id
+
+    def equal(self, m_bitboards):
+        """
+        Returns true if all bitboards are equal to corresponding ones.
+        False otherwise.
+        """
+        for row in range(len(self.white_bitboard)):  # Check white bitboard
+            if self.white_bitboard[row] ^ m_bitboards["white"] != 0:
+                return False
+        for row in range(len(self.black_bitboard)):  # Check black bitboard
+            if self.black_bitboard[row] ^ m_bitboards["black"] != 0:
+                return False
+        for row in range(len(self.king_bitboard)):  # Check king bitboard
+            if self.king_bitboard[row] ^ m_bitboards["king"] != 0:
+                return False
+        return True
+

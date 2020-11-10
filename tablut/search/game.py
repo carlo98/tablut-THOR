@@ -88,12 +88,12 @@ class Game:
                             if i <= c:
                                 new_pos_mask = curr_pos_mask << i
                         i = 1
-                        new_pos_mask = int(curr_pos_mask / (2 ** i))
+                        new_pos_mask = int(curr_pos_mask >> i)
                         while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
                             action_list.append([False, r, c, r, i + c])
                             i += 1
                             if i <= c:
-                                new_pos_mask = int(curr_pos_mask / (2 ** i))
+                                new_pos_mask = int(curr_pos_mask >> i)
                     elif state.king_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by the king
                         poss_actions_mask = ~state.white_bitboard[r] & col
                         poss_actions_mask &= ~state.black_bitboard[r]
@@ -105,12 +105,12 @@ class Game:
                             if i <= c:
                                 new_pos_mask = curr_pos_mask << i
                         i = 1
-                        new_pos_mask = int(curr_pos_mask / (2 ** i))
+                        new_pos_mask = int(curr_pos_mask >> i)
                         while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
                             action_list.append([True, r, c, r, i + c])
                             i += 1
                             if i <= c:
-                                new_pos_mask = int(curr_pos_mask / (2 ** i))
+                                new_pos_mask = int(curr_pos_mask >> i)
 
                 if state.turn == "BLACK":
                     if state.black_bitboard[r] & curr_pos_mask == curr_pos_mask:  # If current position is occupied by a white pawn
@@ -125,12 +125,12 @@ class Game:
                             if i <= c:
                                 new_pos_mask = curr_pos_mask << i
                         i = 1
-                        new_pos_mask = int(curr_pos_mask / (2 ** i))
+                        new_pos_mask = int(curr_pos_mask >> i)
                         while i <= (8 - c) and poss_actions_mask & new_pos_mask != 0:  # Actions to the right
                             action_list.append([False, r, c, r, i + c])
                             i += 1
                             if i <= c:
-                                new_pos_mask = int(curr_pos_mask / (2 ** i))
+                                new_pos_mask = int(curr_pos_mask >> i)
 
         for r, row in enumerate(self.possible_actions_ver):  # Vertical actions
             for c, col in enumerate(row):
