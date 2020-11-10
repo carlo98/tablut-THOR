@@ -21,4 +21,4 @@ if color == "WHITE":
 else:
     server_port = "5001"
 
-Client(server_port, color, max_time).run()
+Client(server_port, color, max_time-1).run()
