@@ -8,15 +8,18 @@ from tablut.utils.state_utils import action_to_server_format
 class Client(ConnectionHandler):
     """Extends ConnectionHandler, handling the connection between client and server."""
 
-    def __init__(self, port, color, max_time, weights=None):
-        super().__init__(port, "localhost")
-        self.player_name = "THOR"
+    def __init__(self, port, color, max_time, host="localhost", weights=None, name=None):
+        super().__init__(port, host)
         self.color = color
         self.max_time = max_time
         if weights is None:
             self.weights = [1, 1, 1, 1]  # Best weights find by our genetic algorithm
         else:
             self.weights = weights  # Searching best params
+        if name is None:
+            self.player_name = "THOR"
+        else:
+            self.player_name = name
 
     def run(self, result_search=None):
         """Client's body."""
@@ -31,12 +34,16 @@ class Client(ConnectionHandler):
                     action, value = min_max.choose_action(state, game)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
                     print("Choosen action:", action_to_server_format(action))
-                state = State(self.read_string())
-                if result_search is not None and state.win != "NO":  # TODO: Look at how win is returned by state
-                    break
-
-            if result_search is not None:
-                result_search.append(state.win)  # Append winning color for genetic algorithm
+                if result_search is not None:
+                    state_server = self.read_string()
+                    if state_server.turn == "WHITEWIN":
+                        result_search.append("WHITEWIN")
+                    elif state_server.turn == "BLACKWIN":
+                        result_search.append("BLACKWIN")
+                    else:
+                        state = State(self.read_string())
+                else:
+                    state = State(self.read_string())
         except Exception as e:
             print(e)
         finally:

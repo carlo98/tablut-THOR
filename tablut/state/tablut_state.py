@@ -107,8 +107,8 @@ class State:
                 if self.black_bitboard[r] & curr_mask != 0:
                     black_cnt += 1
 
-        remaining_whites_cond = coeff_min_white * weights[2] * (white_cnt)
-        remaining_blacks_cond = coeff_min_black * weights[3] * (black_cnt)
+        remaining_whites_cond = coeff_min_white * weights[2] * white_cnt
+        remaining_blacks_cond = coeff_min_black * weights[3] * black_cnt
 
         h = blocks_cond + remaining_whites_cond + remaining_blacks_cond
         return h
