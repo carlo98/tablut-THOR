@@ -1,16 +1,25 @@
 from tablut.utils.bitboards import *
 import numpy as np
-import time
 
 MAX_VAL_HEURISTIC = 200  # TODO: to be set at maximum value achievable by heuristic
 
 
-def bit_original(n):
+def bit_original(n):  # TODO: could be remove
     while n:
-        time.sleep(0.01)
         b = n & (~n + 1)
         yield b
         n ^= b
+
+
+def build_column(bitboard, mask):
+    """
+    Builds column at given position.
+    """
+    num = 0
+    for i in range(len(bitboard)):
+        if bitboard[i] & mask != 0:
+            num ^= 1 << (8 - i)
+    return num
 
 
 def bit(n):

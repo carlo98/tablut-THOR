@@ -14,7 +14,7 @@ class Client(ConnectionHandler):
         self.color = color
         self.max_time = max_time
         if weights is None:
-            self.weights = [120, 30, 20, 10, 5]  # Best weights find by our genetic algorithm
+            self.weights = [1, 1, 1, 1, 1]  # Best weights find by our genetic algorithm
         else:
             self.weights = weights  # Searching best params
 
