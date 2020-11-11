@@ -10,13 +10,14 @@ import numpy as np
 
 N_POP = 200  # Number of solutions in population.
 NUM_MATCH = 1  # Percentage of solutions to play against.
-N_PARAM = 5  # Number of parameter of each solution
+N_PARAM = 4  # Number of parameter of each solution
 MAX_PARAM_VALUE = 500  # Maximum value allowed for each parameter
 MIN_PARAM_VALUE = -500  # Minimum value allowed for each parameter
 MAX_ITER = 5000  # Maximum number of iterations
 PERC_NEW_POP = .3  # Percentage of new individuals at each iteration
 EPS = MAX_PARAM_VALUE / 5  # Maximum change of each parameter due to mutation
 MAX_ITER_NO_BETTER = 10  # Maximum number of iterations without better solution
+MAX_TIME_ACTION = 5  # Maximum time allowed to search for action
 
 
 def eval_match(sol1, sol2):
@@ -27,14 +28,13 @@ def eval_match(sol1, sol2):
     sol1_points = 0
     sol2_points = 0
     result = []
-    client_white = Client("5000", "WHITE", 60, weights=sol1)
-    client_black = Client("5001", "BLACK", 60, weights=sol2)
+    client_white = Client(5800, "WHITE", MAX_TIME_ACTION, weights=sol1, name="sol1", host="127.0.0.1")
+    client_black = Client(5801, "BLACK", MAX_TIME_ACTION, weights=sol2, name="sol2", host="127.0.0.1")
     white_thread = Thread(target=client_white.run(), args=result)
     # Important, pass list just to one of the two threads, to avoid synchronization problems
     black_thread = Thread(target=client_black.run())
-    white_thread.run()
-
     black_thread.run()
+    white_thread.run()
     white_thread.join()
     black_thread.join()
     if result[0] == "win":
@@ -46,8 +46,8 @@ def eval_match(sol1, sol2):
         sol2_points += 1
 
     result = []
-    client_white = Client("5000", "WHITE", 60, weights=sol2)
-    client_black = Client("5001", "BLACK", 60, weights=sol1)
+    client_white = Client(5800, "WHITE", MAX_TIME_ACTION, weights=sol2, name="sol2", host="127.0.0.1")
+    client_black = Client(5801, "BLACK", MAX_TIME_ACTION, weights=sol1, name="sol1", host="127.0.0.1")
     white_thread = Thread(target=client_white.run(), args=result)
     black_thread = Thread(target=client_black.run())
     white_thread.run()
