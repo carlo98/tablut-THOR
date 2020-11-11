@@ -117,7 +117,8 @@ class Game:
                     action_list[act] = None
             white_column = build_column(state.white_bitboard, curr_pos_mask)  # Building column given position
             black_column = build_column(state.black_bitboard, curr_pos_mask)
-            poss_actions_mask = ~white_column & self.possible_actions_ver[r][c]  # Vertical actions
+            curr_pos_mask = (1 << (8 - r))  # Vertical actions
+            poss_actions_mask = ~white_column & self.possible_actions_ver[r][c]
             poss_actions_mask &= ~black_column
             i = 1
             tmp_list = OrderedDict()
@@ -145,9 +146,9 @@ class Game:
             for r in range(len(state.white_bitboard)):  # Searching white pawns
                 if state.white_bitboard[r] != 0:
                     for c in range(len(state.white_bitboard)):
-                        curr_pos_mask = (1 << (8 - c))
+                        curr_pos_mask = (1 << (8 - c))  # Horizontal moves
                         # If current position is occupied by a white pawn
-                        if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:  # Horizontal moves
+                        if state.white_bitboard[r] & curr_pos_mask == curr_pos_mask:
                             poss_actions_mask = ~state.white_bitboard[r] & self.possible_actions_hor[r][c]
                             poss_actions_mask &= ~state.king_bitboard[r]
                             poss_actions_mask &= ~state.black_bitboard[r]
@@ -171,7 +172,8 @@ class Game:
                                                         curr_pos_mask)  # Building column given position
                             black_column = build_column(state.black_bitboard, curr_pos_mask)
                             king_column = build_column(state.king_bitboard, curr_pos_mask)
-                            poss_actions_mask = ~white_column & self.possible_actions_ver[r][c]  # Vertical actions
+                            curr_pos_mask = (1 << (8 - r))  # Vertical actions
+                            poss_actions_mask = ~white_column & self.possible_actions_ver[r][c]
                             poss_actions_mask &= ~black_column
                             poss_actions_mask &= ~king_column
                             i = 1
@@ -219,7 +221,8 @@ class Game:
                                                         curr_pos_mask)  # Building column given position
                             black_column = build_column(state.black_bitboard, curr_pos_mask)
                             king_column = build_column(state.king_bitboard, curr_pos_mask)
-                            poss_actions_mask = ~white_column & self.possible_actions_ver[r][c]  # Vertical actions
+                            curr_pos_mask = (1 << (8 - r))  # Vertical actions
+                            poss_actions_mask = ~white_column & self.possible_actions_ver[r][c]
                             poss_actions_mask &= ~black_column
                             poss_actions_mask &= ~king_column
                             i = 1

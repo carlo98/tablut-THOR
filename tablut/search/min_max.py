@@ -29,7 +29,7 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
             m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
             hash_result = state_hash_table.get(m_key)
 
-        value = state.compute_heuristic(game.weights)  # If state not previously evaluated
+        value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state, state_hash, value)  # Add state and value to hash table
         return value
 
@@ -73,7 +73,7 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
             m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
             hash_result = state_hash_table.get(m_key)
 
-        value = state.compute_heuristic(game.weights)  # If state not previously evaluated
+        value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state, state_hash, value)  # Add state and value to hash table
         return value
 
@@ -138,11 +138,11 @@ def choose_action(state, game):
     alpha = -np.inf
     best_action = None
     best_action_end = None
-    max_depth = 0
+    max_depth = 5
     num_state_visited = [0]
     state_hash_table = dict()
+
     while time.time()-time_start < game.max_time:
-        max_depth += 1  # Iteratively increasing depth
         all_actions = game.produce_actions(state)  # Getting all possible actions given state
         cont = 0
         for a in all_actions.keys():
@@ -158,5 +158,7 @@ def choose_action(state, game):
             print("Depth reached:", max_depth)
         else:
             print("Depth reached:", max_depth-1)
+        max_depth += 1  # Iteratively increasing depth
+
     print(num_state_visited, " state visited state in ", time.time()-time_start, " seconds.")
     return best_action_end, best_score_end

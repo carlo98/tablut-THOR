@@ -4,13 +4,6 @@ import numpy as np
 MAX_VAL_HEURISTIC = 200  # TODO: to be set at maximum value achievable by heuristic
 
 
-def bit_original(n):  # TODO: could be remove
-    while n:
-        b = n & (~n + 1)
-        yield b
-        n ^= b
-
-
 def build_column(bitboard, mask):
     """
     Builds column at given position.

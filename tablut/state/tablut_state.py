@@ -75,15 +75,26 @@ class State:
             return 1
         return 0
 
-    def compute_heuristic(self, weights):
+    def compute_heuristic(self, weights, color):
         "victory condition, of course"
-        victory_cond = weights[0] * self.check_victory()
+        victory_cond = self.check_victory()
+        if victory_cond == -1 and color == "BLACK":  # king captured and black player -> Win
+            return -MAX_VAL_HEURISTIC
+        elif victory_cond == -1 and color == "WHITE":  # King captured and white player -> Lose
+            return MAX_VAL_HEURISTIC
+        elif victory_cond == 1 and color == "BLACK":  # King escaped and black player -> Lose
+            return MAX_VAL_HEURISTIC
+        elif victory_cond == 1 and color == "WHITE":  # King escaped and white player -> Win
+            return -MAX_VAL_HEURISTIC
 
         "if the exits are blocked, white has a strong disadvantage"
         blocks_occupied_by_black = np.count_nonzero(self.black_bitboard & blocks_bitboard)
         blocks_occupied_by_white = np.count_nonzero(self.white_bitboard & blocks_bitboard) + \
                                    np.count_nonzero(self.king_bitboard & blocks_bitboard)
-        blocks_cond = -weights[1] * blocks_occupied_by_black + weights[2] * blocks_occupied_by_white
+        coeff_min_black = (-1) ** (color == "BLACK")
+        coeff_min_white = (-1) ** (color == "WHITE")
+        blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black \
+                      + coeff_min_white * weights[1] * blocks_occupied_by_white
 
         "remaining pieces are considered"
         white_cnt = 0
@@ -96,10 +107,10 @@ class State:
                 if self.black_bitboard[r] & curr_mask != 0:
                     black_cnt += 1
 
-        remaining_whites_cond = weights[3] * (8 - white_cnt)
-        remaining_blacks_cond = weights[4] * (16 - black_cnt)
+        remaining_whites_cond = coeff_min_white * weights[2] * (white_cnt)
+        remaining_blacks_cond = coeff_min_black * weights[3] * (black_cnt)
 
-        h = victory_cond + blocks_cond + remaining_whites_cond + remaining_blacks_cond
+        h = blocks_cond + remaining_whites_cond + remaining_blacks_cond
         return h
 
     def get_hash(self):
