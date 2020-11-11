@@ -47,7 +47,7 @@ class Client(ConnectionHandler):
                         q.put("DRAW")
                         break
                     else:
-                        state = State(self.read_string())
+                        state = State(state_server)
                 else:
                     state = State(self.read_string())
         except Exception as e:

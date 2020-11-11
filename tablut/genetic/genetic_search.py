@@ -37,16 +37,18 @@ def eval_match(sol1, sol2):
     sol2_points = 0
     result = []
     pool = Pool()
-    proc = subprocess.Popen('ant server', shell=True)  # Requires server files in path
+    proc = subprocess.Popen(['ant', 'server'])  # Requires server files in path
     time.sleep(2)
     white_thread = pool.apply_async(create_play_player,
                                     args=(5800, "WHITE", MAX_TIME_ACTION, sol1, "sol1", "127.0.0.1", result))
     # Important, pass list just to one of the two threads, to avoid synchronization problems
     black_thread = pool.apply_async(create_play_player,
-                                    args=(5801, "BLACK", MAX_TIME_ACTION, sol2, "sol2", "127.0.0.1"))
+                                    args=(5801, "BLACK", MAX_TIME_ACTION, sol2, "sol2", "127.0.0.1", result))
     black_thread.wait()
-    result.append(q.get())
     white_thread.wait()
+    pool.close()
+    while not q.empty():
+        result.append(q.get())
     proc.wait()
     proc.terminate()
 
@@ -59,16 +61,18 @@ def eval_match(sol1, sol2):
         sol2_points += 1
 
     result = []
-    proc = subprocess.Popen('ant server', shell=True)  # Requires server files in path
+    pool = Pool()
+    proc = subprocess.Popen(['ant', 'server'])  # Requires server files in path
     time.sleep(2)
     white_thread = pool.apply_async(create_play_player,
                                     args=(5800, "WHITE", MAX_TIME_ACTION, sol2, "sol2", "127.0.0.1", result))
     # Important, pass list just to one of the two threads, to avoid synchronization problems
     black_thread = pool.apply_async(create_play_player,
-                                    args=(5801, "BLACK", MAX_TIME_ACTION, sol1, "sol1", "127.0.0.1"))
+                                    args=(5801, "BLACK", MAX_TIME_ACTION, sol1, "sol1", "127.0.0.1", result))
     black_thread.wait()
-    result.append(q.get())
     white_thread.wait()
+    while not q.empty():
+        result.append(q.get())
     pool.close()
     proc.wait()
     proc.terminate()
