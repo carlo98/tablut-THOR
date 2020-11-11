@@ -47,8 +47,9 @@ def eval_match(sol1, sol2):
     black_thread.wait()
     result.append(q.get())
     white_thread.wait()
-    proc.terminate()
     proc.wait()
+    proc.terminate()
+
     if result[0] == "WHITE":
         sol1_points += 3
     elif result[0] == "BLACK":
@@ -68,8 +69,10 @@ def eval_match(sol1, sol2):
     black_thread.wait()
     result.append(q.get())
     white_thread.wait()
-    proc.terminate()
+    pool.close()
     proc.wait()
+    proc.terminate()
+
     if result[0] == "WHITE":
         sol2_points += 3
     elif result[0] == "BLACK":
