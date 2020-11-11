@@ -3,6 +3,7 @@ from tablut.search import min_max
 from tablut.state.tablut_state import State
 from tablut.search.game import Game
 from tablut.utils.state_utils import action_to_server_format
+from tablut.utils.state_utils import q
 
 
 class Client(ConnectionHandler):
@@ -36,10 +37,15 @@ class Client(ConnectionHandler):
                     print("Choosen action:", action_to_server_format(action))
                 if result_search is not None:
                     state_server = self.read_string()
-                    if state_server.turn == "WHITEWIN":
-                        result_search.append("WHITEWIN")
-                    elif state_server.turn == "BLACKWIN":
-                        result_search.append("BLACKWIN")
+                    if state_server['turn'] == "WHITEWIN":
+                        q.put("WHITE")
+                        break
+                    elif state_server['turn'] == "BLACKWIN":
+                        q.put("BLACK")
+                        break
+                    elif state_server['turn'] == "DRAW":
+                        q.put("DRAW")
+                        break
                     else:
                         state = State(self.read_string())
                 else:

@@ -5,8 +5,11 @@ Author: Carlo Cena & Giacomo Zamprogno
 Population-based search for best weight of heuristic's component.
 """
 from tablut.client.tablut_client import Client
-from threading import Thread
+from multiprocessing import Pool
+from tablut.utils.state_utils import q
+import subprocess
 import numpy as np
+import time
 
 N_POP = 200  # Number of solutions in population.
 NUM_MATCH = 1  # Percentage of solutions to play against.
@@ -17,7 +20,12 @@ MAX_ITER = 5000  # Maximum number of iterations
 PERC_NEW_POP = .3  # Percentage of new individuals at each iteration
 EPS = MAX_PARAM_VALUE / 5  # Maximum change of each parameter due to mutation
 MAX_ITER_NO_BETTER = 10  # Maximum number of iterations without better solution
-MAX_TIME_ACTION = 5  # Maximum time allowed to search for action
+MAX_TIME_ACTION = 1  # Maximum time allowed to search for action
+
+
+def create_play_player(port, color, max_time_act, weights, name, host, args=None):
+    client_m = Client(port, color, max_time_act, weights=weights, name=name, host=host)
+    client_m.run(args)
 
 
 def eval_match(sol1, sol2):
@@ -28,35 +36,43 @@ def eval_match(sol1, sol2):
     sol1_points = 0
     sol2_points = 0
     result = []
-    client_white = Client(5800, "WHITE", MAX_TIME_ACTION, weights=sol1, name="sol1", host="127.0.0.1")
-    client_black = Client(5801, "BLACK", MAX_TIME_ACTION, weights=sol2, name="sol2", host="127.0.0.1")
-    white_thread = Thread(target=client_white.run(), args=result)
+    pool = Pool()
+    proc = subprocess.Popen('ant server', shell=True)  # Requires server files in path
+    time.sleep(2)
+    white_thread = pool.apply_async(create_play_player,
+                                    args=(5800, "WHITE", MAX_TIME_ACTION, sol1, "sol1", "127.0.0.1", result))
     # Important, pass list just to one of the two threads, to avoid synchronization problems
-    black_thread = Thread(target=client_black.run())
-    black_thread.run()
-    white_thread.run()
-    white_thread.join()
-    black_thread.join()
-    if result[0] == "win":
+    black_thread = pool.apply_async(create_play_player,
+                                    args=(5801, "BLACK", MAX_TIME_ACTION, sol2, "sol2", "127.0.0.1"))
+    black_thread.wait()
+    result.append(q.get())
+    white_thread.wait()
+    proc.terminate()
+    proc.wait()
+    if result[0] == "WHITE":
         sol1_points += 3
-    elif result[0] == "loose":
+    elif result[0] == "BLACK":
         sol2_points += 3
     else:
         sol1_points += 1
         sol2_points += 1
 
     result = []
-    client_white = Client(5800, "WHITE", MAX_TIME_ACTION, weights=sol2, name="sol2", host="127.0.0.1")
-    client_black = Client(5801, "BLACK", MAX_TIME_ACTION, weights=sol1, name="sol1", host="127.0.0.1")
-    white_thread = Thread(target=client_white.run(), args=result)
-    black_thread = Thread(target=client_black.run())
-    white_thread.run()
-    black_thread.run()
-    white_thread.join()
-    black_thread.join()
-    if result[0] == "win":
+    proc = subprocess.Popen('ant server', shell=True)  # Requires server files in path
+    time.sleep(2)
+    white_thread = pool.apply_async(create_play_player,
+                                    args=(5800, "WHITE", MAX_TIME_ACTION, sol2, "sol2", "127.0.0.1", result))
+    # Important, pass list just to one of the two threads, to avoid synchronization problems
+    black_thread = pool.apply_async(create_play_player,
+                                    args=(5801, "BLACK", MAX_TIME_ACTION, sol1, "sol1", "127.0.0.1"))
+    black_thread.wait()
+    result.append(q.get())
+    white_thread.wait()
+    proc.terminate()
+    proc.wait()
+    if result[0] == "WHITE":
         sol2_points += 3
-    elif result[0] == "loose":
+    elif result[0] == "BLACK":
         sol1_points += 3
     else:
         sol2_points += 1
