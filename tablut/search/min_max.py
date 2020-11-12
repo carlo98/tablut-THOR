@@ -138,7 +138,7 @@ def choose_action(state, game):
     alpha = -np.inf
     best_action = None
     best_action_end = None
-    max_depth = 4
+    max_depth = 2
     num_state_visited = [0]
     state_hash_table = dict()
     flag = False
