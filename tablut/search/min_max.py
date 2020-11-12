@@ -141,9 +141,10 @@ def choose_action(state, game):
     max_depth = 4
     num_state_visited = [0]
     state_hash_table = dict()
+    flag = False
+    all_actions = game.produce_actions(state)  # Getting all possible actions given state
 
     while time.time()-time_start < game.max_time:
-        all_actions = game.produce_actions(state)  # Getting all possible actions given state
         cont = 0
         for a in all_actions.keys():
             v = min_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
@@ -152,12 +153,18 @@ def choose_action(state, game):
             if v < best_score:
                 best_score = v
                 best_action = a
-        if cont == len(all_actions):  # If search at current maximum depth is finished, update best action
+            if time.time()-time_start < game.max_time:
+                break
+        # If search at current maximum depth is finished, update best action
+        if cont == len(all_actions):
             best_score_end = best_score
             best_action_end = best_action
+            flag = True
             print("Depth reached:", max_depth)
-        else:
+        elif flag:
             print("Depth reached:", max_depth-1)
+        else:
+            print("Minimum depth not reached")
         max_depth += 1  # Iteratively increasing depth
 
     print(num_state_visited, " state visited state in ", time.time()-time_start, " seconds.")

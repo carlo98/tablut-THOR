@@ -14,9 +14,9 @@ import time
 N_POP = 200  # Number of solutions in population.
 NUM_MATCH = 1  # Percentage of solutions to play against.
 N_PARAM = 4  # Number of parameter of each solution
-MAX_PARAM_VALUE = 500  # Maximum value allowed for each parameter
-MIN_PARAM_VALUE = -500  # Minimum value allowed for each parameter
-MAX_ITER = 5000  # Maximum number of iterations
+MAX_PARAM_VALUE = 40  # Maximum value allowed for each parameter
+MIN_PARAM_VALUE = 0  # Minimum value allowed for each parameter
+MAX_ITER = 200  # Maximum number of iterations
 PERC_NEW_POP = .3  # Percentage of new individuals at each iteration
 EPS = MAX_PARAM_VALUE / 5  # Maximum change of each parameter due to mutation
 MAX_ITER_NO_BETTER = 10  # Maximum number of iterations without better solution
