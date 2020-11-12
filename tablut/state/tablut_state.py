@@ -94,7 +94,7 @@ class State:
         coeff_min_white = (-1) ** (color == "WHITE")
         blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black \
                       + coeff_min_white * weights[1] * blocks_occupied_by_white
-        open_blocks_cond = coeff_min_white * (8 - blocks_occupied_by_white - blocks_occupied_by_black)
+        open_blocks_cond = coeff_min_white * weights[2]* (8 - blocks_occupied_by_white - blocks_occupied_by_black)
         "remaining pieces are considered"
         white_cnt = 0
         black_cnt = 0
@@ -106,12 +106,12 @@ class State:
                 if self.black_bitboard[r] & curr_mask != 0:
                     black_cnt += 1
 
-        remaining_whites_cond = coeff_min_white * weights[2] * white_cnt
-        remaining_blacks_cond = coeff_min_black * weights[3] * black_cnt
+        remaining_whites_cond = coeff_min_white * weights[3] * white_cnt
+        remaining_blacks_cond = coeff_min_black * weights[4] * black_cnt
 
         "aggressive king condition"
-        ak_cond = coeff_min_white*weights[4]*self.open_king_paths()
-        h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond
+        ak_cond = coeff_min_white*weights[5]*self.open_king_paths()
+        h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond
         return h
 
     def open_king_paths(self):

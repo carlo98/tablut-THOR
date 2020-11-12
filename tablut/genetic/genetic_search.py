@@ -13,7 +13,7 @@ import time
 
 N_POP = 200  # Number of solutions in population.
 NUM_MATCH = 1  # Percentage of solutions to play against.
-N_PARAM = 4  # Number of parameter of each solution
+N_PARAM = 6  # Number of parameter of each solution
 MAX_PARAM_VALUE = 40  # Maximum value allowed for each parameter
 MIN_PARAM_VALUE = 0  # Minimum value allowed for each parameter
 MAX_ITER = 200  # Maximum number of iterations
