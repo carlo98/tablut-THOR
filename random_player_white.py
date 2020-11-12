@@ -48,6 +48,10 @@ class Client(ConnectionHandler):
                     action, _ = choose_action(state, game)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
                 state_server = self.read_string()
+                state = State(state_server)
+                blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond = state.compute_heuristic_test(
+                    game.weights, game.color)
+                print(game.color, blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond)
                 if state_server['turn'] == "WHITEWIN":
                     id_win = "WHITE"
                     break
@@ -119,35 +123,3 @@ def add_to_hash(table, state, state_hash, value):
     table[m_key] = {"bitboards": {"black": state.black_bitboard, "white": state.white_bitboard,
                                   "king": state.king_bitboard},
                     "value": value, "games": 1}
-
-
-#def choose_action(state, game):
-#    """
-#    Produces random action.
-##    """
-#    all_actions_keys = list(game.produce_actions(state).keys())
-#    index = np.random.randint(len(all_actions_keys))
-#    return all_actions_keys[index]
-
-#import argparse
-
-#parser = argparse.ArgumentParser(description='Default: Color = White and Timeout = 60s')
-#parser.add_argument("-c", "--color", default='white', help="Set the player color.")
-#parser.add_argument("-t", "--max_time", type=int, default=2, help="Change max_time")
-
-#args = parser.parse_args()
-#if args.color.lower() == 'white':
- #   color = "WHITE"
-#elif args.color.lower() == 'black':
-#    color = "BLACK"
-#else:
-#    print("Wrong color, possible choices are white/black")
-#    exit(-1)
-#max_time = args.max_time
-
-#if color == "WHITE":
-#    server_port = 5800
-#else:
-#    server_port = 5801
-
-#Client(server_port, color, max_time-0.2).run()

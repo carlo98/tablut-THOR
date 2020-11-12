@@ -26,25 +26,20 @@ def run():
     pool = Pool()
     proc = subprocess.Popen('ant server', shell=True)  # Requires server files in path
     time.sleep(5)
-    cf_1 = 1
-    cf_2 = 1
-    cf_3 = 1 
-    cf_4 = 1
-    cf_5 = 1
-    cf_6 = 1
     white_thread = pool.apply_async(create_play_player,
                                     args=(5800, "WHITE", MAX_TIME_ACTION,
-                                          [cf_1*np.random.rand()*50,cf_2*np.random.rand()*50,
-                                           cf_3*np.random.rand()*50,cf_4*np.random.rand()*50,
-                                           cf_5*np.random.rand()*50,cf_6*np.random.rand()*50],
+                                          [np.random.rand() * 50, np.random.rand() * 50,
+                                           np.random.rand() * 50, np.random.rand() * 50,
+                                           np.random.rand() * 50, np.random.rand() * 50],
                                           "EHILA", "127.0.0.1", True))
+    #
     time.sleep(1)
     # Important, pass list just to one of the two threads, to avoid synchronization problems
     black_thread = pool.apply_async(create_play_player,
                                     args=(5801, "BLACK", MAX_TIME_ACTION,
-                                          [cf_1*np.random.rand()*50,cf_2*np.random.rand()*50,
-                                           cf_3*np.random.rand()*50,cf_4*np.random.rand()*50,
-                                           cf_5*np.random.rand()*50,cf_6*np.random.rand()*50],
+                                          [np.random.rand() * 50, np.random.rand() * 50,
+                                           np.random.rand() * 50, np.random.rand() * 50,
+                                           np.random.rand() * 50, np.random.rand() * 50],
                                           "OOOOO", "127.0.0.1", False))
     black_thread.wait()
     white_thread.wait()
@@ -53,6 +48,6 @@ def run():
 
 
 cont = 0
-while cont <= 10:
+while cont <= 30:
     run()
     cont += 1

@@ -143,7 +143,6 @@ def choose_action(state, game):
     state_hash_table = dict()
     flag = False
     all_actions = game.produce_actions(state)  # Getting all possible actions given state
-
     while time.time()-time_start < game.max_time:
         cont = 0
         for a in all_actions.keys():

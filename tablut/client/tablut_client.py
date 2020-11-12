@@ -14,7 +14,7 @@ class Client(ConnectionHandler):
         self.color = color
         self.max_time = max_time
         if weights is None:
-            self.weights = [1, 1, 1, 1]  # Best weights find by our genetic algorithm
+            self.weights = [1, 1, 1, 1, 1, 1]  # Best weights find by our genetic algorithm
         else:
             self.weights = weights  # Searching best params
         if name is None:
@@ -35,6 +35,7 @@ class Client(ConnectionHandler):
                     action, value = min_max.choose_action(state, game)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
                     print("Choosen action:", action_to_server_format(action))
+                    print("Choosen action value:", value)
                 if result_search is not None:
                     state_server = self.read_string()
                     if state_server['turn'] == "WHITEWIN":

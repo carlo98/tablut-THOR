@@ -114,6 +114,46 @@ class State:
         h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond
         return h
 
+    def compute_heuristic_test(self, weights, color):
+        "victory condition, of course"
+        victory_cond = self.check_victory()
+        if victory_cond == -1 and color == "BLACK":  # king captured and black player -> Win
+            return -MAX_VAL_HEURISTIC, 0, 0, 0, 0
+        elif victory_cond == -1 and color == "WHITE":  # King captured and white player -> Lose
+            return MAX_VAL_HEURISTIC, 0, 0, 0, 0
+        elif victory_cond == 1 and color == "BLACK":  # King escaped and black player -> Lose
+            return MAX_VAL_HEURISTIC, 0, 0, 0, 0
+        elif victory_cond == 1 and color == "WHITE":  # King escaped and white player -> Win
+            return -MAX_VAL_HEURISTIC, 0, 0, 0, 0
+
+        "if the exits are blocked, white has a strong disadvantage"
+        blocks_occupied_by_black = np.count_nonzero(self.black_bitboard & blocks_bitboard)
+        blocks_occupied_by_white = np.count_nonzero(self.white_bitboard & blocks_bitboard) + \
+                                   np.count_nonzero(self.king_bitboard & blocks_bitboard)
+        coeff_min_black = (-1) ** (color == "BLACK")
+        coeff_min_white = (-1) ** (color == "WHITE")
+        blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black \
+                      + coeff_min_white * weights[1] * blocks_occupied_by_white
+        open_blocks_cond = coeff_min_white * weights[2]* (8 - blocks_occupied_by_white - blocks_occupied_by_black)
+        "remaining pieces are considered"
+        white_cnt = 0
+        black_cnt = 0
+        for r in range(0, 9):
+            for c in range(0, 9):
+                curr_mask = 1 << (8 - c)
+                if self.white_bitboard[r] & curr_mask != 0:
+                    white_cnt += 1
+                if self.black_bitboard[r] & curr_mask != 0:
+                    black_cnt += 1
+
+        remaining_whites_cond = coeff_min_white * weights[3] * white_cnt
+        remaining_blacks_cond = coeff_min_black * weights[4] * black_cnt
+
+        "aggressive king condition"
+        ak_cond = coeff_min_white*weights[5]*self.open_king_paths()
+        h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond
+        return blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond
+
     def open_king_paths(self):
         "king coordinates"
         king_row = np.nonzero(self.king_bitboard)[0]
