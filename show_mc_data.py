@@ -18,7 +18,9 @@ if exists:
         point_white += state['value']['white']
         point_black += state['value']['black']
         games += state['games']
-        print("White: ", state['value']['white'] / state['games'], " Black: ", state['value']['black'] / state['games'])
+        tmp_white_p = state['value']['white'] / state['games']
+        tmp_black_p = state['value']['black'] / state['games']
+        print("White: ", tmp_white_p, " Black: ", tmp_black_p, " Draw: ", 1-tmp_black_p-tmp_white_p)
     print("Points over total number of matches:")
     print("Total Black: ", point_black / games)
     print("Total White: ", point_white / games)
