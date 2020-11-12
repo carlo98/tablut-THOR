@@ -110,9 +110,42 @@ class State:
         remaining_blacks_cond = coeff_min_black * weights[3] * black_cnt
 
         "aggressive king condition"
-
+        ak_cond = coeff_min_white*weights[4]*self.open_king_paths()
         h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond
         return h
+
+    def open_king_paths(self):
+
+        king_row = np.nonzero(self.king_bitboard)[0]
+        king_bin_col = self.king_bitboard[king_row]
+        king_col = int(8 - np.log2(king_bin_col))
+
+        right_mask = 511 * np.ones(1, dtype=int)
+        left_mask = (king_bin_col << 1) * np.ones(1, dtype=int)
+        for col in range(0, king_col):
+            right_mask >>= 1
+            if col <= king_col - 2:
+                left_mask ^= king_bin_col
+                left_mask <<= 1
+        columns = []
+        for row in range(0, 8):
+            if row != king_row:
+                columns += list(bit(camps_bitboard[row])) + list(bit(self.white_bitboard[row])) + list(bit(self.black_bitboard[row]))
+
+        open_paths = 4
+
+        if (king_row in [3, 4, 5] or (
+                right_mask ^ self.white_bitboard[king_row] + right_mask ^ self.black_bitboard[king_row] \
+                + right_mask ^ camps_bitboard[king_row]) != 0):
+            open_paths -= 1
+        if (king_row in [3, 4, 5] or (
+                left_mask ^ self.white_bitboard[king_row] + left_mask ^ self.black_bitboard[king_row] \
+                + right_mask ^ camps_bitboard[king_row]) != 0):
+            open_paths -= 1
+
+        if king_col in [3, 4, 5] or king_bin_col in columns:
+            open_paths -= 2
+        return open_paths
 
     def get_hash(self):
         """
