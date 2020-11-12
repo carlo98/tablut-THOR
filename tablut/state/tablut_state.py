@@ -127,11 +127,14 @@ class State:
             if col <= king_col - 2:
                 left_mask ^= king_bin_col
                 left_mask <<= 1
-        columns = []
+        above_the_column = []
+        below_the_column = []
         for row in range(0, 8):
-            if row != king_row:
-                columns += list(bit(camps_bitboard[row])) + list(bit(self.white_bitboard[row])) + list(bit(self.black_bitboard[row]))
-
+            if row != king_row and row < king_row:
+                above_the_column += list(bit(camps_bitboard[row])) + list(bit(self.white_bitboard[row])) + list(bit(self.black_bitboard[row]))
+            elif row != king_row and row > king_row:
+                below_the_column += list(bit(camps_bitboard[row])) + list(bit(self.white_bitboard[row])) + list(
+                    bit(self.black_bitboard[row]))
         open_paths = 4
 
         if (king_row in [3, 4, 5] or (
@@ -143,8 +146,10 @@ class State:
                 + right_mask ^ camps_bitboard[king_row]) != 0):
             open_paths -= 1
 
-        if king_col in [3, 4, 5] or king_bin_col in columns:
-            open_paths -= 2
+        if king_col in [3, 4, 5] or king_bin_col in above_the_column:
+            open_paths -= 1
+        if king_col in [3, 4, 5] or king_bin_col in below_the_column:
+            open_paths -= 1
         return open_paths
 
     def get_hash(self):
