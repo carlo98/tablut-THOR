@@ -22,7 +22,7 @@ def bit(n):
     while i <= 8:
         b = n & mask
         yield b
-        mask = mask << i
+        mask = mask << 1
         i += 1
 
 

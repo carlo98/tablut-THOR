@@ -115,21 +115,25 @@ class State:
         return h
 
     def open_king_paths(self):
-
+        "king coordinates"
         king_row = np.nonzero(self.king_bitboard)[0]
         king_bin_col = self.king_bitboard[king_row]
         king_col = int(8 - np.log2(king_bin_col))
 
+        "check for pawns/camps left and right"
         right_mask = 511 * np.ones(1, dtype=int)
+
         left_mask = (king_bin_col << 1) * np.ones(1, dtype=int)
-        for col in range(0, king_col):
+        for col in range(0, king_col+1):
             right_mask >>= 1
             if col <= king_col - 2:
                 left_mask ^= king_bin_col
                 left_mask <<= 1
+
+        "check for pawns/camps up and down"
         above_the_column = []
         below_the_column = []
-        for row in range(0, 8):
+        for row in range(0, 9):
             if row != king_row and row < king_row:
                 above_the_column += list(bit(camps_bitboard[row])) + list(bit(self.white_bitboard[row])) + list(bit(self.black_bitboard[row]))
             elif row != king_row and row > king_row:
@@ -137,19 +141,20 @@ class State:
                     bit(self.black_bitboard[row]))
         open_paths = 4
 
-        if (king_row in [3, 4, 5] or (
-                right_mask ^ self.white_bitboard[king_row] + right_mask ^ self.black_bitboard[king_row] \
-                + right_mask ^ camps_bitboard[king_row]) != 0):
+        if (king_row in [3, 4, 5] or
+                ((right_mask & self.white_bitboard[king_row]) + (right_mask & self.black_bitboard[king_row])
+                + (right_mask & camps_bitboard[king_row]) != 0)):
             open_paths -= 1
-        if (king_row in [3, 4, 5] or (
-                left_mask ^ self.white_bitboard[king_row] + left_mask ^ self.black_bitboard[king_row] \
-                + right_mask ^ camps_bitboard[king_row]) != 0):
+        if (king_row in [3, 4, 5] or
+                (left_mask & self.white_bitboard[king_row]) + (left_mask & self.black_bitboard[king_row])
+                + (left_mask & camps_bitboard[king_row]) != 0):
             open_paths -= 1
 
         if king_col in [3, 4, 5] or king_bin_col in above_the_column:
             open_paths -= 1
         if king_col in [3, 4, 5] or king_bin_col in below_the_column:
             open_paths -= 1
+
         return open_paths
 
     def get_hash(self):
