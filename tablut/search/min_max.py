@@ -153,7 +153,7 @@ def choose_action(state, game):
             if v < best_score:
                 best_score = v
                 best_action = a
-            if time.time()-time_start < game.max_time:
+            if time.time()-time_start >= game.max_time:
                 break
         # If search at current maximum depth is finished, update best action
         if cont == len(all_actions):
