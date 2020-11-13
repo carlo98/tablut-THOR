@@ -10,11 +10,12 @@ from tablut.utils.state_utils import q
 import subprocess
 import numpy as np
 import time
-import copy
+from itertools import permutations
 
 N_PARAM = 6  # Number of parameter of each solution
 MAX_TIME_ACTION = 5  # Maximum time allowed to search for action
-PARAMS = [1, 5, 10, 20, 30, 40]
+NUM_MATCH = 4
+PARAMS = [20, 30, 30, 20, 20, 100]
 
 
 def create_play_player(port, color, max_time_act, weights, name, host, args=None):
@@ -87,12 +88,18 @@ def eval_pop():
     Evaluates solutions, returns a list of floats, between 0 and 1
     (probabilities of survival and reproduction).
     """
-    solutions = []
-    gen_sol_rec(solutions, np.zeros(N_PARAM), 0)
+    solutions = [[2, 1, 2, 1, 1, 100]]
+    solutions_tmp = list(permutations(PARAMS))
+    for sol in solutions_tmp:
+        if sol not in solutions:
+            solutions.append(sol)
+    print(len(solutions))
     dones = [[] for x in range(len(solutions))]
     points = np.zeros(len(solutions))
     for i in range(len(solutions)):
         for y in range(len(solutions)):
+            if len(dones[i]) >= NUM_MATCH:
+                break
             if y != i and y not in dones[i]:
                 dones[i].append(y)
                 dones[y].append(i)
@@ -103,16 +110,6 @@ def eval_pop():
     print("Results:")
     for i in range(len(solutions)):
         print("Solution ", solutions[i], " Points ", points[i])
-
-
-def gen_sol_rec(solutions, sol, i):
-    if i == 5:
-        solutions.append(copy.deepcopy(sol))
-        return
-    for p in PARAMS:
-        if p not in sol:
-            sol[i] = p
-            gen_sol_rec(solutions, sol, i+1)
 
 
 eval_pop()

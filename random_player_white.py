@@ -61,7 +61,7 @@ class Client(ConnectionHandler):
                 elif state_server['turn'] == "DRAW":
                     id_win = "DRAW"
                     break
-                state = State(state_server)
+                #state = State(state_server)
                 if self.file_access:
                     state_list.append(state)
         except Exception as e:
