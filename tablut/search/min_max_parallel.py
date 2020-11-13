@@ -60,9 +60,12 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         v = max(v, min_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                              game, alpha, beta, depth + 1, max_depth,
                              time_start, state_hash_table, num_state_visited, id_m))
-        if v >= beta:
+        lock_1.acquire()
+        if v >= beta[0]:
+            lock_1.release()
             return v
-        alpha = max(alpha, v)
+        alpha[0] = max(alpha[0], v)
+        lock_1.release()
     return v
 
 
@@ -108,9 +111,12 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         v = min(v, max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                              game, alpha, beta, depth + 1, max_depth, time_start,
                              state_hash_table, num_state_visited, id_m))
-        if v <= alpha:
+        lock_1.acquire()
+        if v <= alpha[0]:
+            lock_1.release()
             return v
-        beta = min(beta, v)
+        beta[0] = min(beta[0], v)
+        lock_1.release()
     return v
 
 
@@ -148,12 +154,13 @@ def choose_action(state, game):
     """
     time_start = time.time()
     all_actions = game.produce_actions(state)  # Getting all possible actions given state
-    best_score = np.inf
+    best_score = [np.inf]
     best_score_end = np.inf
-    alpha = -np.inf
+    alpha = [-np.inf]
     best_action = [None]
     best_action_end = None
-    max_depth = 4
+    max_depth = 2
+    flag = False
     num_state_visited = np.zeros(N_THREADS)
     state_hash_table = dict()
 
@@ -162,7 +169,6 @@ def choose_action(state, game):
         thread_list = []
         num_keys_id = int(len(all_actions)/N_THREADS)
         all_actions_list = []
-        flag = False
         if len(all_actions) > 0:
             for key_m in all_actions.keys():
                 all_actions_list.append(key_m)
@@ -182,11 +188,8 @@ def choose_action(state, game):
             for i in range(N_THREADS):
                 thread_list[i].join()
 
-            if time.time()-time_start >= game.max_time:
-                break
-
         if cont_list.sum() == len(all_actions):
-            best_score_end = best_score
+            best_score_end = best_score[0]
             best_action_end = best_action[0]
             flag = True
             print("Depth reached:", max_depth)
@@ -195,7 +198,6 @@ def choose_action(state, game):
         else:
             print("Minimum depth not reached")
         max_depth += 1  # Iteratively increasing depth
-
     print(num_state_visited.sum(), " state visited state in ", time.time()-time_start, " seconds.")
     return best_action_end, best_score_end
 
@@ -203,11 +205,13 @@ def choose_action(state, game):
 def search_thread(all_actions_keys, state, game, alpha, best_score, best_action, max_depth,
                   time_start, state_hash_table, num_state_visited, cont_list, id_m):
     for a in all_actions_keys:
+        if time.time() - time_start >= game.max_time:
+            break
         v = max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                       game, alpha, best_score, 1, max_depth, time_start, state_hash_table, num_state_visited, id_m)
         cont_list[id_m] += 1
         lock_1.acquire()
-        if v < best_score:
-            best_score = v
+        if v < best_score[0]:
+            best_score[0] = v
             best_action[0] = a
         lock_1.release()
