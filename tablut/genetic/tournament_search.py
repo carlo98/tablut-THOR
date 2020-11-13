@@ -13,7 +13,7 @@ import time
 import copy
 
 N_PARAM = 6  # Number of parameter of each solution
-MAX_TIME_ACTION = 1  # Maximum time allowed to search for action
+MAX_TIME_ACTION = 5  # Maximum time allowed to search for action
 PARAMS = [1, 5, 10, 20, 30, 40]
 
 
@@ -46,9 +46,9 @@ def eval_match(sol1, sol2):
     proc.wait()
     proc.terminate()
 
-    if result[0] == "WHITE":
+    if len(result) > 0 and result[0] == "WHITE":
         sol1_points += 3
-    elif result[0] == "BLACK":
+    elif len(result) > 0 and result[0] == "BLACK":
         sol2_points += 3
     else:
         sol1_points += 1
@@ -71,9 +71,9 @@ def eval_match(sol1, sol2):
     proc.wait()
     proc.terminate()
 
-    if result[0] == "WHITE":
+    if len(result) > 0 and result[0] == "WHITE":
         sol2_points += 3
-    elif result[0] == "BLACK":
+    elif len(result) > 0 and result[0] == "BLACK":
         sol1_points += 3
     else:
         sol2_points += 1
@@ -93,7 +93,7 @@ def eval_pop():
     points = np.zeros(len(solutions))
     for i in range(len(solutions)):
         for y in range(len(solutions)):
-            if y not in dones[i]:
+            if y != i and y not in dones[i]:
                 dones[i].append(y)
                 dones[y].append(i)
                 tmp_p_1, tmp_p_2 = eval_match(solutions[i], solutions[y])
