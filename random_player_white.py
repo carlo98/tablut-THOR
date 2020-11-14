@@ -54,13 +54,9 @@ class Client(ConnectionHandler):
                                                   state_hash_table_tmp)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
                     print("Choosen action value:", value)
+                else:
                     print(sys.getsizeof(state_hash_table_tmp) - MAX_SIZE_DICT)
-                    if sys.getsizeof(state_hash_table_tmp) > MAX_SIZE_DICT:
-                        for key in state_hash_table_tmp.keys():
-                            if state_hash_table_tmp[key]['used'] == 0:
-                                state_hash_table_tmp.pop(key)
-                            if sys.getsizeof(state_hash_table_tmp) > MAX_SIZE_DICT:
-                                break
+                    clear_hash_table_1(state_hash_table_tmp)
                 state_server = self.read_string()
                 state = State(state_server)
                 blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond = \
@@ -134,3 +130,38 @@ def convert_state_hash(state_hash_table):
         else:
             new_state_hash_table[key] = tmp
     return new_state_hash_table
+
+
+def clear_hash_table_1(state_has_table):
+    if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
+        for key in state_has_table.keys():
+            if state_has_table[key]['used'] == 0:
+                state_has_table.pop(key)
+            if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
+                break
+
+
+def clear_hash_table_2(state_has_table, state):
+    for key in state_has_table.keys():
+        if cont_pieces(state_has_table[key]) > cont_pieces(state):
+            state_has_table.pop(key)
+        if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
+            break
+    if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
+        for key in state_has_table.keys():
+            if state_has_table[key]['used'] == 0:
+                state_has_table.pop(key)
+            if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
+                break
+
+
+def cont_pieces(state):
+    cnt = 1
+    for r in range(0, 9):
+        for c in range(0, 9):
+            curr_mask = 256 >> c
+            if state.white_bitboard[r] & curr_mask != 0:
+                cnt += 1
+            if state.black_bitboard[r] & curr_mask != 0:
+                cnt += 1
+    return cnt

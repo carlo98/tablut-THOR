@@ -24,9 +24,12 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     state_hash = state.get_hash()
     hash_result = state_hash_table.get(state_hash)
     lock_2.release()
+    all_actions = None
     if hash_result is not None:
         if hash_result['used'] == 1:
             return 0
+        if hash_result.get('all_actions') is not None:
+            all_actions = hash_result.get('all_actions')
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         if hash_result is not None:
             return hash_result["value"]  # If state previously evaluated don't recompute heuristic
@@ -46,7 +49,10 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
 
     # Body
     v = -np.inf
-    all_actions = game.produce_actions(state)
+    if all_actions is None:
+        all_actions = game.produce_actions(state)
+        if hash_result is not None:
+            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions)
     if len(all_actions) == 0:
         return -MAX_VAL_HEURISTIC
     for a in all_actions:
@@ -65,9 +71,12 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     state_hash = state.get_hash()
     hash_result = state_hash_table.get(state_hash)
     lock_2.release()
+    all_actions = None
     if hash_result is not None:
         if hash_result['used'] == 1:
             return 0
+        if hash_result.get('all_actions') is not None:
+            all_actions = hash_result.get('all_actions')
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         if hash_result is not None:
             return hash_result["value"]  # If state previously evaluated don't recompute heuristic
@@ -87,7 +96,10 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
 
     # Body
     v = np.inf
-    all_actions = game.produce_actions(state)
+    if all_actions is None:
+        all_actions = game.produce_actions(state)
+        if hash_result is not None:
+            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions)
     if len(all_actions) == 0:
         return MAX_VAL_HEURISTIC
     for a in all_actions:
@@ -100,11 +112,11 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     return v
 
 
-def add_to_hash(table, state_hash, value):
+def add_to_hash(table, state_hash, value, all_actions):
     """
     Adds current state and its value to hash table.
     """
-    table[state_hash] = {"value": value, "used": 0}
+    table[state_hash] = {"value": value, "used": 0, 'all_actions': all_actions}
 
 
 def update_used(state_hash_table, state, weights, color):
@@ -116,7 +128,7 @@ def update_used(state_hash_table, state, weights, color):
     if hash_result is not None:
         state_hash_table[state_hash]['used'] = 1
     else:
-        state_hash_table[state_hash] = {"value": state.compute_heuristic(weights, color), "used": 0}
+        state_hash_table[state_hash] = {"value": state.compute_heuristic(weights, color), "used": 1}
 
 
 def cutoff_test(depth, max_depth, max_time, time_start):
