@@ -17,3 +17,13 @@ print(json_string.get("turn"))
 s = State(json_string)
 
 s.compute_heuristic([1,1,1,1,1,1,1], "WHITE")
+
+bb=np.array([256,256,0,0,0,0,0,0,0])
+nb = step_rotate(bb)
+print(nb)
+nb = step_rotate(nb)
+print(nb)
+nb = step_rotate(nb)
+print(nb)
+nb = step_rotate(nb)
+print(nb)
