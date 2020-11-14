@@ -11,6 +11,10 @@ from tablut.search.min_max import choose_action, update_used
 from tablut.utils.state_utils import action_to_server_format
 import pickle
 import os
+import sys
+
+MAX_SIZE_DICT = 1.8 * 1024 * 1024 * 1024  # GB, MB, kB, B
+# Size of dict is 296B at 14/11/2020
 
 
 class Client(ConnectionHandler):
@@ -50,6 +54,13 @@ class Client(ConnectionHandler):
                                                   state_hash_table_tmp)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
                     print("Choosen action value:", value)
+                    print(sys.getsizeof(state_hash_table_tmp) - MAX_SIZE_DICT)
+                    if sys.getsizeof(state_hash_table_tmp) > MAX_SIZE_DICT:
+                        for key in state_hash_table_tmp.keys():
+                            if state_hash_table_tmp[key]['used'] == 0:
+                                state_hash_table_tmp.pop(key)
+                            if sys.getsizeof(state_hash_table_tmp) > MAX_SIZE_DICT:
+                                break
                 state_server = self.read_string()
                 state = State(state_server)
                 blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond = \

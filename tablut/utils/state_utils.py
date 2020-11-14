@@ -13,7 +13,7 @@ def build_column(bitboard, mask):
     num = 0
     for i in range(len(bitboard)):
         if bitboard[i] & mask != 0:
-            num ^= 1 << (8 - i)
+            num ^= 256 >> i
     return num
 
 
