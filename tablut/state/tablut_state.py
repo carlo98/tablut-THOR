@@ -203,19 +203,3 @@ class State:
         Identifier is unique.
         """
         return tuple(self.king_bitboard), tuple(self.white_bitboard), tuple(self.black_bitboard)
-
-    def equal(self, m_bitboards):
-        """
-        Returns true if all bitboards are equal to corresponding ones.
-        False otherwise.
-        """
-        for row in range(len(self.white_bitboard)):  # Check white bitboard
-            if self.white_bitboard[row] ^ m_bitboards["white"][row] != 0:
-                return False
-        for row in range(len(self.black_bitboard)):  # Check black bitboard
-            if self.black_bitboard[row] ^ m_bitboards["black"][row] != 0:
-                return False
-        for row in range(len(self.king_bitboard)):  # Check king bitboard
-            if self.king_bitboard[row] ^ m_bitboards["king"][row] != 0:
-                return False
-        return True
