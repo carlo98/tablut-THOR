@@ -1,5 +1,5 @@
 from tablut.client.connection_handler import ConnectionHandler
-from tablut.search import min_max
+from tablut.search.min_max import choose_action, update_used
 from tablut.state.tablut_state import State
 from tablut.search.game import Game
 from tablut.utils.state_utils import action_to_server_format
@@ -28,11 +28,12 @@ class Client(ConnectionHandler):
             self.connect()
             self.send_string(self.player_name)
             state = State(self.read_string())
+            state_hash_table_tmp = {state.get_hash(): {"value": 0, 'used': 1}}
             game = Game(self.max_time, self.color, self.weights)
             
             while True:  # Playing
                 if self.color == state.turn:  # check turn
-                    action, value = min_max.choose_action(state, game)  # Retrieving best action and its value and pass weights
+                    action, value = choose_action(state, game, state_hash_table_tmp)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
                     print("Choosen action:", action_to_server_format(action))
                     print("Choosen action value:", value)
@@ -51,6 +52,7 @@ class Client(ConnectionHandler):
                         state = State(state_server)
                 else:
                     state = State(self.read_string())
+                update_used(state_hash_table_tmp, state, game.weights, game.color)
         except Exception as e:
             print(e)
         finally:

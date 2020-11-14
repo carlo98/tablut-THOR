@@ -7,7 +7,7 @@ Implementation of minmax algorithm with alpha-beta pruning.
 from tablut.state.tablut_state import State
 from tablut.client.connection_handler import ConnectionHandler
 from tablut.search.game import Game
-from tablut.search.min_max import choose_action
+from tablut.search.min_max import choose_action, update_used
 from tablut.utils.state_utils import action_to_server_format
 import pickle
 import os
@@ -33,6 +33,7 @@ class Client(ConnectionHandler):
                 file = open("state_hash", "rb")
                 state_hash_table = pickle.load(file)
                 file.close()
+                state_hash_table = convert_state_hash(state_hash_table)
             else:
                 state_hash_table = dict()
             state_list = []
@@ -42,10 +43,11 @@ class Client(ConnectionHandler):
             self.connect()
             self.send_string(self.player_name)
             state = State(self.read_string())
-            
+            state_hash_table_tmp = {state.get_hash(): {"value": 0, 'used': 1}}
             while True:  # Playing
                 if self.color == state.turn:  # check turn
-                    action, _ = choose_action(state, game)  # Retrieving best action and its value and pass weights
+                    action, _ = choose_action(state, game,
+                                              state_hash_table_tmp)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
                 state_server = self.read_string()
                 state = State(state_server)
@@ -61,37 +63,29 @@ class Client(ConnectionHandler):
                 elif state_server['turn'] == "DRAW":
                     id_win = "DRAW"
                     break
-                #state = State(state_server)
                 if self.file_access:
                     state_list.append(state)
+                update_used(state_hash_table_tmp, state, game.weights, game.color)
         except Exception as e:
             print(e)
         finally:
             if self.file_access:
                 for state in state_list:
-                    quad_prob = 1
-                    pot = 1
                     state_hash = state.get_hash()
-                    m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
-                    hash_result = state_hash_table.get(m_key)
+                    hash_result = state_hash_table.get(state_hash)
 
-                    while hash_result is not None:
-                        if state.equal(hash_result["bitboards"]):
-                            if id_win == "WHITE":
-                                hash_result["value"]["white"] += 1
-                            elif id_win == "BLACK":
-                                hash_result["value"]["black"] += 1
-                            elif id_win == "DRAW":
-                                hash_result["value"]["black"] += 0.3
-                                hash_result["value"]["white"] += 0.3
-                            hash_result["games"] += 1
+                    if hash_result is not None:
+                        if id_win == "WHITE":
+                            hash_result["value"]["white"] += 1
+                        elif id_win == "BLACK":
+                            hash_result["value"]["black"] += 1
+                        elif id_win == "DRAW":
+                            hash_result["value"]["black"] += 0.3
+                            hash_result["value"]["white"] += 0.3
+                        hash_result["games"] += 1
+                        print(hash_result)
 
-                        quad_prob += 1
-                        pot = quad_prob ** quad_prob
-                        m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
-                        hash_result = state_hash_table.get(m_key)
-
-                    if hash_result is None:
+                    else:
                         value = dict()
                         if id_win == "WHITE":
                             value["white"] = 1
@@ -102,24 +96,35 @@ class Client(ConnectionHandler):
                         elif id_win == "DRAW":
                             value["black"] = 0.3
                             value["white"] = 0.3
-                        add_to_hash(state_hash_table, state, state_hash, value)  # Add state and value to hash table
+                        add_to_hash(state_hash_table, state_hash, value)  # Add state and value to hash table
                 file = open("state_hash", "wb")
                 pickle.dump(state_hash_table, file)
                 file.close()
+                print(len(state_hash_table))
             print("Game ended.")
 
 
-def add_to_hash(table, state, state_hash, value):
+def add_to_hash(table, state_hash, value):
     """
     Adds current state and its value to hash table.
     """
-    quad_prob = 1
-    pot = 1
-    m_key = (state_hash[0]+pot, state_hash[1]+pot, state_hash[2]+pot)
-    while table.get(m_key) is not None:
-        quad_prob += 1
-        pot = quad_prob ** quad_prob
-        m_key = (state_hash[0]+pot, state_hash[1]+pot, state_hash[2]+pot)
-    table[m_key] = {"bitboards": {"black": state.black_bitboard, "white": state.white_bitboard,
-                                  "king": state.king_bitboard},
-                    "value": value, "games": 1}
+    table[state_hash] = {"value": value, "games": 1}
+
+
+def convert_state_hash(state_hash_table):
+    new_state_hash_table = dict()
+    for key in state_hash_table.keys():
+        tmp = state_hash_table[key]
+        if tmp.get('bitboards') is not None:
+            new_key = (tuple(tmp['bitboards']['king']), tuple(tmp['bitboards']['white']),
+                       tuple(tmp['bitboards']['black']))
+            if new_state_hash_table.get(new_key) is not None:
+                value = {'white': tmp['value']['white'] + new_state_hash_table[new_key]['value']['white'],
+                         'black': tmp['value']['black'] + new_state_hash_table[new_key]['value']['black']}
+                games = tmp['games'] + new_state_hash_table[new_key]['games']
+                new_state_hash_table[new_key] = {"value": value, "games": games}
+            else:
+                new_state_hash_table[new_key] = {"value": tmp['value'], "games": tmp['games']}
+        else:
+            new_state_hash_table[key] = tmp
+    return new_state_hash_table

@@ -11,9 +11,9 @@ from tablut.utils.state_utils import MAX_VAL_HEURISTIC
 from threading import Thread, Lock
 
 
-N_THREADS = 2
-lock_1 = Lock()
+N_THREADS = 4
 lock_2 = Lock()
+lock_1 = Lock()
 
 #TODO: remove num_state_visited, use just in test phase
 
@@ -31,6 +31,8 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         while hash_result is not None:
             if state.equal(hash_result["bitboards"]):
                 lock_2.release()
+                if hash_result['used'] == 1:
+                    return 0
                 return hash_result["value"]  # If state previously evaluated don't recompute heuristic
             quad_prob += 1
             pot = quad_prob ** quad_prob
@@ -60,12 +62,9 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         v = max(v, min_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                              game, alpha, beta, depth + 1, max_depth,
                              time_start, state_hash_table, num_state_visited, id_m))
-        lock_1.acquire()
-        if v >= beta[0]:
-            lock_1.release()
+        if v >= beta:
             return v
-        alpha[0] = max(alpha[0], v)
-        lock_1.release()
+        alpha = max(alpha, v)
     return v
 
 
@@ -82,6 +81,8 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         while hash_result is not None:
             if state.equal(hash_result["bitboards"]):
                 lock_2.release()
+                if hash_result['used'] == 1:
+                    return 0
                 return hash_result["value"]  # If state previously evaluated don't recompute heuristic
             quad_prob += 1
             pot = quad_prob**quad_prob
@@ -111,12 +112,9 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         v = min(v, max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                              game, alpha, beta, depth + 1, max_depth, time_start,
                              state_hash_table, num_state_visited, id_m))
-        lock_1.acquire()
-        if v <= alpha[0]:
-            lock_1.release()
+        if v <= alpha:
             return v
-        beta[0] = min(beta[0], v)
-        lock_1.release()
+        beta = min(beta, v)
     return v
 
 
@@ -133,7 +131,29 @@ def add_to_hash(table, state, state_hash, value):
         m_key = (state_hash[0]+pot, state_hash[1]+pot, state_hash[2]+pot)
     table[m_key] = {"bitboards": {"black": state.black_bitboard, "white": state.white_bitboard,
                                   "king": state.king_bitboard},
-                    "value": value}
+                    "value": value, "used": 0}
+
+
+def update_used(state_hash_table, state, weights, color):
+    """
+    Adds current state and its value to hash table.
+    """
+    quad_prob = 1
+    pot = 1
+    state_hash = state.get_hash()
+    m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
+    hash_result = state_hash_table.get(m_key)
+    while hash_result is not None:
+        if state.equal(hash_result["bitboards"]):
+            state_hash_table[m_key]['used'] = 1
+        quad_prob += 1
+        pot = quad_prob ** quad_prob
+        m_key = (state_hash[0] + pot, state_hash[1] + pot, state_hash[2] + pot)
+        hash_result = state_hash_table.get(m_key)
+    if hash_result is None:
+        state_hash_table[m_key] = {"bitboards": {"black": state.black_bitboard, "white": state.white_bitboard,
+                                                 "king": state.king_bitboard}, "value": state.compute_heuristic(weights, color),
+                                   "used": 0}
 
 
 def cutoff_test(depth, max_depth, max_time, time_start):
@@ -146,7 +166,7 @@ def cutoff_test(depth, max_depth, max_time, time_start):
     return False
 
 
-def choose_action(state, game):
+def choose_action(state, game, state_hash_table):
     """
     Search for the best action using min max with alpha beta pruning
     iteratively increasing the maximum depth.
@@ -156,22 +176,19 @@ def choose_action(state, game):
     all_actions = game.produce_actions(state)  # Getting all possible actions given state
     best_score = [np.inf]
     best_score_end = np.inf
-    alpha = [-np.inf]
+    alpha = -np.inf
     best_action = [None]
     best_action_end = None
     max_depth = 2
     flag = False
     num_state_visited = np.zeros(N_THREADS)
-    state_hash_table = dict()
+    num_keys_id = int(len(all_actions) / N_THREADS)
+    all_actions_list = list(all_actions.keys())
 
     while time.time()-time_start < game.max_time:
         cont_list = np.zeros(N_THREADS)
         thread_list = []
-        num_keys_id = int(len(all_actions)/N_THREADS)
-        all_actions_list = []
         if len(all_actions) > 0:
-            for key_m in all_actions.keys():
-                all_actions_list.append(key_m)
             for i in range(N_THREADS):
                 if i == N_THREADS - 1:
                     thread_list.append(Thread(target=search_thread,
@@ -208,7 +225,7 @@ def search_thread(all_actions_keys, state, game, alpha, best_score, best_action,
         if time.time() - time_start >= game.max_time:
             break
         v = max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
-                      game, alpha, best_score, 1, max_depth, time_start, state_hash_table, num_state_visited, id_m)
+                      game, alpha, best_score[0], 1, max_depth, time_start, state_hash_table, num_state_visited, id_m)
         cont_list[id_m] += 1
         lock_1.acquire()
         if v < best_score[0]:

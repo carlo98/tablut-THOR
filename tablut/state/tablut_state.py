@@ -200,16 +200,9 @@ class State:
     def get_hash(self):
         """
         Returns an identifier for the state.
-        Identifier is not unique, probing required in eventual hash table.
+        Identifier is unique.
         """
-        king_sum = 0
-        white_sum = 0
-        black_sum = 0
-        for row in range(len(self.black_bitboard)):
-            king_sum += self.king_bitboard[row] * (row + 1)
-            white_sum += self.white_bitboard[row] * (row + 1)
-            black_sum += self.black_bitboard[row] * (row + 1)
-        return king_sum, white_sum, black_sum
+        return tuple(self.king_bitboard), tuple(self.white_bitboard), tuple(self.black_bitboard)
 
     def equal(self, m_bitboards):
         """
