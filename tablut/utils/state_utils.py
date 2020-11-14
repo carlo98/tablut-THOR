@@ -1,6 +1,7 @@
 from tablut.utils.bitboards import *
 import numpy as np
 from multiprocessing import Queue
+
 MAX_VAL_HEURISTIC = 5000  # TODO: to be set at maximum value achievable by heuristic
 q = Queue()  # TODO: jest for genetic search, remove for competition
 
@@ -24,6 +25,22 @@ def bit(n):
         yield b
         mask = mask << 1
         i += 1
+
+
+lut_positions = {1: 8, 2: 7, 4: 6, 8: 5, 16: 4, 32: 3, 64: 2, 128: 1, 256: 0}
+
+
+def step_rotate(bitboard):
+    new_bitboard = np.zeros(9, dtype=int)
+    col = 1
+    for r in bitboard:
+        positions = np.unique(list(bit(r)))
+        for p in positions:
+            if p != 0:
+                i = lut_positions.get(p)
+                new_bitboard[i] ^= col
+        col <<=1
+    return new_bitboard
 
 
 def black_tries_capture_white_pawn(black_bitboard, white_bitboard, row, col):
@@ -153,8 +170,8 @@ def action_to_server_format(action):
     """
     start_row = action[1] + 1
     end_row = action[3] + 1
-    start_col = chr(65+action[2])
-    end_col = chr(65+action[4])
+    start_col = chr(65 + action[2])
+    end_col = chr(65 + action[4])
     return {
         'from': str(start_col) + str(start_row),
         'to': str(end_col) + str(end_row)

@@ -46,3 +46,4 @@ blocks_bitboard = np.array([
     0b010000010,
     0b001000100,
     0b000000000], dtype=np.int)
+
