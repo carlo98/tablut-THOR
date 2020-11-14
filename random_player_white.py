@@ -83,7 +83,6 @@ class Client(ConnectionHandler):
                             hash_result["value"]["black"] += 0.3
                             hash_result["value"]["white"] += 0.3
                         hash_result["games"] += 1
-                        print(hash_result)
 
                     else:
                         value = dict()
@@ -100,7 +99,6 @@ class Client(ConnectionHandler):
                 file = open("state_hash", "wb")
                 pickle.dump(state_hash_table, file)
                 file.close()
-                print(len(state_hash_table))
             print("Game ended.")
 
 
