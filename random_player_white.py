@@ -118,12 +118,7 @@ def convert_state_hash(state_hash_table):
         if tmp.get('bitboards') is not None:
             new_key = (tuple(tmp['bitboards']['king']), tuple(tmp['bitboards']['white']),
                        tuple(tmp['bitboards']['black']))
-            if new_state_hash_table.get(new_key) is not None:
-                value = {'white': tmp['value']['white'] + new_state_hash_table[new_key]['value']['white'],
-                         'black': tmp['value']['black'] + new_state_hash_table[new_key]['value']['black']}
-                games = tmp['games'] + new_state_hash_table[new_key]['games']
-                new_state_hash_table[new_key] = {"value": value, "games": games}
-            else:
+            if new_state_hash_table.get(new_key) is None:
                 new_state_hash_table[new_key] = {"value": tmp['value'], "games": tmp['games']}
         else:
             new_state_hash_table[key] = tmp
