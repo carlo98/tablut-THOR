@@ -23,6 +23,7 @@ class Client(ConnectionHandler):
         self.player_name = name
         self.weights = weights
         self.file_access = file_access
+        self.game = Game(self.max_time, self.color, self.weights)
 
     def run(self):
         """Client's body."""
@@ -38,7 +39,6 @@ class Client(ConnectionHandler):
                 state_hash_table = dict()
             state_list = []
         id_win = None
-        game = Game(self.max_time, self.color, self.weights)
         try:
             self.connect()
             self.send_string(self.player_name)
@@ -46,14 +46,16 @@ class Client(ConnectionHandler):
             state_hash_table_tmp = {state.get_hash(): {"value": 0, 'used': 1}}
             while True:  # Playing
                 if self.color == state.turn:  # check turn
-                    action, _ = choose_action(state, game,
-                                              state_hash_table_tmp)  # Retrieving best action and its value and pass weights
+                    action, value = choose_action(state, self.game,
+                                                  state_hash_table_tmp)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
+                    print("Choosen action value:", value)
                 state_server = self.read_string()
                 state = State(state_server)
-                blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond = state.compute_heuristic_test(
-                    game.weights, game.color)
-                print(game.color, blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond)
+                blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond = \
+                    state.compute_heuristic_test(self.game.weights, self.game.color)
+                print(self.game.color, blocks_cond, remaining_blacks_cond, remaining_whites_cond,
+                      open_blocks_cond, ak_cond)
                 if state_server['turn'] == "WHITEWIN":
                     id_win = "WHITE"
                     break
@@ -65,7 +67,7 @@ class Client(ConnectionHandler):
                     break
                 if self.file_access:
                     state_list.append(state)
-                update_used(state_hash_table_tmp, state, game.weights, game.color)
+                update_used(state_hash_table_tmp, state, self.game.weights, self.game.color)
         except Exception as e:
             print(e)
         finally:

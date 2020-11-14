@@ -14,14 +14,14 @@ from tablut.utils.state_utils import MAX_VAL_HEURISTIC
 
 def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table, num_state_visited):
     num_state_visited[0] += 1
+    state_hash = state.get_hash()
+    hash_result = state_hash_table.get(state_hash)
+    if hash_result is not None:
+        if hash_result['used'] == 1:
+            return 0
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
-        state_hash = state.get_hash()
-        hash_result = state_hash_table.get(state_hash)
         if hash_result is not None:
-            if hash_result['used'] == 1:
-                return 0
             return hash_result["value"]  # If state previously evaluated don't recompute heuristic
-
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state_hash, value)  # Add state and value to hash table
         return value
@@ -51,14 +51,14 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
 
 def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table, num_state_visited):
     num_state_visited[0] += 1
+    state_hash = state.get_hash()
+    hash_result = state_hash_table.get(state_hash)
+    if hash_result is not None:
+        if hash_result['used'] == 1:
+            return 0
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
-        state_hash = state.get_hash()
-        hash_result = state_hash_table.get(state_hash)
         if hash_result is not None:
-            if hash_result['used'] == 1:
-                return 0
             return hash_result["value"]  # If state previously evaluated don't recompute heuristic
-
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state_hash, value)  # Add state and value to hash table
         return value
@@ -133,7 +133,7 @@ def choose_action(state, game, state_hash_table):
     all_actions = game.produce_actions(state)  # Getting all possible actions given state
     while time.time()-time_start < game.max_time:
         cont = 0
-        for a in all_actions.keys():
+        for a in all_actions:
             v = max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                           game, alpha, best_score, 1, max_depth, time_start, state_hash_table, num_state_visited)
             cont += 1
