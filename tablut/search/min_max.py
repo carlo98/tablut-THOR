@@ -28,14 +28,14 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state_hash, value, None)  # Add state and value to hash table
         return value
-
-    if state.check_victory() == -1 and game.color == "BLACK":  # king captured and black player -> Win
+    tmp_victory = state.check_victory()
+    if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
         return -MAX_VAL_HEURISTIC
-    elif state.check_victory() == -1 and game.color == "WHITE":  # King captured and white player -> Lose
+    elif tmp_victory == -1 and game.color == "WHITE":  # King captured and white player -> Lose
         return MAX_VAL_HEURISTIC
-    elif state.check_victory() == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
+    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
         return MAX_VAL_HEURISTIC
-    elif state.check_victory() == 1 and game.color == "WHITE":  # King escaped and white player -> Win
+    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
         return -MAX_VAL_HEURISTIC
 
     # Body
@@ -71,14 +71,14 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state_hash, value, None)  # Add state and value to hash table
         return value
-
-    if state.check_victory() == -1 and game.color == "BLACK":  # king captured and black player -> Win
+    tmp_victory = state.check_victory()
+    if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
         return -MAX_VAL_HEURISTIC
-    elif state.check_victory() == -1 and game.color == "WHITE":  # King captured and white player -> Lose
+    elif tmp_victory == -1 and game.color == "WHITE":  # King captured and white player -> Lose
         return MAX_VAL_HEURISTIC
-    elif state.check_victory() == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
+    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
         return MAX_VAL_HEURISTIC
-    elif state.check_victory() == 1 and game.color == "WHITE":  # King escaped and white player -> Win
+    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
         return -MAX_VAL_HEURISTIC
 
     # Body

@@ -4,10 +4,7 @@ from tablut.state.tablut_state import State
 from tablut.search.game import Game
 from tablut.utils.state_utils import action_to_server_format
 from tablut.utils.state_utils import q
-import sys
-
-MAX_SIZE_DICT = 1.8 * 1024 * 1024 * 1024  # GB, MB, kB, B
-# Size of dict is 296B at 14/11/2020
+from tablut.utils.common_utils import *
 
 
 class Client(ConnectionHandler):
@@ -41,7 +38,6 @@ class Client(ConnectionHandler):
                     print("Choosen action:", action_to_server_format(action))
                     print("Choosen action value:", value)
                 else:
-                    print(sys.getsizeof(state_hash_table_tmp) - MAX_SIZE_DICT)
                     clear_hash_table_1(state_hash_table_tmp)
                 if result_search is not None:
                     state_server = self.read_string()
@@ -64,38 +60,4 @@ class Client(ConnectionHandler):
         finally:
             print("Game ended.")
 
-
-def clear_hash_table_1(state_has_table):
-    if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
-        for key in state_has_table.keys():
-            if state_has_table[key]['used'] == 0:
-                state_has_table.pop(key)
-            if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
-                break
-
-
-def clear_hash_table_2(state_has_table, state):
-    for key in state_has_table.keys():
-        if cont_pieces(state_has_table[key]) > cont_pieces(state):
-            state_has_table.pop(key)
-        if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
-            break
-    if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
-        for key in state_has_table.keys():
-            if state_has_table[key]['used'] == 0:
-                state_has_table.pop(key)
-            if sys.getsizeof(state_has_table) > MAX_SIZE_DICT:
-                break
-
-
-def cont_pieces(state):
-    cnt = 1
-    for r in range(0, 9):
-        for c in range(0, 9):
-            curr_mask = 256 >> c
-            if state.white_bitboard[r] & curr_mask != 0:
-                cnt += 1
-            if state.black_bitboard[r] & curr_mask != 0:
-                cnt += 1
-    return cnt
 
