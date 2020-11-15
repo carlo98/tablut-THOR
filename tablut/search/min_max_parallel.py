@@ -11,9 +11,10 @@ from tablut.utils.state_utils import MAX_VAL_HEURISTIC
 from threading import Lock, Thread
 import copy
 
-
+N_THREAD = 4
 lock_hash = Lock()
 lock_value = Lock()
+lock_bool = Lock()
 
 #TODO: remove num_state_visited, use just in test phase
 
@@ -152,10 +153,12 @@ def choose_action(state, game, state_hash_table):
     max_depth = 2
     flag = False
     all_actions = game.produce_actions(state)  # Getting all possible actions given state
-    flag_time = False
+    flag_time = [False]
     if len(all_actions) > 0:
+        thread_list = []
+        active = []
+        action = []
         while time.time()-time_start < game.max_time:
-            thread_list = []
             for j in range(len(all_actions)):
                 a = all_actions[j]
                 if j == 0:
@@ -165,25 +168,45 @@ def choose_action(state, game, state_hash_table):
                         best_score[0] = v
                         best_action[0] = a
                 else:
-                    thread_list.append(Thread(target=search_thread,
-                                              args=(state, a, game, alpha, best_score, best_action, 1, max_depth,
-                                                    time_start, state_hash_table)))
-                    thread_list[len(thread_list)-1].start()
+                    if len(thread_list) < N_THREAD:
+                        active.append(False)
+                        action.append(a)
+                        thread_list.append(Thread(target=search_thread,
+                                                  args=(state, action, game, alpha, best_score, best_action, 1,
+                                                        max_depth, time_start, state_hash_table, flag_time, active,
+                                                        len(thread_list))))
+                        thread_list[len(thread_list) - 1].start()
+                    else:
+                        flag_assign = True
+                        while flag_assign:
+                            for i in range(len(thread_list)):
+                                lock_bool.acquire()
+                                tmp = active[i]
+                                lock_bool.release()
+                                if not tmp:
+                                    action[i] = a
+                                    lock_bool.acquire()
+                                    active[i] = True
+                                    lock_bool.release()
+                                    flag_assign = False
+                                    break
+
                 if time.time() - time_start >= game.max_time:
-                    flag_time = True
+                    flag_time[0] = True
                     break
             flag_t = True
-            while flag_t and not flag_time:
+            while flag_t and not flag_time[0]:
                 flag_t = False
-                for i in range(len(all_actions)-1):
-                    if thread_list[i].is_alive():
+                for i in range(N_THREAD):
+                    lock_bool.acquire()
+                    tmp = active[i]
+                    lock_bool.release()
+                    if tmp:
                         flag_t = True
                 if time.time() - time_start >= game.max_time:
-                    flag_time = True
-            for i in range(len(thread_list)-1):
-                thread_list[i].join()
+                    flag_time[0] = True
             # If search at current maximum depth is finished, update best action
-            if not flag_time:
+            if not flag_time[0]:
                 best_score_end = best_score[0]
                 best_action_end = best_action[0]
                 flag = True
@@ -193,18 +216,33 @@ def choose_action(state, game, state_hash_table):
             else:
                 print("Minimum depth not reached")
             max_depth += 1  # Iteratively increasing depth
+        for i in range(len(thread_list)):
+            thread_list[i].join()
     return best_action_end, best_score_end
 
 
-def search_thread(state, a, game, alpha, best_score, best_action, depth, max_depth, time_start, state_hash_table):
-    lock_value.acquire()
-    tmp_best = best_score[0]
-    lock_value.release()
-    v = max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
-                  game, alpha, tmp_best, depth+1, max_depth, time_start, state_hash_table)
-    lock_value.acquire()
-    if v < best_score[0]:
-        best_score[0] = v
-        best_action[0] = a
-    lock_value.release()
+def search_thread(state, action, game, alpha, best_score, best_action, depth, max_depth, time_start, state_hash_table,
+                  stop, active, id_m):
+    while not stop[0]:
+        lock_bool.acquire()
+        active[id_m] = False
+        tmp = active[id_m]
+        lock_bool.release()
+        while not tmp and not stop[0]:
+            lock_bool.acquire()
+            tmp = active[id_m]
+            lock_bool.release()
+        if stop[0]:
+            break
+        lock_value.acquire()
+        tmp_best = best_score[0]
+        a = action[id_m]
+        lock_value.release()
+        v = max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
+                      game, alpha, tmp_best, depth+1, max_depth, time_start, state_hash_table)
+        lock_value.acquire()
+        if v < best_score[0]:
+            best_score[0] = v
+            best_action[0] = a
+        lock_value.release()
     return
