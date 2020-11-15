@@ -7,12 +7,11 @@ Implementation of minmax algorithm with alpha-beta pruning.
 from tablut.state.tablut_state import State
 from tablut.client.connection_handler import ConnectionHandler
 from tablut.search.game import Game
-from tablut.search.min_max_parallel import choose_action, update_used
+from tablut.search.min_max_parallel import choose_action
 from tablut.utils.state_utils import action_to_server_format
-from tablut.utils.common_utils import *
+from tablut.utils.common_utils import clear_hash_table, update_used, MAX_NUM_CHECKERS
 import pickle
 import os
-import sys
 
 
 class Client(ConnectionHandler):
@@ -26,6 +25,9 @@ class Client(ConnectionHandler):
         self.weights = weights
         self.file_access = file_access
         self.game = Game(self.max_time, self.color, self.weights)
+        self.state_hash_tables_tmp = dict()
+        for i in range(MAX_NUM_CHECKERS):
+            self.state_hash_tables_tmp[i] = dict()
 
     def run(self):
         """Client's body."""
@@ -36,7 +38,6 @@ class Client(ConnectionHandler):
                 file = open("state_hash", "rb")
                 state_hash_table = pickle.load(file)
                 file.close()
-                state_hash_table = convert_state_hash(state_hash_table)
             else:
                 state_hash_table = dict()
             state_list = []
@@ -45,16 +46,15 @@ class Client(ConnectionHandler):
             self.connect()
             self.send_string(self.player_name)
             state = State(self.read_string())
-            state_hash_table_tmp = {state.get_hash(): {"value": 0, 'used': 1}}
+            self.state_hash_tables_tmp[0][state.get_hash()] = {"value": {"WHITE": 0, "BLACK": 0}, 'used': 1}
             while True:  # Playing
                 if self.color == state.turn:  # check turn
                     action, value = choose_action(state, self.game,
-                                                  state_hash_table_tmp)  # Retrieving best action and its value and pass weights
+                                                  self.state_hash_tables_tmp)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
                     print("Choosen action value:", value)
                 else:
-                    print(sys.getsizeof(state_hash_table_tmp) - MAX_SIZE_DICT)
-                    clear_hash_table_1(state_hash_table_tmp)
+                    clear_hash_table(self.state_hash_tables_tmp, state)
                 state_server = self.read_string()
                 state = State(state_server)
                 blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond = \
@@ -72,7 +72,7 @@ class Client(ConnectionHandler):
                     break
                 if self.file_access:
                     state_list.append(state)
-                update_used(state_hash_table_tmp, state, self.game.weights, self.game.color)
+                update_used(self.state_hash_tables_tmp, state, self.game.weights, self.game.color)
         except Exception as e:
             print(e)
         finally:
@@ -114,18 +114,4 @@ def add_to_hash(table, state_hash, value):
     Adds current state and its value to hash table.
     """
     table[state_hash] = {"value": value, "games": 1}
-
-
-def convert_state_hash(state_hash_table):
-    new_state_hash_table = dict()
-    for key in state_hash_table.keys():
-        tmp = state_hash_table[key]
-        if tmp.get('bitboards') is not None:
-            new_key = (tuple(tmp['bitboards']['king']), tuple(tmp['bitboards']['white']),
-                       tuple(tmp['bitboards']['black']))
-            if new_state_hash_table.get(new_key) is None:
-                new_state_hash_table[new_key] = {"value": tmp['value'], "games": tmp['games']}
-        else:
-            new_state_hash_table[key] = tmp
-    return new_state_hash_table
 

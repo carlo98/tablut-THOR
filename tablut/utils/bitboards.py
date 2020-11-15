@@ -3,6 +3,9 @@ Constant bitboards: castle, escapes and camps.
 """
 import numpy as np
 
+
+MAX_NUM_CHECKERS = 25
+
 castle_bitboard = np.array([
     0b000000000,
     0b000000000,

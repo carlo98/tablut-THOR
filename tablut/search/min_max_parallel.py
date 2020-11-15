@@ -8,6 +8,7 @@ import numpy as np
 import time
 from tablut.state.tablut_state import State
 from tablut.utils.state_utils import MAX_VAL_HEURISTIC
+from tablut.utils.common_utils import cont_pieces, MAX_NUM_CHECKERS
 from threading import Lock, Thread
 import copy
 
@@ -21,20 +22,22 @@ lock_bool = Lock()
 
 def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
     state_hash = state.get_hash()
+    index_checkers = MAX_NUM_CHECKERS-cont_pieces(state)
     lock_hash.acquire()
-    hash_result = copy.deepcopy(state_hash_table.get(state_hash))
+    hash_result = copy.deepcopy(state_hash_table[index_checkers].get(state_hash))
     lock_hash.release()
     all_actions = None
     if hash_result is not None:
         if hash_result['used'] == 1:
             return 0
         if hash_result.get('all_actions') is not None:
-            all_actions = hash_result.get('all_actions')
+            all_actions = hash_result.get('all_actions').get(state.turn)
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         if hash_result is not None:
-            return hash_result["value"]  # If state previously evaluated don't recompute heuristic
+            if hash_result['value'].get(state.turn) is not None:
+                return hash_result["value"][state.turn]  # If state previously evaluated don't recompute heuristic
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
-        add_to_hash(state_hash_table, state_hash, value, None)  # Add state and value to hash table
+        add_to_hash(state_hash_table, state_hash, value, None, index_checkers, state.turn)  # Add state and value to hash table
         return value
     tmp_victory = state.check_victory()
     if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
@@ -51,7 +54,8 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     if all_actions is None:
         all_actions = game.produce_actions(state)
         if hash_result is not None:
-            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions)
+            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions, index_checkers, state.turn,
+                        True)
     if len(all_actions) == 0:
         return -MAX_VAL_HEURISTIC
     for a in all_actions:
@@ -65,20 +69,22 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
 
 def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
     state_hash = state.get_hash()
+    index_checkers = MAX_NUM_CHECKERS-cont_pieces(state)
     lock_hash.acquire()
-    hash_result = copy.deepcopy(state_hash_table.get(state_hash))
+    hash_result = copy.deepcopy(state_hash_table[index_checkers].get(state_hash))
     lock_hash.release()
     all_actions = None
     if hash_result is not None:
         if hash_result['used'] == 1:
             return 0
         if hash_result.get('all_actions') is not None:
-            all_actions = hash_result.get('all_actions')
+            all_actions = hash_result.get('all_actions').get(state.turn)
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         if hash_result is not None:
-            return hash_result["value"]  # If state previously evaluated don't recompute heuristic
+            if hash_result['value'].get(state.turn) is not None:
+                return hash_result["value"][state.turn]  # If state previously evaluated don't recompute heuristic
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
-        add_to_hash(state_hash_table, state_hash, value, None)  # Add state and value to hash table
+        add_to_hash(state_hash_table, state_hash, value, None, index_checkers, state.turn)  # Add state and value to hash table
         return value
     tmp_victory = state.check_victory()
     if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
@@ -95,7 +101,8 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     if all_actions is None:
         all_actions = game.produce_actions(state)
         if hash_result is not None:
-            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions)
+            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions, index_checkers, state.turn,
+                        True)
     if len(all_actions) == 0:
         return MAX_VAL_HEURISTIC
     for a in all_actions:
@@ -107,25 +114,20 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     return v
 
 
-def add_to_hash(table, state_hash, value, all_actions):
+def add_to_hash(table, state_hash, value, all_actions, index_checkers, turn, change_actions=False):
     """
     Adds current state and its value to hash table.
     """
     lock_hash.acquire()
-    table[state_hash] = {"value": value, "used": 0, 'all_actions': all_actions}
-    lock_hash.release()
-
-
-def update_used(state_hash_table, state, weights, color):
-    """
-    Adds current state and its value to hash table.
-    """
-    state_hash = state.get_hash()
-    hash_result = state_hash_table.get(state_hash)
-    if hash_result is not None:
-        state_hash_table[state_hash]['used'] = 1
+    if table[index_checkers].get(state_hash) is not None:
+        table[index_checkers][state_hash]['value'][turn] = value
+    elif change_actions and table[index_checkers][state_hash].get('all_actions') is not None:
+        table[index_checkers][state_hash]['all_actions'][turn] = all_actions
+    elif change_actions and table[index_checkers][state_hash].get('all_actions') is None:
+        table[index_checkers][state_hash]['all_actions'] = {turn: all_actions}
     else:
-        state_hash_table[state_hash] = {"value": state.compute_heuristic(weights, color), "used": 1}
+        table[state_hash] = {"value": {turn: value}, "used": 0, 'all_actions': {turn: all_actions}}
+    lock_hash.release()
 
 
 def cutoff_test(depth, max_depth, max_time, time_start):

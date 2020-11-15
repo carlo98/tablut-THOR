@@ -1,10 +1,10 @@
 from tablut.client.connection_handler import ConnectionHandler
-from tablut.search.min_max import choose_action, update_used
+from tablut.search.min_max_parallel import choose_action
 from tablut.state.tablut_state import State
 from tablut.search.game import Game
 from tablut.utils.state_utils import action_to_server_format
 from tablut.utils.state_utils import q
-from tablut.utils.common_utils import *
+from tablut.utils.common_utils import clear_hash_table, update_used, MAX_NUM_CHECKERS
 
 
 class Client(ConnectionHandler):
@@ -23,6 +23,9 @@ class Client(ConnectionHandler):
         else:
             self.player_name = name
         self.game = Game(self.max_time, self.color, self.weights)
+        self.state_hash_tables_tmp = dict()
+        for i in range(MAX_NUM_CHECKERS):
+            self.state_hash_tables_tmp[i] = dict()
 
     def run(self, result_search=None):
         """Client's body."""
@@ -30,15 +33,15 @@ class Client(ConnectionHandler):
             self.connect()
             self.send_string(self.player_name)
             state = State(self.read_string())
-            state_hash_table_tmp = {state.get_hash(): {"value": 0, 'used': 1}}
+            self.state_hash_tables_tmp[0][state.get_hash()] = {"value": {"WHITE": 0, "BLACK": 0}, 'used': 1}
             while True:  # Playing
                 if self.color == state.turn:  # check turn
-                    action, value = choose_action(state, self.game, state_hash_table_tmp)  # Retrieving best action and its value and pass weights
+                    action, value = choose_action(state, self.game, self.state_hash_tables_tmp)  # Retrieving best action and its value and pass weights
                     self.send_string(action_to_server_format(action))
                     print("Choosen action:", action_to_server_format(action))
                     print("Choosen action value:", value)
                 else:
-                    clear_hash_table_1(state_hash_table_tmp)
+                    clear_hash_table(self.state_hash_tables_tmp, state)
                 if result_search is not None:
                     state_server = self.read_string()
                     if state_server['turn'] == "WHITEWIN":
@@ -54,7 +57,7 @@ class Client(ConnectionHandler):
                         state = State(state_server)
                 else:
                     state = State(self.read_string())
-                update_used(state_hash_table_tmp, state, self.game.weights, self.game.color)
+                update_used(self.state_hash_tables_tmp, state, self.game.weights, self.game.color)
         except Exception as e:
             print(e)
         finally:
