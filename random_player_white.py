@@ -46,7 +46,7 @@ class Client(ConnectionHandler):
             self.connect()
             self.send_string(self.player_name)
             state = State(self.read_string())
-            self.state_hash_tables_tmp[0][state.get_hash()] = {"value": {"WHITE": 0, "BLACK": 0}, 'used': 1}
+            self.state_hash_tables_tmp[0][state.get_hash()] = {"value": 0, 'used': 1}
             while True:  # Playing
                 if self.color == state.turn:  # check turn
                     action, value = choose_action(state, self.game,

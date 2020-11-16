@@ -3,7 +3,6 @@ from tablut.search.min_max_parallel import choose_action
 from tablut.state.tablut_state import State
 from tablut.search.game import Game
 from tablut.utils.state_utils import action_to_server_format
-from tablut.utils.state_utils import q
 from tablut.utils.common_utils import clear_hash_table, update_used, MAX_NUM_CHECKERS
 
 
@@ -33,7 +32,7 @@ class Client(ConnectionHandler):
             self.connect()
             self.send_string(self.player_name)
             state = State(self.read_string())
-            self.state_hash_tables_tmp[0][state.get_hash()] = {"value": {"WHITE": 0, "BLACK": 0}, 'used': 1}
+            self.state_hash_tables_tmp[0][state.get_hash()] = {"value": 0, 'used': 1}
             while True:  # Playing
                 if self.color == state.turn:  # check turn
                     action, value = choose_action(state, self.game, self.state_hash_tables_tmp)  # Retrieving best action and its value and pass weights

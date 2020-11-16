@@ -6,12 +6,13 @@ Population-based search for best weight of heuristic's component.
 """
 from tablut.client.tablut_client import Client
 from multiprocessing import Pool
-from tablut.utils.state_utils import q
 import subprocess
 import numpy as np
 import time
 from itertools import permutations
+from multiprocessing import Queue
 
+q = Queue()
 N_PARAM = 6  # Number of parameter of each solution
 MAX_TIME_ACTION = 5  # Maximum time allowed to search for action
 NUM_MATCH = 4

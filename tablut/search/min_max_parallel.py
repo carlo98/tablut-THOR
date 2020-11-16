@@ -33,9 +33,8 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         if hash_result.get('all_actions') is not None:
             all_actions = hash_result.get('all_actions').get(state.turn)
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
-        if hash_result is not None:
-            if hash_result['value'].get(state.turn) is not None:
-                return hash_result["value"][state.turn]  # If state previously evaluated don't recompute heuristic
+        if hash_result is not None and hash_result.get("value") is not None:
+            return hash_result["value"]  # If state previously evaluated don't recompute heuristic
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state_hash, value, None, index_checkers, state.turn)  # Add state and value to hash table
         return value
@@ -54,8 +53,9 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     if all_actions is None:
         all_actions = game.produce_actions(state)
         if hash_result is not None:
-            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions, index_checkers, state.turn,
-                        True)
+            add_to_hash(state_hash_table, state_hash, None, all_actions, index_checkers, state.turn, True)
+        else:
+            add_to_hash(state_hash_table, state_hash, None, all_actions, index_checkers, state.turn, True)
     if len(all_actions) == 0:
         return -MAX_VAL_HEURISTIC
     for a in all_actions:
@@ -80,9 +80,8 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         if hash_result.get('all_actions') is not None:
             all_actions = hash_result.get('all_actions').get(state.turn)
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
-        if hash_result is not None:
-            if hash_result['value'].get(state.turn) is not None:
-                return hash_result["value"][state.turn]  # If state previously evaluated don't recompute heuristic
+        if hash_result is not None and hash_result.get("value") is not None:
+            return hash_result["value"]  # If state previously evaluated don't recompute heuristic
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state_hash, value, None, index_checkers, state.turn)  # Add state and value to hash table
         return value
@@ -101,8 +100,9 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     if all_actions is None:
         all_actions = game.produce_actions(state)
         if hash_result is not None:
-            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions, index_checkers, state.turn,
-                        True)
+            add_to_hash(state_hash_table, state_hash, None, all_actions, index_checkers, state.turn, True)
+        else:
+            add_to_hash(state_hash_table, state_hash, None, all_actions, index_checkers, state.turn, True)
     if len(all_actions) == 0:
         return MAX_VAL_HEURISTIC
     for a in all_actions:
@@ -119,14 +119,16 @@ def add_to_hash(table, state_hash, value, all_actions, index_checkers, turn, cha
     Adds current state and its value to hash table.
     """
     lock_hash.acquire()
-    if table[index_checkers].get(state_hash) is not None:
-        table[index_checkers][state_hash]['value'][turn] = value
-    elif change_actions and table[index_checkers][state_hash].get('all_actions') is not None:
+    if table[index_checkers].get(state_hash) is not None and not change_actions:
+        table[index_checkers][state_hash]['value'] = value
+    elif change_actions and table[index_checkers].get(state_hash) is not None and table[index_checkers][state_hash].get('all_actions') is not None:
         table[index_checkers][state_hash]['all_actions'][turn] = all_actions
-    elif change_actions and table[index_checkers][state_hash].get('all_actions') is None:
+    elif change_actions and table[index_checkers].get(state_hash) is not None and table[index_checkers][state_hash].get('all_actions') is None:
         table[index_checkers][state_hash]['all_actions'] = {turn: all_actions}
+    elif change_actions and table[index_checkers].get(state_hash) is None:
+        table[index_checkers][state_hash] = {"used": 0, 'all_actions': {turn: all_actions}}
     else:
-        table[state_hash] = {"value": {turn: value}, "used": 0, 'all_actions': {turn: all_actions}}
+        table[index_checkers][state_hash] = {"value": value, "used": 0, 'all_actions': {turn: all_actions}}
     lock_hash.release()
 
 

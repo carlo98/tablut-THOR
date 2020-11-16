@@ -1,9 +1,7 @@
 from tablut.utils.bitboards import *
 import numpy as np
-from multiprocessing import Queue
 
 MAX_VAL_HEURISTIC = 5000  # TODO: to be set at maximum value achievable by heuristic
-q = Queue()  # TODO: jest for genetic search, remove for competition
 
 
 def build_column(bitboard, mask):

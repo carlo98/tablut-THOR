@@ -32,4 +32,5 @@ def update_used(state_hash_table, state, weights, color):
     if hash_result is not None:
         state_hash_table[index_hash][state_hash]['used'] = 1
     else:
-        state_hash_table[index_hash][state_hash] = {"value": state.compute_heuristic(weights, color), "used": 1}
+        state_hash_table[index_hash][state_hash] = {"value": state.compute_heuristic(weights, color),
+                                                    "used": 1}
