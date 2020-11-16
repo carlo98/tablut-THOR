@@ -7,7 +7,7 @@ Implementation of minmax algorithm with alpha-beta pruning.
 import numpy as np
 import time
 from tablut.state.tablut_state import State
-from tablut.utils.state_utils import MAX_VAL_HEURISTIC
+from tablut.utils.state_utils import MAX_VAL_HEURISTIC, DRAW_POINTS
 from tablut.utils.common_utils import cont_pieces, MAX_NUM_CHECKERS
 
 #TODO: remove num_state_visited, use just in test phase
@@ -21,7 +21,7 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     all_actions = None
     if hash_result is not None:
         if hash_result['used'] == 1:
-            return 0
+            return DRAW_POINTS
         if hash_result.get('all_actions') is not None:
             all_actions = hash_result.get('all_actions').get(state.turn)
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
@@ -67,7 +67,7 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     all_actions = None
     if hash_result is not None:
         if hash_result['used'] == 1:
-            return 0
+            return DRAW_POINTS
         if hash_result.get('all_actions') is not None:
             all_actions = hash_result.get('all_actions').get(state.turn)
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
@@ -140,7 +140,6 @@ def choose_action(state, game, state_hash_table):
     It stops only when available time is almost up.
     """
     time_start = time.time()
-    best_score = np.inf
     best_score_end = np.inf
     alpha = -np.inf
     best_action = None
@@ -151,6 +150,7 @@ def choose_action(state, game, state_hash_table):
     all_actions = game.produce_actions(state)  # Getting all possible actions given state
     while time.time()-time_start < game.max_time:
         cont = 0
+        best_score = np.inf
         for a in all_actions:
             v = max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
                           game, alpha, best_score, 1, max_depth, time_start, state_hash_table, num_state_visited)

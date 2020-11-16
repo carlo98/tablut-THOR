@@ -2,6 +2,7 @@ from tablut.utils.bitboards import *
 import numpy as np
 
 MAX_VAL_HEURISTIC = 5000  # TODO: to be set at maximum value achievable by heuristic
+DRAW_POINTS = MAX_VAL_HEURISTIC-1
 
 
 def build_column(bitboard, mask):
