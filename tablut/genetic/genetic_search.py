@@ -14,7 +14,7 @@ from multiprocessing import Process, Array
 
 N_POP = 200  # Number of solutions in population.
 N_PARAM = 6  # Number of parameter of each solution
-MAX_PARAM_VALUE = 40  # Maximum value allowed for each parameter
+MAX_PARAM_VALUE = 200  # Maximum value allowed for each parameter
 MIN_PARAM_VALUE = 0  # Minimum value allowed for each parameter
 MAX_ITER = 1000  # Maximum number of iterations
 PERC_NEW_POP = .3  # Percentage of new individuals at each iteration
@@ -131,17 +131,16 @@ def eval_pop_thread(solutions, m_state_hash_table, prob_surv, id_m):
     (probabilities of survival and reproduction).
     """
     np.random.shuffle(solutions)
-    step = int(len(solutions)/N_PROC)
+    step = int(N_POP/N_PROC)
     for index_sol in range(len(solutions)):
         sol = solutions[index_sol]
         print("Solution ", index_sol, " Id: ", id_m)
         for state_key in m_state_hash_table:
             state = m_state_hash_table[state_key]
-            prob_surv[index_sol+step*id_m] += np.sqrt((compute_heuristic(state_key, 'white', sol) -
-                                                       state['value']['white']/state['games'])**2 +
-                                                      (compute_heuristic(state_key, 'black', sol) -
-                                                       state['value']['black']/state['games'])**2 +
-                                                      0.00000000001)
+            prob_surv[index_sol + step * id_m - 1] += (np.abs(compute_heuristic(state_key, 'white', sol) -
+                                                              state['value']['white'] / state['games']) +
+                                                       np.abs(compute_heuristic(state_key, 'black', sol) -
+                                                              state['value']['black'] / state['games'])) / 2
 
 
 def eval_pop(solutions, m_state_hash_table):
