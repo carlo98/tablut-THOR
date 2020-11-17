@@ -94,7 +94,7 @@ class State:
         coeff_min_white = (-1) ** (color == "WHITE")
         blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black \
                       + coeff_min_white * weights[1] * blocks_occupied_by_white
-        open_blocks_cond = coeff_min_white * weights[2]* (8 - blocks_occupied_by_white - blocks_occupied_by_black)
+        open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black)
         "remaining pieces are considered"
         white_cnt = 0
         black_cnt = 0
@@ -110,7 +110,7 @@ class State:
         remaining_blacks_cond = coeff_min_black * weights[4] * black_cnt
 
         "aggressive king condition"
-        ak_cond = coeff_min_white*weights[5]*self.open_king_paths()
+        ak_cond = coeff_min_white * weights[5] * self.open_king_paths()
         h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond
         return h
 
@@ -134,7 +134,7 @@ class State:
         coeff_min_white = (-1) ** (color == "WHITE")
         blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black \
                       + coeff_min_white * weights[1] * blocks_occupied_by_white
-        open_blocks_cond = coeff_min_white * weights[2]* (8 - blocks_occupied_by_white - blocks_occupied_by_black)
+        open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black)
         "remaining pieces are considered"
         white_cnt = 0
         black_cnt = 0
@@ -150,7 +150,7 @@ class State:
         remaining_blacks_cond = coeff_min_black * weights[4] * black_cnt
 
         "aggressive king condition"
-        ak_cond = coeff_min_white*weights[5]*self.open_king_paths()
+        ak_cond = coeff_min_white * weights[5] * self.open_king_paths()
         h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond
         return blocks_cond, remaining_blacks_cond, remaining_whites_cond, open_blocks_cond, ak_cond
 
@@ -164,7 +164,7 @@ class State:
         right_mask = 511 * np.ones(1, dtype=int)
 
         left_mask = (king_bin_col << 1) * np.ones(1, dtype=int)
-        for col in range(0, king_col+1):
+        for col in range(0, king_col + 1):
             right_mask >>= 1
             if col <= king_col - 2:
                 left_mask ^= king_bin_col
@@ -175,7 +175,8 @@ class State:
         below_the_column = []
         for row in range(0, 9):
             if row != king_row and row < king_row:
-                above_the_column += list(bit(camps_bitboard[row])) + list(bit(self.white_bitboard[row])) + list(bit(self.black_bitboard[row]))
+                above_the_column += list(bit(camps_bitboard[row])) + list(bit(self.white_bitboard[row])) + list(
+                    bit(self.black_bitboard[row]))
             elif row != king_row and row > king_row:
                 below_the_column += list(bit(camps_bitboard[row])) + list(bit(self.white_bitboard[row])) + list(
                     bit(self.black_bitboard[row]))
@@ -183,7 +184,7 @@ class State:
 
         if (king_row in [3, 4, 5] or
                 ((right_mask & self.white_bitboard[king_row]) + (right_mask & self.black_bitboard[king_row])
-                + (right_mask & camps_bitboard[king_row]) != 0)):
+                 + (right_mask & camps_bitboard[king_row]) != 0)):
             open_paths -= 1
         if (king_row in [3, 4, 5] or
                 (left_mask & self.white_bitboard[king_row]) + (left_mask & self.black_bitboard[king_row])
@@ -196,6 +197,22 @@ class State:
             open_paths -= 1
 
         return open_paths
+
+    def locked_back_camps(self):
+        locked_camps = 0
+        hor_map = 0b000111000
+        if self.black_bitboard[0] & hor_map == 0b000111000:
+            locked_camps += 1
+        if self.black_bitboard[8] & hor_map == 0b000111000:
+            locked_camps += 1
+        row4 = list(bit(self.black_bitboard[3]))
+        row5 = list(bit(self.black_bitboard[4]))
+        row6 = list(bit(self.black_bitboard[5]))
+        if 256 in row4 and 256 in row5 and 256 in row6:
+            locked_camps += 1
+        if 2 in row4 and 2 in row5 and 2 in row6:
+            locked_camps += 1
+        return locked_camps
 
     def get_hash(self):
         """
