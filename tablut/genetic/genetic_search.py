@@ -204,7 +204,7 @@ def mutations(solutions, prob_surv):
     Mutating individuals based on their probability of survival.
     """
     for j in range(N_POP):
-        number_poss_mutations = np.random.randint(0, N_PARAM)  # Choosing number of possible mutations
+        number_poss_mutations = np.random.randint(1, N_PARAM+1)  # Choosing number of possible mutations
         for k in range(number_poss_mutations):
             param_index = np.random.randint(0, N_PARAM)  # Choosing parameter to mutate
             random_mutation = np.random.rand()
