@@ -12,16 +12,16 @@ from tablut.utils.state_utils import *
 from tablut.utils.bitboards import *
 from concurrent.futures import ProcessPoolExecutor
 
-N_POP = 200  # Number of solutions in population.
+N_POP = 500  # Number of solutions in population.
 N_PARAM = 6  # Number of parameter of each solution
-MAX_PARAM_VALUE = 200  # Maximum value allowed for each parameter
+MAX_PARAM_VALUE = 300  # Maximum value allowed for each parameter
 MIN_PARAM_VALUE = 0  # Minimum value allowed for each parameter
 MAX_ITER = 1000  # Maximum number of iterations
 PERC_NEW_POP = .5  # Percentage of new individuals at each iteration
-EPS = 10  # Maximum change of each parameter due to mutation
+EPS = 50  # Maximum change of each parameter due to mutation
 MAX_ITER_NO_BETTER = 10  # Maximum number of iterations without better solution
 N_PROC = 8  # Keep N_POP/N_PROC integer
-ERROR_ZERO = 5
+ERROR_ZERO = 0.05
 
 def check_victory(state):
     if np.count_nonzero(state['king_bitboard']) == 0:
@@ -133,6 +133,7 @@ def eval_pop_thread(args):
         print("Solution ", index_sol, " Id: ", id_mi)
         sol = m_solutions[index_sol]
         tmp_points = 0
+        max_sol = np.max(sol)
         for state_key in m_state_hash_table:
             state = m_state_hash_table[state_key]
             tmp_w = compute_heuristic(state_key, 'WHITE', sol)
@@ -141,14 +142,14 @@ def eval_pop_thread(args):
                 tmp_points += 1
             elif tmp_w > 0 and state['value']['black'] / state['games'] > 0.5:
                 tmp_points += 1
-            elif (tmp_w <= 0+ERROR_ZERO or tmp_w >= 0-ERROR_ZERO) and \
+            elif 0+ERROR_ZERO * max_sol >= tmp_w >= 0-ERROR_ZERO * max_sol and \
                     state['value']['black'] / state['games'] < 0.5 and state['value']['white'] / state['games'] < 0.5:
                 tmp_points += 1
             if tmp_b < 0 and state['value']['black'] / state['games'] > 0.5:
                 tmp_points += 1
             elif tmp_b > 0 and state['value']['white'] / state['games'] > 0.5:
                 tmp_points += 1
-            elif (tmp_b <= 0+ERROR_ZERO or tmp_b >= 0-ERROR_ZERO) and \
+            elif 0 + ERROR_ZERO * max_sol >= tmp_b >= 0-ERROR_ZERO * max_sol and \
                     state['value']['black'] / state['games'] < 0.5 and state['value']['white'] / state['games'] < 0.5:
                 tmp_points += 1
         tmp_points /= 2
@@ -261,3 +262,6 @@ while num_iter <= MAX_ITER and no_best_sol <= MAX_ITER_NO_BETTER:
     print("Iteration: ", num_iter)
     num_iter += 1
     no_best_sol += 1
+
+print(best_sol_prob)
+print(best_sol)
