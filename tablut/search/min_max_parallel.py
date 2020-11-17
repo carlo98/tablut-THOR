@@ -22,6 +22,15 @@ lock_time = Lock()
 
 
 def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
+    tmp_victory = state.check_victory()
+    if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
+        return -MAX_VAL_HEURISTIC
+    elif tmp_victory == -1 and game.color == "WHITE":  # King captured and white player -> Lose
+        return MAX_VAL_HEURISTIC
+    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
+        return MAX_VAL_HEURISTIC
+    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
+        return -MAX_VAL_HEURISTIC
     state_hash = state.get_hash()
     index_checkers = MAX_NUM_CHECKERS-cont_pieces(state)
     lock_hash.acquire()
@@ -39,15 +48,6 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state_hash, value, None, index_checkers, state.turn)  # Add state and value to hash table
         return value
-    tmp_victory = state.check_victory()
-    if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
-        return -MAX_VAL_HEURISTIC
-    elif tmp_victory == -1 and game.color == "WHITE":  # King captured and white player -> Lose
-        return MAX_VAL_HEURISTIC
-    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
-        return MAX_VAL_HEURISTIC
-    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
-        return -MAX_VAL_HEURISTIC
 
     # Body
     v = -np.inf
@@ -69,8 +69,17 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
 
 
 def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
+    tmp_victory = state.check_victory()
+    if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
+        return -MAX_VAL_HEURISTIC
+    elif tmp_victory == -1 and game.color == "WHITE":  # King captured and white player -> Lose
+        return MAX_VAL_HEURISTIC
+    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
+        return MAX_VAL_HEURISTIC
+    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
+        return -MAX_VAL_HEURISTIC
     state_hash = state.get_hash()
-    index_checkers = MAX_NUM_CHECKERS-cont_pieces(state)
+    index_checkers = MAX_NUM_CHECKERS - cont_pieces(state)
     lock_hash.acquire()
     hash_result = copy.deepcopy(state_hash_table[index_checkers].get(state_hash))
     lock_hash.release()
@@ -86,15 +95,6 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
         add_to_hash(state_hash_table, state_hash, value, None, index_checkers, state.turn)  # Add state and value to hash table
         return value
-    tmp_victory = state.check_victory()
-    if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
-        return -MAX_VAL_HEURISTIC
-    elif tmp_victory == -1 and game.color == "WHITE":  # King captured and white player -> Lose
-        return MAX_VAL_HEURISTIC
-    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
-        return MAX_VAL_HEURISTIC
-    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
-        return -MAX_VAL_HEURISTIC
 
     # Body
     v = np.inf
@@ -122,12 +122,14 @@ def add_to_hash(table, state_hash, value, all_actions, index_checkers, turn, cha
     lock_hash.acquire()
     if table[index_checkers].get(state_hash) is not None and not change_actions:
         table[index_checkers][state_hash]['value'] = value
-    elif change_actions and table[index_checkers].get(state_hash) is not None and table[index_checkers][state_hash].get('all_actions') is not None:
+    elif change_actions and table[index_checkers].get(state_hash) is not None and \
+            table[index_checkers][state_hash].get('all_actions') is not None:
         table[index_checkers][state_hash]['all_actions'][turn] = all_actions
-    elif change_actions and table[index_checkers].get(state_hash) is not None and table[index_checkers][state_hash].get('all_actions') is None:
+    elif change_actions and table[index_checkers].get(state_hash) is not None and \
+            table[index_checkers][state_hash].get('all_actions') is None:
         table[index_checkers][state_hash]['all_actions'] = {turn: all_actions}
     elif change_actions and table[index_checkers].get(state_hash) is None:
-        table[index_checkers][state_hash] = {"used": 0, 'all_actions': {turn: all_actions}}
+        table[index_checkers][state_hash] = {"used": 0, 'all_actions': {turn: all_actions}, 'value': None}
     else:
         table[index_checkers][state_hash] = {"value": value, "used": 0, 'all_actions': {turn: all_actions}}
     lock_hash.release()
