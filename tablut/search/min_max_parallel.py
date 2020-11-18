@@ -24,13 +24,13 @@ lock_time = Lock()
 def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
     tmp_victory = state.check_victory()
     if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
-        return -MAX_VAL_HEURISTIC
+        return MAX_VAL_HEURISTIC
     elif tmp_victory == -1 and game.color == "WHITE":  # King captured and white player -> Lose
-        return MAX_VAL_HEURISTIC
-    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
-        return MAX_VAL_HEURISTIC
-    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
         return -MAX_VAL_HEURISTIC
+    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
+        return -MAX_VAL_HEURISTIC
+    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
+        return MAX_VAL_HEURISTIC
     state_hash = state.get_hash()
     index_checkers = MAX_NUM_CHECKERS-cont_pieces(state)
     lock_hash.acquire()
@@ -39,14 +39,14 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     all_actions = None
     if hash_result is not None:
         if hash_result['used'] == 1:
-            return DRAW_POINTS
+            return -DRAW_POINTS
         if hash_result.get('all_actions') is not None:
-            all_actions = hash_result.get('all_actions').get(state.turn)
+            all_actions = hash_result.get('all_actions')
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         if hash_result is not None and hash_result.get("value") is not None:
             return hash_result["value"]  # If state previously evaluated don't recompute heuristic
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
-        add_to_hash(state_hash_table, state_hash, value, None, index_checkers, state.turn)  # Add state and value to hash table
+        add_to_hash(state_hash_table, state_hash, value, None, index_checkers)  # Add state and value to hash table
         return value
 
     # Body
@@ -54,9 +54,7 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     if all_actions is None:
         all_actions = game.produce_actions(state)
         if hash_result is not None:
-            add_to_hash(state_hash_table, state_hash, None, all_actions, index_checkers, state.turn, True)
-        else:
-            add_to_hash(state_hash_table, state_hash, None, all_actions, index_checkers, state.turn, True)
+            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions, index_checkers)
     if len(all_actions) == 0:
         return -MAX_VAL_HEURISTIC
     for a in all_actions:
@@ -71,13 +69,13 @@ def max_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
 def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash_table):
     tmp_victory = state.check_victory()
     if tmp_victory == -1 and game.color == "BLACK":  # king captured and black player -> Win
-        return -MAX_VAL_HEURISTIC
+        return MAX_VAL_HEURISTIC
     elif tmp_victory == -1 and game.color == "WHITE":  # King captured and white player -> Lose
-        return MAX_VAL_HEURISTIC
-    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
-        return MAX_VAL_HEURISTIC
-    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
         return -MAX_VAL_HEURISTIC
+    elif tmp_victory == 1 and game.color == "BLACK":  # King escaped and black player -> Lose
+        return -MAX_VAL_HEURISTIC
+    elif tmp_victory == 1 and game.color == "WHITE":  # King escaped and white player -> Win
+        return MAX_VAL_HEURISTIC
     state_hash = state.get_hash()
     index_checkers = MAX_NUM_CHECKERS - cont_pieces(state)
     lock_hash.acquire()
@@ -86,14 +84,14 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     all_actions = None
     if hash_result is not None:
         if hash_result['used'] == 1:
-            return DRAW_POINTS
+            return -DRAW_POINTS
         if hash_result.get('all_actions') is not None:
-            all_actions = hash_result.get('all_actions').get(state.turn)
+            all_actions = hash_result.get('all_actions')
     if cutoff_test(depth, max_depth, game.max_time, time_start):  # If reached maximum depth or total time
         if hash_result is not None and hash_result.get("value") is not None:
             return hash_result["value"]  # If state previously evaluated don't recompute heuristic
         value = state.compute_heuristic(game.weights, game.color)  # If state not previously evaluated
-        add_to_hash(state_hash_table, state_hash, value, None, index_checkers, state.turn)  # Add state and value to hash table
+        add_to_hash(state_hash_table, state_hash, value, None, index_checkers)  # Add state and value to hash table
         return value
 
     # Body
@@ -101,9 +99,7 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     if all_actions is None:
         all_actions = game.produce_actions(state)
         if hash_result is not None:
-            add_to_hash(state_hash_table, state_hash, None, all_actions, index_checkers, state.turn, True)
-        else:
-            add_to_hash(state_hash_table, state_hash, None, all_actions, index_checkers, state.turn, True)
+            add_to_hash(state_hash_table, state_hash, hash_result['value'], all_actions, index_checkers)
     if len(all_actions) == 0:
         return MAX_VAL_HEURISTIC
     for a in all_actions:
@@ -115,23 +111,12 @@ def min_value(state, game, alpha, beta, depth, max_depth, time_start, state_hash
     return v
 
 
-def add_to_hash(table, state_hash, value, all_actions, index_checkers, turn, change_actions=False):
+def add_to_hash(table, state_hash, value, all_actions, index_checkers):
     """
     Adds current state and its value to hash table.
     """
     lock_hash.acquire()
-    if table[index_checkers].get(state_hash) is not None and not change_actions:
-        table[index_checkers][state_hash]['value'] = value
-    elif change_actions and table[index_checkers].get(state_hash) is not None and \
-            table[index_checkers][state_hash].get('all_actions') is not None:
-        table[index_checkers][state_hash]['all_actions'][turn] = all_actions
-    elif change_actions and table[index_checkers].get(state_hash) is not None and \
-            table[index_checkers][state_hash].get('all_actions') is None:
-        table[index_checkers][state_hash]['all_actions'] = {turn: all_actions}
-    elif change_actions and table[index_checkers].get(state_hash) is None:
-        table[index_checkers][state_hash] = {"used": 0, 'all_actions': {turn: all_actions}, 'value': None}
-    else:
-        table[index_checkers][state_hash] = {"value": value, "used": 0, 'all_actions': {turn: all_actions}}
+    table[index_checkers][state_hash] = {"value": value, "used": 0, 'all_actions': all_actions}
     lock_hash.release()
 
 
@@ -157,7 +142,7 @@ def choose_action(state, game, state_hash_table):
     best_score_end = np.inf
     best_action_end = None
     best_action = None
-    alpha = -np.inf
+    beta = np.inf
     flag_time = [False]
     best_scores = []
     all_actions = game.produce_actions(state)  # Getting all possible actions given state
@@ -166,15 +151,15 @@ def choose_action(state, game, state_hash_table):
         active = []
         action = []
         while time.time()-time_start < game.max_time:
-            best_score = [np.inf]
+            best_score = [-np.inf]
             for i in range(len(best_scores)):
-                best_scores[i] = np.inf
+                best_scores[i] = -np.inf
             for j in range(len(all_actions)):
                 a = all_actions[j]
                 if j == 0:
-                    v = max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
-                                  game, alpha, best_score[0], 1, max_depth, time_start, state_hash_table)
-                    if v < best_score[0]:
+                    v = min_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
+                                  game, best_score[0], beta, 1, max_depth, time_start, state_hash_table)
+                    if v > best_score[0]:
                         best_score[0] = v
                         best_action = a
                 else:
@@ -183,7 +168,7 @@ def choose_action(state, game, state_hash_table):
                         action.append(a)
                         best_scores.append(np.inf)
                         thread_list.append(Thread(target=search_thread,
-                                                  args=(state, action, game, alpha, best_score, 1,
+                                                  args=(state, action, game, best_score, beta, 1,
                                                         max_depth, time_start, state_hash_table, flag_time, active,
                                                         len(thread_list), best_scores)))
                         thread_list[len(thread_list) - 1].start()
@@ -196,7 +181,7 @@ def choose_action(state, game, state_hash_table):
                                 lock_bool.release()
                                 if not tmp:
                                     lock_value.acquire()
-                                    if best_scores[i] < best_score[0]:
+                                    if best_scores[i] > best_score[0]:
                                         best_score[0] = best_scores[i]
                                         best_action = action[i]
                                     lock_value.release()
@@ -229,7 +214,7 @@ def choose_action(state, game, state_hash_table):
             tmp_time = flag_time[0]
             if not tmp_time:
                 for i in range(len(thread_list)):
-                    if best_scores[i] < best_score[0]:
+                    if best_scores[i] > best_score[0]:
                         best_score[0] = best_scores[i]
                         best_action = action[i]
                 best_score_end = best_score[0]
@@ -246,7 +231,7 @@ def choose_action(state, game, state_hash_table):
     return best_action_end, best_score_end
 
 
-def search_thread(state, action, game, alpha, best_score, depth, max_depth, time_start, state_hash_table,
+def search_thread(state, action, game, best_score, beta, depth, max_depth, time_start, state_hash_table,
                   stop, active, id_m, best_scores):
     lock_time.acquire()
     tmp_time = stop[0]
@@ -269,9 +254,9 @@ def search_thread(state, action, game, alpha, best_score, depth, max_depth, time
         tmp_best = best_score[0]
         a = action[id_m]
         lock_value.release()
-        v = max_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
-                      game, alpha, tmp_best, depth+1, max_depth, time_start, state_hash_table)
-        if v < best_scores[id_m]:
+        v = min_value(State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4])),
+                      game, tmp_best, beta, depth+1, max_depth, time_start, state_hash_table)
+        if v > best_scores[id_m]:
             best_scores[id_m] = v
         lock_time.acquire()
         tmp_time = stop[0]

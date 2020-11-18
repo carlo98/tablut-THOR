@@ -102,16 +102,16 @@ class Client(ConnectionHandler):
                         elif id_win == "DRAW":
                             value["black"] = 0.3
                             value["white"] = 0.3
-                        add_to_hash(state_hash_table, state_hash, value)  # Add state and value to hash table
+                        add_to_hash(state_hash_table, state_hash, value, self.game.produce_actions(state))  # Add state and value to hash table
                 file = open("state_hash", "wb")
                 pickle.dump(state_hash_table, file)
                 file.close()
             print("Game ended.")
 
 
-def add_to_hash(table, state_hash, value):
+def add_to_hash(table, state_hash, value, all_actions):
     """
     Adds current state and its value to hash table.
     """
-    table[state_hash] = {"value": value, "games": 1}
+    table[state_hash] = {"value": value, "games": 1, "all_actions": all_actions}
 

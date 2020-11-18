@@ -78,20 +78,20 @@ class State:
         "victory condition, of course"
         victory_cond = self.check_victory()
         if victory_cond == -1 and color == "BLACK":  # king captured and black player -> Win
-            return -MAX_VAL_HEURISTIC
+            return MAX_VAL_HEURISTIC
         elif victory_cond == -1 and color == "WHITE":  # King captured and white player -> Lose
-            return MAX_VAL_HEURISTIC
-        elif victory_cond == 1 and color == "BLACK":  # King escaped and black player -> Lose
-            return MAX_VAL_HEURISTIC
-        elif victory_cond == 1 and color == "WHITE":  # King escaped and white player -> Win
             return -MAX_VAL_HEURISTIC
+        elif victory_cond == 1 and color == "BLACK":  # King escaped and black player -> Lose
+            return -MAX_VAL_HEURISTIC
+        elif victory_cond == 1 and color == "WHITE":  # King escaped and white player -> Win
+            return MAX_VAL_HEURISTIC
 
         "if the exits are blocked, white has a strong disadvantage"
         blocks_occupied_by_black = np.count_nonzero(self.black_bitboard & blocks_bitboard)
         blocks_occupied_by_white = np.count_nonzero(self.white_bitboard & blocks_bitboard) + \
                                    np.count_nonzero(self.king_bitboard & blocks_bitboard)
-        coeff_min_black = (-1) ** (color == "BLACK")
-        coeff_min_white = (-1) ** (color == "WHITE")
+        coeff_min_black = (-1) ** (color == "WHITE")
+        coeff_min_white = (-1) ** (color == "BLACK")
         blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black \
                       + coeff_min_white * weights[1] * blocks_occupied_by_white
         open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black)
@@ -118,20 +118,20 @@ class State:
         "victory condition, of course"
         victory_cond = self.check_victory()
         if victory_cond == -1 and color == "BLACK":  # king captured and black player -> Win
-            return -MAX_VAL_HEURISTIC, 0, 0, 0, 0
+            return MAX_VAL_HEURISTIC, 0, 0, 0, 0
         elif victory_cond == -1 and color == "WHITE":  # King captured and white player -> Lose
-            return MAX_VAL_HEURISTIC, 0, 0, 0, 0
-        elif victory_cond == 1 and color == "BLACK":  # King escaped and black player -> Lose
-            return MAX_VAL_HEURISTIC, 0, 0, 0, 0
-        elif victory_cond == 1 and color == "WHITE":  # King escaped and white player -> Win
             return -MAX_VAL_HEURISTIC, 0, 0, 0, 0
+        elif victory_cond == 1 and color == "BLACK":  # King escaped and black player -> Lose
+            return -MAX_VAL_HEURISTIC, 0, 0, 0, 0
+        elif victory_cond == 1 and color == "WHITE":  # King escaped and white player -> Win
+            return MAX_VAL_HEURISTIC, 0, 0, 0, 0
 
         "if the exits are blocked, white has a strong disadvantage"
         blocks_occupied_by_black = np.count_nonzero(self.black_bitboard & blocks_bitboard)
         blocks_occupied_by_white = np.count_nonzero(self.white_bitboard & blocks_bitboard) + \
                                    np.count_nonzero(self.king_bitboard & blocks_bitboard)
-        coeff_min_black = (-1) ** (color == "BLACK")
-        coeff_min_white = (-1) ** (color == "WHITE")
+        coeff_min_black = (-1) ** (color == "WHITE")
+        coeff_min_white = (-1) ** (color == "BLACK")
         blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black \
                       + coeff_min_white * weights[1] * blocks_occupied_by_white
         open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black)
@@ -219,4 +219,5 @@ class State:
         Returns an identifier for the state.
         Identifier is unique.
         """
-        return tuple(self.king_bitboard), tuple(self.white_bitboard), tuple(self.black_bitboard)
+        turn = 1 if self.turn == "WHITE" else 0
+        return tuple(self.king_bitboard), tuple(self.white_bitboard), tuple(self.black_bitboard), turn
