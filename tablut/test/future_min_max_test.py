@@ -26,7 +26,7 @@ def lazy_smp(state, game):
         "check the completed results, give the new task"
         for x in tasks_completed:
             i = futures.index(x)
-            (value, action, depth) = x.result()
+            (action, value, depth) = x.result()
             if depth > max_depth:
                 "a new depth has been completed"
                 max_depth = depth
@@ -100,4 +100,4 @@ def alpha_beta_cutoff_search(state, game, max_depth):
         if v > best_score:
             best_score = v
             best_action = a
-    return best_action
+    return best_action, best_score, max_depth
