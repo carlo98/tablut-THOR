@@ -63,7 +63,7 @@ def min_value(state, game, alpha, beta, depth, max_depth):
     np.random.shuffle(all_actions)
     for a in all_actions:
         new_state = State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4]))
-        v = min(v, max_value(new_state, alpha, beta, depth + 1))
+        v = min(v, max_value(new_state, game, alpha, beta, depth + 1, max_depth))
         if v <= alpha:
             return v
         beta = min(beta, v)
@@ -78,7 +78,7 @@ def max_value(state, game, alpha, beta, depth, max_depth):
     np.random.shuffle(all_actions)
     for a in all_actions:
         new_state = State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4]))
-        v = max(v, min_value(new_state, alpha, beta, depth + 1))
+        v = max(v, min_value(new_state, game, alpha, beta, depth + 1, max_depth))
         if v >= beta:
             return v
         alpha = max(alpha, v)
