@@ -3,8 +3,10 @@ import time
 
 import numpy as np
 
-
 # todo rewrite the task assignment better considering the list
+from tablut.state.tablut_state import State
+
+
 def lazy_smp(state, game):
     time_start = time.time()
     pool = ThreadPoolExecutor(4)
@@ -37,7 +39,7 @@ def lazy_smp(state, game):
             if working_at_depth[depth + 1] == 2:
                 "if the next level has 2 threads working on it, search at max_depth+1"
 
-                futures[i] = pool.submit(alpha_beta_cutoff_search, state, game, max_depth+1)
+                futures[i] = pool.submit(alpha_beta_cutoff_search, state, game, max_depth + 1)
             else:
                 "else help searching the next level"
                 working_at_depth[depth + 1] += 1
@@ -46,46 +48,55 @@ def lazy_smp(state, game):
     return chosen_action, chosen_value
 
 
-#todo actually implment the tree search and the hash
+# todo actually implment the tree search and the hash
 
-def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
+def eval_fn(state, game):
+    v = state.compute_heuristic(game.weights, game.color)
+    return v
+
+
+def min_value(state, game, alpha, beta, depth, max_depth):
+    if depth == max_depth:
+        return eval_fn(state, game)
+    v = np.inf
+    all_actions = game.produce_actions(state)
+    np.random.shuffle(all_actions)
+    for a in all_actions:
+        new_state = State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4]))
+        v = min(v, max_value(new_state, alpha, beta, depth + 1))
+        if v <= alpha:
+            return v
+        beta = min(beta, v)
+    return v
+
+
+def max_value(state, game, alpha, beta, depth, max_depth):
+    if depth == max_depth:
+        return eval_fn(state, game)
+    v = -np.inf
+    all_actions = game.produce_actions(state)
+    np.random.shuffle(all_actions)
+    for a in all_actions:
+        new_state = State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4]))
+        v = max(v, min_value(new_state, alpha, beta, depth + 1))
+        if v >= beta:
+            return v
+        alpha = max(alpha, v)
+    return v
+
+
+def alpha_beta_cutoff_search(state, game, max_depth):
     """Search game to determine best action; use alpha-beta pruning.
     This version cuts off search and uses an evaluation function."""
 
-    player = game.to_move(state)
-
-    # Functions used by alpha_beta
-    def max_value(state, alpha, beta, depth):
-        if cutoff_test(state, depth):
-            return eval_fn(state)
-        v = -np.inf
-        for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a), alpha, beta, depth + 1))
-            if v >= beta:
-                return v
-            alpha = max(alpha, v)
-        return v
-
-    def min_value(state, alpha, beta, depth):
-        if cutoff_test(state, depth):
-            return eval_fn(state)
-        v = np.inf
-        for a in np.shuffle(game.produce_actions(state)):
-            v = min(v, max_value(game.result(state, a), alpha, beta, depth + 1))
-            if v <= alpha:
-                return v
-            beta = min(beta, v)
-        return v
-
-    # Body of alpha_beta_cutoff_search starts here:
-    # The default test cuts off at depth d or at a terminal state
-    cutoff_test = (cutoff_test or (lambda state, depth: depth > d or game.terminal_test(state)))
-    eval_fn = eval_fn or (lambda state: game.utility(state, player))
     best_score = -np.inf
     beta = np.inf
     best_action = None
-    for a in np.shuffle(game.produce_actions(state)):
-        v = min_value(game.result(state, a), best_score, beta, 1)
+    action_list = game.produce_actions(state)
+    np.random.shuffle(action_list)
+    for a in action_list:
+        new_state = State(second_init_args=(state, a[0], a[1], a[2], a[3], a[4]))
+        v = min_value(new_state, game, best_score, beta, 1, max_depth)
         if v > best_score:
             best_score = v
             best_action = a
