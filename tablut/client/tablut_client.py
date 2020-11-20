@@ -1,5 +1,5 @@
 from tablut.client.connection_handler import ConnectionHandler
-from tablut.search.min_max_parallel import choose_action
+from tablut.search.min_max import choose_action
 from tablut.state.tablut_state import State
 from tablut.search.game import Game
 from tablut.utils.state_utils import action_to_server_format
@@ -14,7 +14,7 @@ class Client(ConnectionHandler):
         self.color = color
         self.max_time = max_time
         if weights is None:
-            self.weights = [2, 1, 2, 1, 1, 10]  # Best weights find by our genetic algorithm
+            self.weights = [29.7, 36.6, 36.6, 35.2, 33.1, 32.8]  # Best weights find by our genetic algorithm
         else:
             self.weights = weights  # Searching best params
         if name is None:
@@ -26,7 +26,7 @@ class Client(ConnectionHandler):
         for i in range(MAX_NUM_CHECKERS):
             self.state_hash_tables_tmp[i] = dict()
 
-    def run(self, result_search=None):
+    def run(self):
         """Client's body."""
         try:
             self.connect()
@@ -41,21 +41,7 @@ class Client(ConnectionHandler):
                     print("Choosen action value:", value)
                 else:
                     clear_hash_table(self.state_hash_tables_tmp, state)
-                if result_search is not None:
-                    state_server = self.read_string()
-                    if state_server['turn'] == "WHITEWIN":
-                        q.put("WHITE")
-                        break
-                    elif state_server['turn'] == "BLACKWIN":
-                        q.put("BLACK")
-                        break
-                    elif state_server['turn'] == "DRAW":
-                        q.put("DRAW")
-                        break
-                    else:
-                        state = State(state_server)
-                else:
-                    state = State(self.read_string())
+                state = State(self.read_string())
                 update_used(self.state_hash_tables_tmp, state, self.game.weights, self.game.color)
         except Exception as e:
             print(e)
