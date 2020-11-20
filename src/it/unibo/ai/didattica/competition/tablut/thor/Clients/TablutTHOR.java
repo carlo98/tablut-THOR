@@ -46,7 +46,7 @@ public class TablutTHOR extends TablutClient {
 		System.out.println("Player " + this.getPlayer().toString());
 		Action action;
 		Game game = new Game(this.weights, this.color);
-		Hashtable<Integer, Float> state_hash_table= new Hashtable<Integer, Float>();
+		Hashtable<Integer, Hashtable<Integer, Float>> state_hash_table= new Hashtable<Integer, Hashtable<Integer, Float>>();
 		Minmax minmax = new Minmax(state_hash_table, game);
 
 		try {

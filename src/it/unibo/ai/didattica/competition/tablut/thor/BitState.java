@@ -91,6 +91,37 @@ public class BitState{
         return 0;
 	}
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(black_bitboard);
+		result = prime * result + Arrays.hashCode(king_bitboard);
+		result = prime * result + ((turn == null) ? 0 : turn.hashCode());
+		result = prime * result + Arrays.hashCode(white_bitboard);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BitState other = (BitState) obj;
+		if (!Arrays.equals(black_bitboard, other.black_bitboard))
+			return false;
+		if (!Arrays.equals(king_bitboard, other.king_bitboard))
+			return false;
+		if (turn != other.turn)
+			return false;
+		if (!Arrays.equals(white_bitboard, other.white_bitboard))
+			return false;
+		return true;
+	}
+
 	public float compute_heuristic(int[] weights, String color) {
 		int[] tmp_bitboard = new int[9];
         int victory_cond = this.check_victory();
