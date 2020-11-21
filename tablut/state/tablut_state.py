@@ -94,7 +94,7 @@ class State:
         coeff_min_white = (-1) ** (color == "BLACK")
         blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black \
                       + coeff_min_white * weights[1] * blocks_occupied_by_white
-        open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black)
+        #open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black)
         "remaining pieces are considered"
         white_cnt = 0
         black_cnt = 0
@@ -109,9 +109,13 @@ class State:
         remaining_whites_cond = coeff_min_white * weights[3] * white_cnt
         remaining_blacks_cond = coeff_min_black * weights[4] * black_cnt
 
+
         "aggressive king condition"
         ak_cond = coeff_min_white * weights[5] * self.open_king_paths()
-        h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond
+
+        locked_camps_cond = coeff_min_white * weights[6] * self.locked_back_camps()
+
+        h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + ak_cond + locked_camps_cond
         return h
 
     def compute_heuristic_test(self, weights, color):
