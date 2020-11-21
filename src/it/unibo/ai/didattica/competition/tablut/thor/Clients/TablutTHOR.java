@@ -1,18 +1,15 @@
 package it.unibo.ai.didattica.competition.tablut.thor.Clients;
 
+import it.unibo.ai.didattica.competition.tablut.thor.BitState;
 import it.unibo.ai.didattica.competition.tablut.thor.Game;
 import it.unibo.ai.didattica.competition.tablut.thor.Minmax;
 import it.unibo.ai.didattica.competition.tablut.thor.StateDictEntry;
+import it.unibo.ai.didattica.competition.tablut.thor.Utils;
 import it.unibo.ai.didattica.competition.tablut.client.TablutClient;
 import it.unibo.ai.didattica.competition.tablut.domain.Action;
-import it.unibo.ai.didattica.competition.tablut.domain.State;
-import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.UnknownHostException;
-import java.text.ParseException;
 import java.util.Hashtable;
 
 /**
@@ -67,7 +64,7 @@ public class TablutTHOR extends TablutClient {
 			try {
 				if (this.getCurrentState().getTurn().toString().equals(this.color)) {
 
-					action = minmax.makeDecision(max_time, this.getCurrentState().clone(), game);
+					action = Utils.action_to_server_format(minmax.makeDecision(max_time, new BitState(this.getCurrentState().clone()), game));
 					this.write(action);
 
 				} else {

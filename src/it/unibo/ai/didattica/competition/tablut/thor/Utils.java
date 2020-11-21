@@ -8,7 +8,7 @@ import java.util.List;
 import it.unibo.ai.didattica.competition.tablut.domain.Action;
 import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
 
-class Utils {
+public class Utils {
 
 	static final int MAX_NUM_CHECKERS = 25;
 	static final int MAX_VAL_HEURISTIC = 5000;
@@ -64,18 +64,16 @@ class Utils {
 	    return num;
 	}
 	
-	static Action action_to_server_format(List<List<Integer>> actions_int){
+	public static Action action_to_server_format(List<Integer> list){
 		String start_row = "";
 		String end_row = "";
 		String start_col = "";
 		String end_col = "";
 		Action a = null;
-		for(int i = 0; i < actions_int.size(); i++) {
-		    start_row = Integer.toString(actions_int.get(i).get(1) + 1);
-		    end_row = Integer.toString(actions_int.get(i).get(3) + 1);
-		    start_col = Integer.toString(65 + actions_int.get(i).get(2));
-		    end_col = Integer.toString(65 + actions_int.get(i).get(4));
-		}
+		start_row = Integer.toString(list.get(1) + 1);
+		end_row = Integer.toString(list.get(3) + 1);
+		start_col = Integer.toString(65 + list.get(2));
+		end_col = Integer.toString(65 + list.get(4));
 		try {
 			a = new Action(start_col + start_row, end_col + end_row, Turn.DRAW);
 		} catch (IOException e) {
