@@ -10,7 +10,10 @@ import it.unibo.ai.didattica.competition.tablut.domain.Action;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * 
@@ -42,10 +45,12 @@ public class TablutTHOR extends TablutClient {
 	@Override
 	public void run() {
 		System.out.println("Player " + this.getPlayer().toString());
-		Action action;
+		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
+		List<Integer> best_action = List.copyOf(action);
 		Game game = new Game(this.weights, this.color);
 		Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table= new Hashtable<Integer, Hashtable<Integer, StateDictEntry>>();
 		Minmax minmax = new Minmax(state_hash_table, game);
+		BitState bitState = null;
 
 		try {
 			this.declareName();
@@ -57,16 +62,21 @@ public class TablutTHOR extends TablutClient {
 
 			try{
 				this.read();
+				bitState = new BitState(this.getCurrentState().clone());
+				minmax.updateState_hash_table(bitState);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
 			try {
 				if (this.getCurrentState().getTurn().toString().equals(this.color)) {
-
-					action = Utils.action_to_server_format(minmax.makeDecision(max_time, new BitState(this.getCurrentState().clone()), game));
-					this.write(action);
-
+					while (action != null) {
+						minmax.setMax_depth(minmax.getMax_depth() + 1);
+						action = minmax.makeDecision(max_time, bitState, game);
+						if (action != null) 
+							best_action = List.copyOf(action);
+					}
+					this.write(Utils.action_to_server_format(best_action));
 				} else {
 					System.out.println("Game ended.");
 					System.exit(0);

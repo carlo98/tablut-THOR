@@ -122,7 +122,7 @@ public class BitState{
 		return true;
 	}
 
-	public float compute_heuristic(int[] weights, String color) {
+	public double compute_heuristic(int[] weights, String color) {
 		int[] tmp_bitboard = new int[9];
         int victory_cond = this.check_victory();
         if (victory_cond == -1 && color == "BLACK")  // king captured and black player -> Win
