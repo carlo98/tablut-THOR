@@ -2,6 +2,7 @@ package it.unibo.ai.didattica.competition.tablut.thor.Clients;
 
 import it.unibo.ai.didattica.competition.tablut.thor.Game;
 import it.unibo.ai.didattica.competition.tablut.thor.Minmax;
+import it.unibo.ai.didattica.competition.tablut.thor.StateDictEntry;
 import it.unibo.ai.didattica.competition.tablut.client.TablutClient;
 import it.unibo.ai.didattica.competition.tablut.domain.Action;
 import it.unibo.ai.didattica.competition.tablut.domain.State;
@@ -46,7 +47,7 @@ public class TablutTHOR extends TablutClient {
 		System.out.println("Player " + this.getPlayer().toString());
 		Action action;
 		Game game = new Game(this.weights, this.color);
-		Hashtable<Integer, Hashtable<Integer, Float>> state_hash_table= new Hashtable<Integer, Hashtable<Integer, Float>>();
+		Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table= new Hashtable<Integer, Hashtable<Integer, StateDictEntry>>();
 		Minmax minmax = new Minmax(state_hash_table, game);
 
 		try {

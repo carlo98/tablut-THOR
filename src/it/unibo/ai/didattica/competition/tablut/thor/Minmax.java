@@ -22,10 +22,10 @@ public final class Minmax implements Callable<Action> {
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    private Hashtable<Integer, Float> state_hash_table;
+    private Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table;
     private final State.Turn color;
     private final Game game;
-    private final Heuristic heuristic;
+    private final HeuristicTHOR heuristic;
 
     private static final Random rand = new Random();
     private State currentState;
@@ -34,7 +34,7 @@ public final class Minmax implements Callable<Action> {
     private static List<Action> possibleActions;
 
 
-    public Minmax(Hashtable<Integer, Hashtable<Integer, Float>> state_hash_table, Game game) {
+    public Minmax(Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table, Game game) {
         this.state_hash_table = state_hash_table;
         this.heuristic = new HeuristicTHOR(color);
         this.game = game;

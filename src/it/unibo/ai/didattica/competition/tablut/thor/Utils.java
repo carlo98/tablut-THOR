@@ -84,7 +84,7 @@ class Utils {
 	    return a;
 	}
 	
-	int cont_pieces(BitState state) {
+	static int cont_pieces(BitState state) {
 	    int cnt = 0;
 	    for (int r = 0; r < 9; r++) {
 	        for (int c = 0; c < 9; c++) {
@@ -100,7 +100,7 @@ class Utils {
 	    return cnt;
 	}
 	
-	void clear_hash_table(Hashtable<Integer, Hashtable<Integer, Float>> state_hash_tables, BitState state) {
+	static void clear_hash_table(Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_tables, BitState state) {
 	    int index_hash = MAX_NUM_CHECKERS - cont_pieces(state) - 1;
 	    while (index_hash >= 0 && state_hash_tables.containsKey(index_hash)) {
 	        state_hash_tables.remove(index_hash);
@@ -108,21 +108,18 @@ class Utils {
 	    }
 	}
 	
-	void update_used(Hashtable<Integer, Hashtable<Integer, Float>> state_hash_table, BitState state, int[] weights, String color) {
+	static void update_used(Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table, BitState state, int[] weights, String color) {
 	    int state_hash = state.hashCode();
 	    int index_hash = MAX_NUM_CHECKERS - cont_pieces(state);
-	    float hash_result = (float) 0.0;
 	    if (state_hash_table.get(index_hash).contains(state_hash)) {
-	    	hash_result = state_hash_table.get(index_hash).get(state_hash);
-	        //state_hash_table[index_hash][state_hash]['used'] = 1
+	        state_hash_table.get(index_hash).get(state_hash).setUsed();
 	    }
 	    else {
-	        state_hash_table.get(index_hash).put(state_hash, state.compute_heuristic(weights, color)); //{"value": state.compute_heuristic(weights, color),
-	                                                                                                    //   "used": 1}
+	        state_hash_table.get(index_hash).put(state_hash, new StateDictEntry(state_hash, state.compute_heuristic(weights, color), null, 1, 0, 0));
 	    }
 	}
 	
-	int[] bit(int n) {
+	static int[] bit(int n) {
 		int[] to_be_returned = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	    int mask = 0b000000001;
 	    int i = 0;
@@ -136,7 +133,7 @@ class Utils {
 	    return to_be_returned;
 	}
 
-	int[] step_rotate(int[] bitboard) {
+	static int[] step_rotate(int[] bitboard) {
 	    int[] new_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	    int col = 1, j, i;
 	    int[] positions = null;
@@ -152,7 +149,7 @@ class Utils {
 	    return new_bitboard;
 	}
 	
-	int[] black_tries_capture_white_pawn(int[] black_bitboard, int[] white_bitboard, int row, int col) {
+	static int[] black_tries_capture_white_pawn(int[] black_bitboard, int[] white_bitboard, int row, int col) {
 	    int binary_column = 1 << (8 - col);
 	    if (row >= 2) {
 	        if (Arrays.stream(bit(white_bitboard[row - 1])).anyMatch(i -> i == binary_column)) {
@@ -193,7 +190,7 @@ class Utils {
 	    return white_bitboard;
 	}
 	
-	int[] black_tries_capture_king(int[] black_bitboard, int[] king_bitboard, int row, int col) {
+	static int[] black_tries_capture_king(int[] black_bitboard, int[] king_bitboard, int row, int col) {
 		int king_row;
 		for(king_row = 0; king_row < 9; king_row++)
 			if(king_bitboard[king_row] != 0)
@@ -240,7 +237,7 @@ class Utils {
 	    return king_bitboard;
 	}
 	
-	int[] white_tries_capture_black_pawn(int[] white_bitboard, int[] black_bitboard, int row, int col) {
+	static int[] white_tries_capture_black_pawn(int[] white_bitboard, int[] black_bitboard, int row, int col) {
 	    int binary_column = 1 << (8 - col);
 	    if (row >= 2)
 	        if (Arrays.stream(bit(black_bitboard[row-1])).anyMatch(i -> i == binary_column) && (row!=2 || col!= 4))

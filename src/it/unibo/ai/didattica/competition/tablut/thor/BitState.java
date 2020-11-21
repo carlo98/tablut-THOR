@@ -68,15 +68,15 @@ public class BitState{
 	        	this.king_bitboard[end_row] += (1 << (8 - end_col));
 	        	for(int i = 0; i < this.king_bitboard.length; i++)
 	        		tmp_bitboard[i] = this.white_bitboard[i] + this.king_bitboard[i];
-	        	this.black_bitboard = white_tries_capture_black_pawn(tmp_bitboard, this.black_bitboard, end_row, end_col);
+	        	this.black_bitboard = Utils.white_tries_capture_black_pawn(tmp_bitboard, this.black_bitboard, end_row, end_col);
 	        }
 	    }
 	    else {
 	    	this.turn = Turn.WHITE;
 	    	this.black_bitboard[start_row] -= (1 << (8 - start_col));
 	    	this.black_bitboard[end_row] += (1 << (8 - end_col));
-	    	this.white_bitboard = black_tries_capture_white_pawn(this.black_bitboard, this.white_bitboard, end_row, end_col);
-	    	this.king_bitboard = black_tries_capture_king(this.black_bitboard, this.king_bitboard, end_row, end_col);
+	    	this.white_bitboard = Utils.black_tries_capture_white_pawn(this.black_bitboard, this.white_bitboard, end_row, end_col);
+	    	this.king_bitboard = Utils.black_tries_capture_king(this.black_bitboard, this.king_bitboard, end_row, end_col);
 	    }
 	}
 	
