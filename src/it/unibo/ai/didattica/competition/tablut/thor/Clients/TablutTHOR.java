@@ -6,7 +6,6 @@ import it.unibo.ai.didattica.competition.tablut.thor.Minmax;
 import it.unibo.ai.didattica.competition.tablut.thor.StateDictEntry;
 import it.unibo.ai.didattica.competition.tablut.thor.Utils;
 import it.unibo.ai.didattica.competition.tablut.client.TablutClient;
-import it.unibo.ai.didattica.competition.tablut.domain.Action;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
