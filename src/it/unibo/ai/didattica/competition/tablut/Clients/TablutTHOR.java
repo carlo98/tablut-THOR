@@ -1,4 +1,4 @@
-package it.unibo.ai.didattica.competition.tablut.thor.Clients;
+package it.unibo.ai.didattica.competition.tablut.Clients;
 
 import it.unibo.ai.didattica.competition.tablut.thor.BitState;
 import it.unibo.ai.didattica.competition.tablut.thor.Game;
