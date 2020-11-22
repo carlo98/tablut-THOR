@@ -1,7 +1,9 @@
 package it.unibo.ai.didattica.competition.tablut.thor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import it.unibo.ai.didattica.competition.tablut.domain.State;
 import it.unibo.ai.didattica.competition.tablut.domain.State.Pawn;
@@ -123,7 +125,12 @@ public class BitState{
 	}
 
 	public double compute_heuristic(int[] weights, String color) {
-		int[] tmp_bitboard = new int[9];
+		int blocks_occupied_by_black = 0, blocks_occupied_by_white = 0;
+		int white_cnt = 0, black_cnt = 0;
+        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond;
+        double blocks_cond, open_blocks_cond;
+        int coeff_min_black = (int) Math.pow(-1, (color.equalsIgnoreCase("WHITE")) ? 1 : 0);
+        int coeff_min_white = (int) Math.pow(-1, (color.equalsIgnoreCase("BLACK")) ? 1 : 0);
         int victory_cond = this.check_victory();
         if (victory_cond == -1 && color == "BLACK")  // king captured and black player -> Win
             return Utils.MAX_VAL_HEURISTIC;
@@ -134,34 +141,99 @@ public class BitState{
         else if (victory_cond == 1 && color == "WHITE")  // King escaped and white player -> Win
             return Utils.MAX_VAL_HEURISTIC;
         
-        for(int i = 0; i < this.king_bitboard.length; i++)
-    		tmp_bitboard[i] = this.black_bitboard[i] & Utils.blocks_bitboard[i];
-        int blocks_occupied_by_black = 
-        for(int i = 0; i < this.king_bitboard.length; i++)
-    		tmp_bitboard[i] = Utils.escapes_bitboard[i] & this.king_bitboard[i];
-        int blocks_occupied_by_white = count_nonzero(self.white_bitboard & blocks_bitboard) + np.count_nonzero(self.king_bitboard & blocks_bitboard);
-        coeff_min_black = (-1) ** (color == "WHITE")
-        coeff_min_white = (-1) ** (color == "BLACK")
-        blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black \
-                      + coeff_min_white * weights[1] * blocks_occupied_by_white
-        open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black)
-        "remaining pieces are considered"
-        white_cnt = 0
-        black_cnt = 0
-        for r in range(0, 9):
-            for c in range(0, 9):
-                curr_mask = 1 << (8 - c)
-                if self.white_bitboard[r] & curr_mask != 0:
-                    white_cnt += 1
-                if self.black_bitboard[r] & curr_mask != 0:
-                    black_cnt += 1
+        for(int i = 0; i < this.black_bitboard.length; i++)
+        	blocks_occupied_by_black += Arrays.stream(Utils.bit(this.black_bitboard[i] & Utils.blocks_bitboard[i])).filter(x -> x != 0).count();
+        for(int i = 0; i < this.black_bitboard.length; i++) {
+        	blocks_occupied_by_white += Arrays.stream(Utils.bit(this.white_bitboard[i] & Utils.blocks_bitboard[i])).filter(x -> x != 0).count();
+        	blocks_occupied_by_white += Arrays.stream(Utils.bit(this.king_bitboard[i] & Utils.blocks_bitboard[i])).filter(x -> x != 0).count();
+        }
+        blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black + coeff_min_white * weights[1] * blocks_occupied_by_white;
+        open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black);
+        for (int r = 0; r < this.black_bitboard.length; r++) {
+            for (int c = 0; c < this.black_bitboard.length; c++) {
+                curr_mask = 1 << (8 - c);
+                if ((this.white_bitboard[r] & curr_mask) != 0)
+                    white_cnt += 1;
+                if ((this.black_bitboard[r] & curr_mask) != 0)
+                    black_cnt += 1;
+            }
+        }
 
-        remaining_whites_cond = coeff_min_white * weights[3] * white_cnt
-        remaining_blacks_cond = coeff_min_black * weights[4] * black_cnt
+        remaining_whites_cond = coeff_min_white * weights[3] * white_cnt;
+        remaining_blacks_cond = coeff_min_black * weights[4] * black_cnt;
 
-        "aggressive king condition"
-        ak_cond = coeff_min_white * weights[5] * self.open_king_paths()
-        h = blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond
-        return h
+        ak_cond = coeff_min_white * weights[5] * this.open_king_paths();
+        return blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond;
+	}
+	
+	int open_king_paths() {
+        //king coordinates
+		int king_row, king_col, king_bin_col, left_mask, open_paths;
+		int right_mask = 511;
+		List<Integer> above_the_column = new ArrayList<>();
+		List<Integer> below_the_column = new ArrayList<>();
+		for(king_row = 0; king_row < 9; king_row++)
+			if(this.king_bitboard[king_row] != 0)
+				break;
+		king_bin_col = this.king_bitboard[king_row];
+	    king_col = 8 - Utils.lut_positions.get(king_bin_col);
+
+        //check for pawns/camps left and right
+        left_mask = (king_bin_col << 1);
+        for (int col = 0; col <= king_col; col++) {
+            right_mask >>= 1;
+            if (col <= king_col - 2){
+                left_mask ^= king_bin_col;
+                left_mask <<= 1;
+            }
+        }
+
+        //check for pawns/camps up and down
+        for (int row = 0; row <= king_col; row++) {
+            if (row != king_row && row < king_row) {
+                above_the_column.addAll(Arrays.stream(Utils.bit(Utils.camps_bitboard[row])).boxed().collect(Collectors.toList()));
+                above_the_column.addAll(Arrays.stream(Utils.bit(this.white_bitboard[row])).boxed().collect(Collectors.toList()));
+                above_the_column.addAll(Arrays.stream(Utils.bit(this.black_bitboard[row])).boxed().collect(Collectors.toList()));
+            }
+            else if (row != king_row && row > king_row) {
+            	below_the_column.addAll(Arrays.stream(Utils.bit(Utils.camps_bitboard[row])).boxed().collect(Collectors.toList()));
+            	below_the_column.addAll(Arrays.stream(Utils.bit(this.white_bitboard[row])).boxed().collect(Collectors.toList()));
+            	below_the_column.addAll(Arrays.stream(Utils.bit(this.black_bitboard[row])).boxed().collect(Collectors.toList()));
+            }
+        }
+        open_paths = 4;
+
+        if ((king_row == 3 || king_row == 4 || king_row == 5) ||
+                ((right_mask & this.white_bitboard[king_row]) + (right_mask & this.black_bitboard[king_row])
+                 + (right_mask & Utils.camps_bitboard[king_row]) != 0))
+            open_paths -= 1;
+        if ((king_row == 3 || king_row == 4 || king_row == 5) ||
+                (left_mask & this.white_bitboard[king_row]) + (left_mask & this.black_bitboard[king_row])
+                + (left_mask & Utils.camps_bitboard[king_row]) != 0)
+            open_paths -= 1;
+
+        if ((king_row == 3 || king_row == 4 || king_row == 5) || above_the_column.contains(king_bin_col))
+            open_paths -= 1;
+        if ((king_row == 3 || king_row == 4 || king_row == 5) || below_the_column.contains(king_bin_col))
+            open_paths -= 1;
+
+        return open_paths;
+	}
+	
+	int locked_back_camps() {
+        int locked_camps = 0;
+        int hor_map = 0b000111000;
+        if ((this.black_bitboard[0] & hor_map) == 0b000111000)
+            locked_camps += 1;
+        if ((this.black_bitboard[8] & hor_map) == 0b000111000)
+            locked_camps += 1;
+        List<Integer> row4 = Arrays.stream(Utils.bit(this.black_bitboard[3])).boxed().collect(Collectors.toList());
+        List<Integer> row5 = Arrays.stream(Utils.bit(this.black_bitboard[4])).boxed().collect(Collectors.toList());
+        List<Integer> row6 = Arrays.stream(Utils.bit(this.black_bitboard[5])).boxed().collect(Collectors.toList());
+        if (row4.contains(256) && row5.contains(256) && row6.contains(256))
+            locked_camps += 1;
+        if (row4.contains(2) && row5.contains(2) && row6.contains(2))
+            locked_camps += 1;
+        return locked_camps;
 	}
 }
