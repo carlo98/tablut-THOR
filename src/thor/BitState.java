@@ -1,4 +1,4 @@
-package it.unibo.ai.didattica.competition.tablut.thor;
+package thor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
