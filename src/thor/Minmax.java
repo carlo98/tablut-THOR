@@ -1,6 +1,7 @@
 package thor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -24,8 +25,8 @@ public final class Minmax implements Callable<List<Integer>> {
     private static final Random rand = new Random();
     private BitState currentState;
 
-    private static List<Integer> result;
-    private static List<List<Integer>> possibleActions;
+    private static List<Integer> result= new ArrayList<>();
+    private static List<List<Integer>> possibleActions = new ArrayList<>();
 
 
     public Minmax(Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table, Game game) {
@@ -212,6 +213,7 @@ public final class Minmax implements Callable<List<Integer>> {
     }
 
 	public void updateState_hash_table(BitState bitState) {
+		System.out.println(this.state_hash_table);
 		Utils.update_used(this.state_hash_table, bitState, this.game.getWeights(), this.game.getColor());
 	}
 
