@@ -9,5 +9,10 @@
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/gson-2.2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/gson-2.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.4-test-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.4-javadoc.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.4-tests.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
