@@ -51,6 +51,7 @@ public class TablutTHOR extends TablutClient {
 			state_hash_table.put(i, new Hashtable<Integer, StateDictEntry>());
 		Minmax minmax = new Minmax(state_hash_table, game);
 		BitState bitState = null;
+		long start_time;
 
 		try {
 			this.declareName();
@@ -71,8 +72,9 @@ public class TablutTHOR extends TablutClient {
 
 			try {
 				if (this.getCurrentState().getTurn().toString().equalsIgnoreCase(String.valueOf(this.color.charAt(0)))) {
+					start_time = System.currentTimeMillis();
 					while (action != null) {
-						action = minmax.makeDecision(this.max_time, bitState, game);
+						action = minmax.makeDecision(this.max_time-(System.currentTimeMillis()-start_time), bitState, game);
 						minmax.setMax_depth(minmax.getMax_depth() + 1);
 						if (action != null) 
 							best_action = action.stream().collect(Collectors.toList());

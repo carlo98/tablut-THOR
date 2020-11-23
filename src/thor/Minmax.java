@@ -35,7 +35,7 @@ public final class Minmax implements Callable<List<Integer>> {
         this.max_depth = 2;
     }
     
-    public List<Integer> makeDecision(int max_time, BitState state, Game game) throws IOException {
+    public List<Integer> makeDecision(long max_time, BitState state, Game game) throws IOException {
 
         Future<List<Integer>> choosen_action = executorService.submit(this);
         this.currentState = state;
@@ -45,6 +45,7 @@ public final class Minmax implements Callable<List<Integer>> {
         try {
             result = choosen_action.get(max_time, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
+        	choosen_action.cancel(true);
         	result = null;
             System.out.println("Max depth:" + Integer.toString(this.max_depth));
         }catch (Exception e) {
@@ -70,7 +71,7 @@ public final class Minmax implements Callable<List<Integer>> {
             		this.max_depth, this.state_hash_table);
 
             if (Thread.interrupted()) {
-            	Thread.currentThread().stop();
+            	Thread.currentThread().interrupt();
             	return null;
             }
 
@@ -93,7 +94,7 @@ public final class Minmax implements Callable<List<Integer>> {
     		Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table) throws Exception{
 
     	if (Thread.interrupted()) {
-        	Thread.currentThread().stop();
+        	Thread.currentThread().interrupt();
         	return 0.0;
         }
 
@@ -145,7 +146,7 @@ public final class Minmax implements Callable<List<Integer>> {
     		Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table) throws Exception{
     	
         if (Thread.interrupted()) {
-        	Thread.currentThread().stop();
+        	Thread.currentThread().interrupt();
         	return 0.0;
         }
         

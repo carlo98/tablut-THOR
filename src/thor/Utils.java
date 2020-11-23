@@ -64,17 +64,18 @@ public class Utils {
 	}
 	
 	public static Action action_to_server_format(List<Integer> list){
-		String start_row = "";
-		String end_row = "";
-		String start_col = "";
-		String end_col = "";
+		int start_row ;
+		int end_row;
+		char start_col;
+		char end_col;
 		Action a = null;
-		start_row = Integer.toString(list.get(1) + 1);
-		end_row = Integer.toString(list.get(3) + 1);
-		start_col = Integer.toString(65 + list.get(2));
-		end_col = Integer.toString(65 + list.get(4));
+		start_row = (list.get(1) + 1);
+		end_row = (list.get(3) + 1);
+		start_col = (char)(65 + list.get(2));
+		end_col = (char)(65 + list.get(4));
 		try {
-			a = new Action(start_col + start_row, end_col + end_row, Turn.DRAW);
+			a = new Action(String.valueOf(start_col) + String.valueOf(start_row), 
+					String.valueOf(end_col) + String.valueOf(end_row), Turn.DRAW);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
