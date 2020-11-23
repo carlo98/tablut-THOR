@@ -32,10 +32,10 @@ public final class Minmax implements Callable<List<Integer>> {
     public Minmax(Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table, Game game) {
         this.state_hash_table = state_hash_table;
         this.game = game;
-        this.max_depth = 2;
+        this.max_depth = 1;
     }
     
-    public List<Integer> makeDecision(long max_time, BitState state, Game game) throws IOException {
+    public List<Integer> makeDecision(long max_time, BitState state) throws IOException {
 
         Future<List<Integer>> choosen_action = executorService.submit(this);
         this.currentState = state;
@@ -47,7 +47,7 @@ public final class Minmax implements Callable<List<Integer>> {
         } catch (TimeoutException e) {
         	choosen_action.cancel(true);
         	result = null;
-            System.out.println("Max depth:" + Integer.toString(this.max_depth));
+            System.out.println("Max depth:" + Integer.toString(this.max_depth-1));
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -66,7 +66,7 @@ public final class Minmax implements Callable<List<Integer>> {
         possibleActions.add(all_actions.get(0));
 
         for (List<Integer> action : all_actions) {
-
+      
             double value = minValue(new BitState(currentState, action), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 0, 
             		this.max_depth, this.state_hash_table);
 
@@ -84,7 +84,6 @@ public final class Minmax implements Callable<List<Integer>> {
 
             else if(value == v){
             	possibleActions.add(action);
-            	v = value;
                 }
         }
         return possibleActions.get(rand.nextInt(possibleActions.size()));
@@ -92,10 +91,9 @@ public final class Minmax implements Callable<List<Integer>> {
 
     public double maxValue(BitState bitState, double alpha, double beta, int depth, int max_depth, 
     		Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table) throws Exception{
-
     	if (Thread.interrupted()) {
         	Thread.currentThread().interrupt();
-        	return 0.0;
+        	return bitState.compute_heuristic(this.game.getWeights(), this.game.getColor());
         }
 
         int tmp_victory = bitState.check_victory();
@@ -109,12 +107,14 @@ public final class Minmax implements Callable<List<Integer>> {
         	return Utils.MAX_VAL_HEURISTIC;
         int state_hash = bitState.hashCode();
         int index_checkers = Utils.MAX_NUM_CHECKERS-Utils.cont_pieces(bitState);
-        StateDictEntry hash_result = state_hash_table.get(index_checkers).get(state_hash);
+        StateDictEntry hash_result = null;
+        if (state_hash_table.get(index_checkers).contains(state_hash))
+        	hash_result = state_hash_table.get(index_checkers).get(state_hash);
         List<List<Integer>> all_actions = null;
         if (hash_result != null) {
         	if (hash_result.getUsed() == 1)
         	    return -Utils.DRAW_POINTS;
-        	if (hash_result.getActions() == null)
+        	if (hash_result.getActions() != null)
         		all_actions = hash_result.getActions();
         }
         if (cutoff_test(depth, max_depth)) { // If reached maximum depth or total time
@@ -144,12 +144,10 @@ public final class Minmax implements Callable<List<Integer>> {
 
     public double minValue(BitState bitState, double alpha, double beta, int depth, int max_depth, 
     		Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table) throws Exception{
-    	
         if (Thread.interrupted()) {
         	Thread.currentThread().interrupt();
-        	return 0.0;
+        	return bitState.compute_heuristic(this.game.getWeights(), this.game.getColor());
         }
-        
         int tmp_victory = bitState.check_victory();
         if (tmp_victory == -1 && this.game.getColor().equalsIgnoreCase("BLACK"))  // king captured and black player -> Win
         	return Utils.MAX_VAL_HEURISTIC;
@@ -161,14 +159,14 @@ public final class Minmax implements Callable<List<Integer>> {
         	return Utils.MAX_VAL_HEURISTIC;
         int state_hash = bitState.hashCode();
         int index_checkers = Utils.MAX_NUM_CHECKERS-Utils.cont_pieces(bitState);
-        System.out.println(state_hash_table);
-        StateDictEntry hash_result = state_hash_table.get(index_checkers).get(state_hash);
-        System.out.println("Ok");
+        StateDictEntry hash_result = null;
+        if (state_hash_table.get(index_checkers).contains(state_hash))
+        	hash_result = state_hash_table.get(index_checkers).get(state_hash);
         List<List<Integer>> all_actions = null;
         if (hash_result != null) {
         	if (hash_result.getUsed() == 1)
         	    return -Utils.DRAW_POINTS;
-        	if (hash_result.getActions() == null)
+        	if (hash_result.getActions() != null)
         		all_actions = hash_result.getActions();
         }
         if (cutoff_test(depth, max_depth)) { // If reached maximum depth or total time
@@ -187,9 +185,9 @@ public final class Minmax implements Callable<List<Integer>> {
         }
         if (all_actions.size() == 0)
             return Utils.MAX_VAL_HEURISTIC;
-        for (List<Integer> action : this.game.produce_actions(bitState)) {
+        for (List<Integer> action : all_actions) {
             v = Math.min(v, maxValue(new BitState(bitState, action), alpha, beta, depth + 1, max_depth, state_hash_table));
-            if (v <= alpha)
+            if (v <= alpha) 
                 return v;
             beta = Math.min(beta, v);
         }
@@ -197,7 +195,7 @@ public final class Minmax implements Callable<List<Integer>> {
     }
 
     Boolean cutoff_test(int depth, int max_depth) {
-        if (depth >= max_depth)
+        if (depth > max_depth)
             return true;
         return false;
     }

@@ -84,11 +84,11 @@ public class BitState{
 	
 	public int check_victory() {
 		int[] tmp_bitboard = new int[9];
-        if (!Arrays.stream(this.king_bitboard).anyMatch(i -> i == 1))
+        if (!Arrays.stream(this.king_bitboard).anyMatch(i -> i != 0))
             return -1;
         for(int i = 0; i < this.king_bitboard.length; i++)
     		tmp_bitboard[i] = Utils.escapes_bitboard[i] & this.king_bitboard[i];
-        if (Arrays.stream(tmp_bitboard).anyMatch(i -> i == 1))
+        if (Arrays.stream(tmp_bitboard).anyMatch(i -> i != 0))
             return 1;
         return 0;
 	}
