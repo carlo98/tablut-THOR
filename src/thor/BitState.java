@@ -68,10 +68,11 @@ public class BitState{
 	        else {
 	        	this.king_bitboard[start_row] -= (1 << (8 - start_col));
 	        	this.king_bitboard[end_row] += (1 << (8 - end_col));
-	        	for(int i = 0; i < this.king_bitboard.length; i++)
-	        		tmp_bitboard[i] = this.white_bitboard[i] + this.king_bitboard[i];
-	        	this.black_bitboard = Utils.white_tries_capture_black_pawn(tmp_bitboard, this.black_bitboard, end_row, end_col);
 	        }
+	        for(int i = 0; i < this.king_bitboard.length; i++) {
+        		tmp_bitboard[i] = this.white_bitboard[i] + this.king_bitboard[i];
+	        }
+        	this.black_bitboard = Utils.white_tries_capture_black_pawn(tmp_bitboard, this.black_bitboard, end_row, end_col);
 	    }
 	    else {
 	    	this.turn = Turn.WHITE;
@@ -84,12 +85,15 @@ public class BitState{
 	
 	public int check_victory() {
 		int[] tmp_bitboard = new int[9];
-        if (!Arrays.stream(this.king_bitboard).anyMatch(i -> i != 0))
+        if (!Arrays.stream(this.king_bitboard).anyMatch(i -> i != 0)) {
             return -1;
-        for(int i = 0; i < this.king_bitboard.length; i++)
-    		tmp_bitboard[i] = Utils.escapes_bitboard[i] & this.king_bitboard[i];
-        if (Arrays.stream(tmp_bitboard).anyMatch(i -> i != 0))
+        }
+        for(int i = 0; i < this.king_bitboard.length; i++) {
+    		tmp_bitboard[i] = (Utils.escapes_bitboard[i] & this.king_bitboard[i]);
+        }
+        if (Arrays.stream(tmp_bitboard).anyMatch(i -> i != 0)) {
             return 1;
+        }
         return 0;
 	}
 	
@@ -141,8 +145,9 @@ public class BitState{
         else if (victory_cond == 1 && color == "WHITE")  // King escaped and white player -> Win
             return Utils.MAX_VAL_HEURISTIC;
         
-        for(int i = 0; i < this.black_bitboard.length; i++)
+        for(int i = 0; i < this.black_bitboard.length; i++) {
         	blocks_occupied_by_black += Arrays.stream(Utils.bit(this.black_bitboard[i] & Utils.blocks_bitboard[i])).filter(x -> x != 0).count();
+        }
         for(int i = 0; i < this.black_bitboard.length; i++) {
         	blocks_occupied_by_white += Arrays.stream(Utils.bit(this.white_bitboard[i] & Utils.blocks_bitboard[i])).filter(x -> x != 0).count();
         	blocks_occupied_by_white += Arrays.stream(Utils.bit(this.king_bitboard[i] & Utils.blocks_bitboard[i])).filter(x -> x != 0).count();
@@ -151,11 +156,13 @@ public class BitState{
         open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black);
         for (int r = 0; r < this.black_bitboard.length; r++) {
             for (int c = 0; c < this.black_bitboard.length; c++) {
-                curr_mask = 1 << (8 - c);
-                if ((this.white_bitboard[r] & curr_mask) != 0)
+                curr_mask = (1 << (8 - c));
+                if ((this.white_bitboard[r] & curr_mask) != 0) {
                     white_cnt += 1;
-                if ((this.black_bitboard[r] & curr_mask) != 0)
+                }
+                if ((this.black_bitboard[r] & curr_mask) != 0) {
                     black_cnt += 1;
+                }
             }
         }
 
@@ -173,8 +180,9 @@ public class BitState{
 		List<Integer> above_the_column = new ArrayList<>();
 		List<Integer> below_the_column = new ArrayList<>();
 		for(king_row = 0; king_row < 9; king_row++)
-			if(this.king_bitboard[king_row] != 0)
+			if(this.king_bitboard[king_row] != 0) {
 				break;
+			}
 		king_bin_col = this.king_bitboard[king_row];
 	    king_col = 8 - Utils.lut_positions.get(king_bin_col);
 
@@ -205,35 +213,41 @@ public class BitState{
 
         if ((king_row == 3 || king_row == 4 || king_row == 5) ||
                 ((right_mask & this.white_bitboard[king_row]) + (right_mask & this.black_bitboard[king_row])
-                 + (right_mask & Utils.camps_bitboard[king_row]) != 0))
+                 + (right_mask & Utils.camps_bitboard[king_row]) != 0)) {
             open_paths -= 1;
+        }
         if ((king_row == 3 || king_row == 4 || king_row == 5) ||
                 (left_mask & this.white_bitboard[king_row]) + (left_mask & this.black_bitboard[king_row])
-                + (left_mask & Utils.camps_bitboard[king_row]) != 0)
+                + (left_mask & Utils.camps_bitboard[king_row]) != 0) {
             open_paths -= 1;
-
-        if ((king_row == 3 || king_row == 4 || king_row == 5) || above_the_column.contains(king_bin_col))
+        }
+        if ((king_row == 3 || king_row == 4 || king_row == 5) || above_the_column.contains(king_bin_col)) {
             open_paths -= 1;
-        if ((king_row == 3 || king_row == 4 || king_row == 5) || below_the_column.contains(king_bin_col))
+        }
+        if ((king_row == 3 || king_row == 4 || king_row == 5) || below_the_column.contains(king_bin_col)) {
             open_paths -= 1;
-
+        }
         return open_paths;
 	}
 	
 	int locked_back_camps() {
         int locked_camps = 0;
         int hor_map = 0b000111000;
-        if ((this.black_bitboard[0] & hor_map) == 0b000111000)
+        if ((this.black_bitboard[0] & hor_map) == 0b000111000) {
             locked_camps += 1;
-        if ((this.black_bitboard[8] & hor_map) == 0b000111000)
+        }
+        if ((this.black_bitboard[8] & hor_map) == 0b000111000) {
             locked_camps += 1;
+        }
         List<Integer> row4 = Arrays.stream(Utils.bit(this.black_bitboard[3])).boxed().collect(Collectors.toList());
         List<Integer> row5 = Arrays.stream(Utils.bit(this.black_bitboard[4])).boxed().collect(Collectors.toList());
         List<Integer> row6 = Arrays.stream(Utils.bit(this.black_bitboard[5])).boxed().collect(Collectors.toList());
-        if (row4.contains(256) && row5.contains(256) && row6.contains(256))
+        if (row4.contains(256) && row5.contains(256) && row6.contains(256)) {
             locked_camps += 1;
-        if (row4.contains(2) && row5.contains(2) && row6.contains(2))
+        }
+        if (row4.contains(2) && row5.contains(2) && row6.contains(2)) {
             locked_camps += 1;
+        }
         return locked_camps;
 	}
 }

@@ -100,8 +100,8 @@ public class Game {
 		                curr_pos_mask = (1 << tmp_c);
 		    }
 	        // First look for actions that lead to escapes
-	        int poss_actions_mask = ~state.getWhite_bitboard()[r] & this.possible_actions_hor[r][c];  // Horizontal actions
-	        poss_actions_mask &= ~state.getBlack_bitboard()[r];
+	        int poss_actions_mask = (~state.getWhite_bitboard()[r] & this.possible_actions_hor[r][c]);  // Horizontal actions
+	        poss_actions_mask &= (~state.getBlack_bitboard()[r]);
 	        int i = 1;
 	        List<List<Integer>> tmp_list = new ArrayList<>();
 	        if (c != 0) {
@@ -118,7 +118,7 @@ public class Game {
 	        i = 1;
 	        tmp_list.clear();
 	        if (c != 8) {
-	        	new_pos_mask = curr_pos_mask >> i;  // Actions to the right, checkers cannot jump
+	        	new_pos_mask = (curr_pos_mask >> i);  // Actions to the right, checkers cannot jump
 	            while (i <= tmp_c && (poss_actions_mask & new_pos_mask) != 0) {
 	            	tmp_list.add(new ArrayList<Integer>(Arrays.asList(1, r, c, r, c+i)));
 	            	i += 1;
@@ -131,8 +131,8 @@ public class Game {
 	        int white_column = Utils.build_column(state.getWhite_bitboard(), curr_pos_mask);  // Building column given position
 	        int black_column = Utils.build_column(state.getBlack_bitboard(), curr_pos_mask);
 	        curr_pos_mask = (1 << tmp_r);  // Vertical actions
-	        poss_actions_mask = ~white_column & this.possible_actions_ver[r][c];
-	        poss_actions_mask &= ~black_column;
+	        poss_actions_mask = (~white_column & this.possible_actions_ver[r][c]);
+	        poss_actions_mask &= (~black_column);
 	        i = 1;
 	        tmp_list.clear();
 	        if (r != 0) {
@@ -168,9 +168,9 @@ public class Game {
 	                    // If current position is occupied by a white pawn
 	                    if ((state.getWhite_bitboard()[r] & curr_pos_mask) == curr_pos_mask) {
 	                    	tmp_c = 8 - c;
-	                        poss_actions_mask = ~state.getWhite_bitboard()[r] & this.possible_actions_hor[r][c];
-	                        poss_actions_mask &= ~state.getKing_bitboard()[r];
-	                        poss_actions_mask &= ~state.getBlack_bitboard()[r];
+	                        poss_actions_mask = (~state.getWhite_bitboard()[r] & this.possible_actions_hor[r][c]);
+	                        poss_actions_mask &= (~state.getKing_bitboard()[r]);
+	                        poss_actions_mask &= (~state.getBlack_bitboard()[r]);
 	                        i = 1;
 	                        if (c != 0) {
 	                        	new_pos_mask = curr_pos_mask << i;  // Actions to the left, checkers cannot jump
@@ -195,9 +195,9 @@ public class Game {
 	                        black_column = Utils.build_column(state.getBlack_bitboard(), curr_pos_mask);
 	                        int king_column = Utils.build_column(state.getKing_bitboard(), curr_pos_mask);
 	                        curr_pos_mask = (1 << tmp_r);  // Vertical actions
-	                        poss_actions_mask = ~white_column & this.possible_actions_ver[r][c];
-	                        poss_actions_mask &= ~black_column;
-	                        poss_actions_mask &= ~king_column;
+	                        poss_actions_mask = (~white_column & this.possible_actions_ver[r][c]);
+	                        poss_actions_mask &= (~black_column);
+	                        poss_actions_mask &= (~king_column);
 	                        i = 1;
 	                        if (r != 0) {
 	                        	new_pos_mask = curr_pos_mask << i;  // Actions up, checkers cannot jump
@@ -237,9 +237,9 @@ public class Game {
 	                    // If current position is occupied by a white pawn
 	                    if ((state.getBlack_bitboard()[r] & curr_pos_mask) == curr_pos_mask) {
 	                    	tmp_c = 8 - c;
-	                        int poss_actions_mask = ~state.getWhite_bitboard()[r] & this.possible_actions_hor[r][c];
-	                        poss_actions_mask &= ~state.getKing_bitboard()[r];
-	                        poss_actions_mask &= ~state.getBlack_bitboard()[r];
+	                        int poss_actions_mask = (~state.getWhite_bitboard()[r] & this.possible_actions_hor[r][c]);
+	                        poss_actions_mask &= (~state.getKing_bitboard()[r]);
+	                        poss_actions_mask &= (~state.getBlack_bitboard()[r]);
 	                        int i = 1;
 	                        if (c != 0) {
 	                        	new_pos_mask = curr_pos_mask << i;  // Actions to the left, checkers cannot jump
@@ -264,9 +264,9 @@ public class Game {
 	                        int black_column = Utils.build_column(state.getBlack_bitboard(), curr_pos_mask);
 	                        int king_column = Utils.build_column(state.getKing_bitboard(), curr_pos_mask);
 	                        curr_pos_mask = 1 << tmp_r;  // Vertical actions
-	                        poss_actions_mask = ~white_column & this.possible_actions_ver[r][c];
-	                        poss_actions_mask &= ~black_column;
-	                        poss_actions_mask &= ~king_column;
+	                        poss_actions_mask = (~white_column & this.possible_actions_ver[r][c]);
+	                        poss_actions_mask &= (~black_column);
+	                        poss_actions_mask &= (~king_column);
 	                        i = 1;
 	                        if (r != 0) {
 	                        	new_pos_mask = curr_pos_mask << i;  // Actions up, checkers cannot jump

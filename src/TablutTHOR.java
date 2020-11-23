@@ -23,7 +23,7 @@ public class TablutTHOR extends TablutClient {
 	private final int max_time;
 	private String color;
 	private static final String PLAYER_NAME = "THOR";
-	private int[] weights = {1, 1, 1, 1, 1, 1};
+	private int[] weights = {1, 2, 1, 2, 1, 100};
 
 	
 	public TablutTHOR(String color, int max_time, String host) throws UnknownHostException, IOException {
@@ -76,8 +76,9 @@ public class TablutTHOR extends TablutClient {
 					while (action != null) {
 						action = minmax.makeDecision(this.max_time-(System.currentTimeMillis()-start_time)/1000, bitState);
 						minmax.setMax_depth(minmax.getMax_depth() + 1);
-						if (action != null) 
+						if (action != null) {
 							best_action = action.stream().collect(Collectors.toList());
+						}
 					}
 					this.write(Utils.action_to_server_format(best_action));
 		            System.out.println("Choosen action: {" + best_action.toString() + "}");
@@ -85,7 +86,7 @@ public class TablutTHOR extends TablutClient {
 					System.out.println("Not my turn.");
 					best_action = null;
 		            action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
-		            minmax.setMax_depth(1);
+		            minmax.setMax_depth(2);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
