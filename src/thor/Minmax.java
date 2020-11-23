@@ -38,6 +38,7 @@ public final class Minmax implements Callable<List<Integer>> {
     public List<Integer> makeDecision(int max_time, BitState state, Game game) throws IOException {
 
         Future<List<Integer>> choosen_action = executorService.submit(this);
+        this.currentState = state;
         result = null;
         possibleActions.clear();
 
@@ -169,7 +170,9 @@ public final class Minmax implements Callable<List<Integer>> {
         	return Utils.MAX_VAL_HEURISTIC;
         int state_hash = bitState.hashCode();
         int index_checkers = Utils.MAX_NUM_CHECKERS-Utils.cont_pieces(bitState);
+        System.out.println(state_hash_table);
         StateDictEntry hash_result = state_hash_table.get(index_checkers).get(state_hash);
+        System.out.println("Ok");
         List<List<Integer>> all_actions = null;
         if (hash_result != null) {
         	if (hash_result.getUsed() == 1)

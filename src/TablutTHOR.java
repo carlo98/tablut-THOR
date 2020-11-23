@@ -63,7 +63,6 @@ public class TablutTHOR extends TablutClient {
 			try{
 				this.read();
 				bitState = new BitState(this.getCurrentState().clone());
-				System.out.println(state_hash_table);
 				minmax.updateState_hash_table(bitState);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -72,15 +71,14 @@ public class TablutTHOR extends TablutClient {
 			try {
 				if (this.getCurrentState().getTurn().toString().equalsIgnoreCase(String.valueOf(this.color.charAt(0)))) {
 					while (action != null) {
-						minmax.setMax_depth(minmax.getMax_depth() + 1);
 						action = minmax.makeDecision(max_time, bitState, game);
+						minmax.setMax_depth(minmax.getMax_depth() + 1);
 						if (action != null) 
 							best_action = action.stream().collect(Collectors.toList());
 					}
 					this.write(Utils.action_to_server_format(best_action));
 				} else {
-					System.out.println("Game ended.");
-					System.exit(0);
+					System.out.println("Not my turn.");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -10,9 +10,9 @@ import it.unibo.ai.didattica.competition.tablut.domain.State.Pawn;
 import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
 
 public class BitState{
-	private int[] white_bitboard = new int[9];
-	private int[] black_bitboard = new int[9];
-	private int[] king_bitboard = new int[9];
+	private int[] white_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	private int[] black_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	private int[] king_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	private Turn turn = null;
 
 	public BitState(State state) {
@@ -33,15 +33,15 @@ public class BitState{
 	}
 	
 	int[] getWhite_bitboard() {
-		return white_bitboard;
+		return white_bitboard.clone();
 	}
 
 	int[] getBlack_bitboard() {
-		return black_bitboard;
+		return black_bitboard.clone();
 	}
 
 	int[] getKing_bitboard() {
-		return king_bitboard;
+		return king_bitboard.clone();
 	}
 
 	Turn getTurn() {
@@ -54,7 +54,7 @@ public class BitState{
 		int start_col = action.get(2);
 		int end_row = action.get(3);
 		int end_col = action.get(4);
-		int[] tmp_bitboard = new int[9];
+		int[] tmp_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 		this.white_bitboard = s.getWhite_bitboard();
 		this.black_bitboard = s.getBlack_bitboard();
 		this.king_bitboard = s.getKing_bitboard();

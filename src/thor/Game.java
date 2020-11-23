@@ -88,12 +88,14 @@ public class Game {
 		int new_pos_mask = 0;
 		if (state.getTurn() == Turn.WHITE) {
 			int r = 0;
-		    while (state.getKing_bitboard()[r] == 0)  // Searching king row
-		                r += 1;
+		    while (state.getKing_bitboard()[r] == 0) // Searching king row
+		    	r += 1;
+		    System.out.println(state.getKing_bitboard()[r]);
+		    System.out.println(r);
 		    int tmp_r = 8 - r;
 		    int c = 0;
 		    int tmp_c = 8 - c;
-		    int curr_pos_mask = 1 << tmp_c;
+		    int curr_pos_mask = (1 << tmp_c);
 		    while ((state.getKing_bitboard()[r] & curr_pos_mask) != curr_pos_mask) {  // Searching king column
 		                c += 1;
 		                tmp_c = (8 - c);
@@ -163,8 +165,8 @@ public class Game {
 	        for (r=0; r < state.getWhite_bitboard().length; r++) {  // Searching white pawns
 	        	if (state.getWhite_bitboard()[r] != 0) {
 	        		tmp_r = 8 - r;
-	                for (c=0; c < state.getBlack_bitboard().length; c++) {
-	                	curr_pos_mask = 1 << (8 - c);  // Horizontal moves
+	                for (c=0; c < state.getWhite_bitboard().length; c++) {
+	                	curr_pos_mask = (1 << (8 - c));  // Horizontal moves
 	                    // If current position is occupied by a white pawn
 	                    if ((state.getWhite_bitboard()[r] & curr_pos_mask) == curr_pos_mask) {
 	                    	tmp_c = 8 - c;
@@ -194,7 +196,7 @@ public class Game {
 	                        white_column = Utils.build_column(state.getWhite_bitboard(), curr_pos_mask);  // Building column given position
 	                        black_column = Utils.build_column(state.getBlack_bitboard(), curr_pos_mask);
 	                        int king_column = Utils.build_column(state.getKing_bitboard(), curr_pos_mask);
-	                        curr_pos_mask = 1 << tmp_r;  // Vertical actions
+	                        curr_pos_mask = (1 << tmp_r);  // Vertical actions
 	                        poss_actions_mask = ~white_column & this.possible_actions_ver[r][c];
 	                        poss_actions_mask &= ~black_column;
 	                        poss_actions_mask &= ~king_column;
@@ -233,7 +235,7 @@ public class Game {
 	        	if (state.getBlack_bitboard()[r] != 0) {
 	        		tmp_r = 8 - r;
 	                for (c=0; c < state.getBlack_bitboard().length; c++) {
-	                	int curr_pos_mask = 1 << (8 - c);  // Horizontal moves
+	                	int curr_pos_mask = (1 << (8 - c));  // Horizontal moves
 	                    // If current position is occupied by a white pawn
 	                    if ((state.getBlack_bitboard()[r] & curr_pos_mask) == curr_pos_mask) {
 	                    	tmp_c = 8 - c;
