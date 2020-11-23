@@ -202,12 +202,15 @@ public class Utils {
 			}
 		}
 	    int king_col = lut_positions.get(king_bitboard[king_row]);
-
+	    
+	    //king is at edges or the moved pawn does not attack the king
 	    if ((king_row == 0 || king_row ==  8 || king_col == 0 || king_col == 8) || 
 	    		!((row == king_row && col == king_col+1) || (row == king_row && col == king_col-1) || 
-	    				(row == king_row +1 && col == king_row) || (row == king_row-1 && col == king_col))) {
+	    				(row == king_row +1 && col == king_col) || (row == king_row-1 && col == king_col))) {
 	        return king_bitboard;
 	    }
+	    
+	    
 
 	    int king_bin_col = 1 << (8 - king_col);
 	    if (king_row == 4 && king_col == 4) {
