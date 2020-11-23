@@ -46,4 +46,8 @@ public class StateDictEntry {
 	int getCurrent_depth() {
 		return current_depth;
 	}
+	
+	void setActions(List<List<Integer>> actions) {
+		this.actions = actions;
+	}
 }
