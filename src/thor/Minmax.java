@@ -44,7 +44,6 @@ public final class Minmax implements Callable<List<Integer>> {
 
         try {
             result = choosen_action.get(max_time, TimeUnit.SECONDS);
-            System.out.println("Choosen action: {" + result.toString() + "}");
         } catch (TimeoutException e) {
         	result = null;
             System.out.println("Max depth:" + Integer.toString(this.max_depth));
@@ -70,13 +69,10 @@ public final class Minmax implements Callable<List<Integer>> {
             double value = minValue(new BitState(currentState, action), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 0, 
             		this.max_depth, this.state_hash_table);
 
-            try {
-                if (Thread.interrupted()) 
-                        throw new InterruptedException();
-                } 
-        	catch (InterruptedException e) {
-                    return null;
-                    }
+            if (Thread.interrupted()) {
+            	Thread.currentThread().stop();
+            	return null;
+            }
 
             if (value > v) {
             	result = action;
@@ -96,13 +92,10 @@ public final class Minmax implements Callable<List<Integer>> {
     public double maxValue(BitState bitState, double alpha, double beta, int depth, int max_depth, 
     		Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table) throws Exception{
 
-    	try {
-            if (Thread.interrupted()) 
-                    throw new InterruptedException();
-            } 
-    	catch (InterruptedException e) {
-                return 0;
-                }
+    	if (Thread.interrupted()) {
+        	Thread.currentThread().stop();
+        	return 0.0;
+        }
 
         int tmp_victory = bitState.check_victory();
         if (tmp_victory == -1 && this.game.getColor().equalsIgnoreCase("BLACK"))  // king captured and black player -> Win
@@ -151,13 +144,10 @@ public final class Minmax implements Callable<List<Integer>> {
     public double minValue(BitState bitState, double alpha, double beta, int depth, int max_depth, 
     		Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table) throws Exception{
     	
-    	try {
-            if (Thread.interrupted()) 
-                    throw new InterruptedException();
-            } 
-    	catch (InterruptedException e) {
-                return 0;
-                }   
+        if (Thread.interrupted()) {
+        	Thread.currentThread().stop();
+        	return 0.0;
+        }
         
         int tmp_victory = bitState.check_victory();
         if (tmp_victory == -1 && this.game.getColor().equalsIgnoreCase("BLACK"))  // king captured and black player -> Win
@@ -216,7 +206,6 @@ public final class Minmax implements Callable<List<Integer>> {
     }
 
 	public void updateState_hash_table(BitState bitState) {
-		System.out.println(this.state_hash_table);
 		Utils.update_used(this.state_hash_table, bitState, this.game.getWeights(), this.game.getColor());
 	}
 

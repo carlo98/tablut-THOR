@@ -66,17 +66,19 @@ public class TablutTHOR extends TablutClient {
 				minmax.updateState_hash_table(bitState);
 			} catch (Exception e) {
 				e.printStackTrace();
+				System.exit(1);
 			}
 
 			try {
 				if (this.getCurrentState().getTurn().toString().equalsIgnoreCase(String.valueOf(this.color.charAt(0)))) {
 					while (action != null) {
-						action = minmax.makeDecision(max_time, bitState, game);
+						action = minmax.makeDecision(this.max_time, bitState, game);
 						minmax.setMax_depth(minmax.getMax_depth() + 1);
 						if (action != null) 
 							best_action = action.stream().collect(Collectors.toList());
 					}
 					this.write(Utils.action_to_server_format(best_action));
+		            System.out.println("Choosen action: {" + best_action.toString() + "}");
 				} else {
 					System.out.println("Not my turn.");
 				}

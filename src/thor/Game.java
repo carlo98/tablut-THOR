@@ -90,8 +90,6 @@ public class Game {
 			int r = 0;
 		    while (state.getKing_bitboard()[r] == 0) // Searching king row
 		    	r += 1;
-		    System.out.println(state.getKing_bitboard()[r]);
-		    System.out.println(r);
 		    int tmp_r = 8 - r;
 		    int c = 0;
 		    int tmp_c = 8 - c;
