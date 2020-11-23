@@ -23,7 +23,7 @@ public class TablutTHOR extends TablutClient {
 	private final int max_time;
 	private String color;
 	private static final String PLAYER_NAME = "THOR";
-	private int[] weights = {1, 2, 1, 2, 1, 100};
+	private int[] weights = {20, 10, 0, 40, 30, 50};
 
 	
 	public TablutTHOR(String color, int max_time, String host) throws UnknownHostException, IOException {
