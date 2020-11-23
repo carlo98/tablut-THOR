@@ -29,7 +29,7 @@
 
     <path id="classPath">
         <pathelement location="${lib.dir}/commons-cli-1.4.jar" />
-        <pathelement location="${lib.dir}/gson-2.2.2.jar" />
+        <pathelement location="${lib.dir}/gson-2.6.2.jar" />
     </path>
 
     <target name="jar" depends="compile">
