@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="lib/commons-cli-1.4-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.4-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.4-tests.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

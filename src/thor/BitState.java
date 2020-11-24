@@ -47,6 +47,26 @@ public class BitState{
 	Turn getTurn() {
 		return turn;
 	}
+	
+	//used for testing
+	public BitState() { 
+	}
+	
+	public void setWhite_bitboard(int[] white_bitboard) {
+		this.white_bitboard = white_bitboard;
+	}
+
+	public void setBlack_bitboard(int[] black_bitboard) {
+		this.black_bitboard = black_bitboard;
+	}
+
+	public void setKing_bitboard(int[] king_bitboard) {
+		this.king_bitboard = king_bitboard;
+	}
+
+	public void setTurn(Turn turn) {
+		this.turn = turn;
+	}
 
 	public BitState(BitState s, List<Integer> action) {
 		int k = action.get(0);
