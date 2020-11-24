@@ -266,48 +266,53 @@ public class Utils {
 	    if (row >= 2) {
 	    	//upwards capture
 	        if ((black_bitboard[row-1] & binary_column) != 0 && 
-	        		((black_bitboard[row-1] & Utils.camps_bitboard[row-1]) & binary_column) != 0) {
+	        		((black_bitboard[row-1] & Utils.camps_bitboard[row-1]) & binary_column) == 0) {
 	            //a black pawn is above
 	        	if ((white_bitboard[row-2] & binary_column) != 0 || 
 	            		(Utils.camps_bitboard[row-2] & binary_column) != 0||
 	            			(Utils.castle_bitboard[row-2] & binary_column) != 0) {
 	                black_bitboard[row - 1] ^= binary_column;
+	                
 	            }
 	        }
 	    }
 	    if (col <= 6) {
 	    	//right capture
 	        if ((black_bitboard[row] & (binary_column>>1)) != 0 && 
-	        		((black_bitboard[row] & Utils.camps_bitboard[row]) & (binary_column>>1)) != 0) {
+	        		((black_bitboard[row] & Utils.camps_bitboard[row]) & (binary_column>>1)) == 0) {
 	            if ((white_bitboard[row] & (binary_column>>2)) != 0 || 
 	            		(Utils.camps_bitboard[row] & (binary_column>>2)) != 0
 	                    || (Utils.castle_bitboard[row] & (binary_column>>2)) != 0) {
 	                black_bitboard[row] ^= (binary_column >> 1);
+	                
 	            }
 	        }
 	    }
 	    if (row <= 6) {
 	    	//downwards capture
 	        if ((black_bitboard[row+1] & binary_column) != 0 && 
-	        		((black_bitboard[row+1] & Utils.camps_bitboard[row+1]) & binary_column) != 0) {
+	        		((black_bitboard[row+1] & Utils.camps_bitboard[row+1]) & binary_column) == 0) {
 	            if ((white_bitboard[row+2] & binary_column) != 0 || 
 	            		(Utils.camps_bitboard[row+2] & binary_column) != 0 || 
 	            			(Utils.castle_bitboard[row+2] & binary_column) != 0) {
 	                black_bitboard[row + 1] ^= binary_column;
+	                
 	            }
 	        }
 	    }
 	    if (col >= 2) {
 	    	//left capture
 	        if ((black_bitboard[row] & (binary_column<<1)) != 0 && 
-	        		((black_bitboard[row] & Utils.camps_bitboard[row]) & (binary_column<<1)) != 0) {
+	        		((black_bitboard[row] & Utils.camps_bitboard[row]) & (binary_column<<1)) == 0) {
 	            if ((white_bitboard[row] & (binary_column<<2)) != 0|| 
 	            		(Utils.camps_bitboard[row] & (binary_column<<2)) != 0|| 
 	            			(Utils.castle_bitboard[row] & (binary_column<<2)) != 0) {
 	                black_bitboard[row] ^= (binary_column << 1);
+	                
 	            }
 	        }
 	    }
+	    
 	    return black_bitboard;
 	}
 }

@@ -69,6 +69,7 @@ public class BitState{
 	}
 
 	public BitState(BitState s, List<Integer> action) {
+		
 		int k = action.get(0);
 		int start_row = action.get(1);
 		int start_col = action.get(2);

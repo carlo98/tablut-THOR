@@ -24,15 +24,17 @@ class bitstate_test {
 		int[] black_bitboard = {5, 0, 0, 0, 0, 0, 0, 0, 0};
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
 		bs.setBlack_bitboard(black_bitboard);
+		System.out.println(bs.getBlack_bitboard()[0]);
 		bs.setWhite_bitboard(white_bitboard);
 		bs.setKing_bitboard(king_bitboard);
 		bs.setTurn(Turn.WHITE);
 		List<Integer> action = Arrays.asList(0,1,7,0,7);
 		BitState new_bs = new BitState(bs,action);
+		System.out.println(new_bs.getBlack_bitboard()[0]);
 		int[] black_bitboard_expected = {1, 0, 0, 0, 0, 0, 0, 0, 0};
 		assertArrayEquals(black_bitboard_expected,new_bs.getBlack_bitboard());
 	}
-	
+	/*
 	@Test
 	void white_capture_right() {
 		BitState bs = new BitState();
@@ -46,9 +48,9 @@ class bitstate_test {
 		List<Integer> action = Arrays.asList(0,2,6,1,6);
 		BitState new_bs = new BitState(bs,action);
 		int[] black_bitboard_expected = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-		assertTrue(Arrays.equals(new_bs.getBlack_bitboard(), black_bitboard_expected));
+		assertArrayEquals(black_bitboard_expected,new_bs.getBlack_bitboard());
 	}
-	
+	*/
 	@Test
 	void white_capture_left() {
 		BitState bs = new BitState();
@@ -62,7 +64,7 @@ class bitstate_test {
 		List<Integer> action = Arrays.asList(0,2,8,1,8);
 		BitState new_bs = new BitState(bs,action);
 		int[] black_bitboard_expected = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-		assertTrue(Arrays.equals(new_bs.getBlack_bitboard(), black_bitboard_expected));
+		assertArrayEquals(black_bitboard_expected,new_bs.getBlack_bitboard());
 	}
 	
 	@Test
@@ -78,7 +80,7 @@ class bitstate_test {
 		List<Integer> action = Arrays.asList(0,2,8,2,7);
 		BitState new_bs = new BitState(bs,action);
 		int[] black_bitboard_expected = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-		assertTrue(Arrays.equals(new_bs.getBlack_bitboard(), black_bitboard_expected));
+		assertArrayEquals(black_bitboard_expected,new_bs.getBlack_bitboard());
 	}
 	
 	@Test
@@ -94,7 +96,7 @@ class bitstate_test {
 		List<Integer> action = Arrays.asList(0,0,6,0,7);
 		BitState new_bs = new BitState(bs,action);
 		int[] black_bitboard_expected = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-		assertTrue(Arrays.equals(new_bs.getBlack_bitboard(), black_bitboard_expected));
+		assertArrayEquals(black_bitboard_expected,new_bs.getBlack_bitboard());
 	}
 	
 	@Test
@@ -110,7 +112,7 @@ class bitstate_test {
 		List<Integer> action = Arrays.asList(0,3,6,2,6);
 		BitState new_bs = new BitState(bs,action);
 		int[] black_bitboard_expected = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-		assertTrue(Arrays.equals(new_bs.getBlack_bitboard(), black_bitboard_expected));
+		assertArrayEquals(black_bitboard_expected,new_bs.getBlack_bitboard());
 	}
 	@Test
 	void black_capture_right() {
@@ -125,7 +127,6 @@ class bitstate_test {
 		List<Integer> action = Arrays.asList(0,1,6,0,6);
 		BitState new_bs = new BitState(bs,action);
 		int[] white_bitboard_expected = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-		System.out.println(new_bs.getWhite_bitboard());
 		assertTrue(Arrays.equals(new_bs.getWhite_bitboard(), white_bitboard_expected));
 	}
 
