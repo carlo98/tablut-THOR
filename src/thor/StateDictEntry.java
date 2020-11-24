@@ -39,6 +39,12 @@ public class StateDictEntry {
 		this.used = 1;
 	}
 
+	@Override
+	public String toString() {
+		return "StateDictEntry [key=" + key + ", actions=" + actions + ", value=" + value + ", max_depth=" + max_depth
+				+ ", used=" + used + ", current_depth=" + current_depth + "]";
+	}
+
 	int getMax_depth() {
 		return max_depth;
 	}

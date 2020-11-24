@@ -104,7 +104,7 @@ public class Utils {
 	    return cnt;
 	}
 	
-	static void clear_hash_table(ConcurrentHashMap<Integer, Hashtable<Integer, StateDictEntry>> state_hash_tables, BitState state) {
+	static void clear_hash_table(ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, StateDictEntry>> state_hash_tables, BitState state) {
 	    int index_hash = MAX_NUM_CHECKERS - cont_pieces(state) - 1;
 	    while (index_hash >= 0 && state_hash_tables.containsKey(index_hash)) {
 	        state_hash_tables.remove(index_hash);
@@ -112,7 +112,7 @@ public class Utils {
 	    }
 	}
 	
-	static void update_used(ConcurrentHashMap<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table, BitState state, int[] weights, String color) {
+	static void update_used(ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, StateDictEntry>> state_hash_table, BitState state, int[] weights, String color) {
 	    int state_hash = state.hashCode();
 	    int index_hash = MAX_NUM_CHECKERS - cont_pieces(state);
 	    if (state_hash_table.get(index_hash).contains(state_hash)) {
