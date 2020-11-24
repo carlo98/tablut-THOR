@@ -146,11 +146,11 @@ public class BitState{
             return Utils.MAX_VAL_HEURISTIC;
         
         for(int i = 0; i < this.black_bitboard.length; i++) {
-        	blocks_occupied_by_black += Arrays.stream(Utils.bit(this.black_bitboard[i] & Utils.blocks_bitboard[i])).filter(x -> x != 0).count();
+        	blocks_occupied_by_black += Integer.bitCount(this.black_bitboard[i] & Utils.blocks_bitboard[i]);
         }
         for(int i = 0; i < this.black_bitboard.length; i++) {
-        	blocks_occupied_by_white += Arrays.stream(Utils.bit(this.white_bitboard[i] & Utils.blocks_bitboard[i])).filter(x -> x != 0).count();
-        	blocks_occupied_by_white += Arrays.stream(Utils.bit(this.king_bitboard[i] & Utils.blocks_bitboard[i])).filter(x -> x != 0).count();
+        	blocks_occupied_by_white += Integer.bitCount(this.white_bitboard[i] & Utils.blocks_bitboard[i]);
+        	blocks_occupied_by_white += Integer.bitCount(this.king_bitboard[i] & Utils.blocks_bitboard[i]);
         }
         blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black + coeff_min_white * weights[1] * blocks_occupied_by_white;
         open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black);

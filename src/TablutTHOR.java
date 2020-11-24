@@ -2,14 +2,12 @@ import it.unibo.ai.didattica.competition.tablut.client.TablutClient;
 import thor.BitState;
 import thor.Game;
 import thor.Minmax;
-import thor.StateDictEntry;
 import thor.Utils;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,10 +44,7 @@ public class TablutTHOR extends TablutClient {
 		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
 		List<Integer> best_action = action.stream().collect(Collectors.toList());
 		Game game = new Game(this.weights, this.color);
-		Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table= new Hashtable<Integer, Hashtable<Integer, StateDictEntry>>();
-		for (int i=0; i < 25; i++)
-			state_hash_table.put(i, new Hashtable<Integer, StateDictEntry>());
-		Minmax minmax = new Minmax(state_hash_table, game);
+		Minmax minmax = new Minmax(game);
 		BitState bitState = null;
 		long start_time;
 
@@ -64,7 +59,6 @@ public class TablutTHOR extends TablutClient {
 			try{
 				this.read();
 				bitState = new BitState(this.getCurrentState().clone());
-				minmax.updateState_hash_table(bitState);
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);

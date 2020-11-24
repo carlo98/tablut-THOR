@@ -1,8 +1,8 @@
 package thor;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import it.unibo.ai.didattica.competition.tablut.domain.Action;
 import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
@@ -86,9 +86,10 @@ public class Utils {
 	
 	static int cont_pieces(BitState state) {
 	    int cnt = 0;
+	    int curr_mask;
 	    for (int r = 0; r < 9; r++) {
 	        for (int c = 0; c < 9; c++) {
-	            int curr_mask = (256 >> c);
+	            curr_mask = (256 >> c);
 	            if ((state.getWhite_bitboard()[r] & curr_mask) != 0) {
 	                cnt += 1;
 	            }
@@ -103,7 +104,7 @@ public class Utils {
 	    return cnt;
 	}
 	
-	static void clear_hash_table(Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_tables, BitState state) {
+	static void clear_hash_table(ConcurrentHashMap<Integer, Hashtable<Integer, StateDictEntry>> state_hash_tables, BitState state) {
 	    int index_hash = MAX_NUM_CHECKERS - cont_pieces(state) - 1;
 	    while (index_hash >= 0 && state_hash_tables.containsKey(index_hash)) {
 	        state_hash_tables.remove(index_hash);
@@ -111,7 +112,7 @@ public class Utils {
 	    }
 	}
 	
-	static void update_used(Hashtable<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table, BitState state, int[] weights, String color) {
+	static void update_used(ConcurrentHashMap<Integer, Hashtable<Integer, StateDictEntry>> state_hash_table, BitState state, int[] weights, String color) {
 	    int state_hash = state.hashCode();
 	    int index_hash = MAX_NUM_CHECKERS - cont_pieces(state);
 	    if (state_hash_table.get(index_hash).contains(state_hash)) {
@@ -156,37 +157,37 @@ public class Utils {
 	static int[] black_tries_capture_white_pawn(int[] black_bitboard, int[] white_bitboard, int row, int col) {
 	    int binary_column = (1 << (8 - col));
 	    if (row >= 2) {
-	        if (Arrays.stream(bit(white_bitboard[row - 1])).anyMatch(i -> i == binary_column)) {
-	            if (Arrays.stream(bit(black_bitboard[row - 2])).anyMatch(i -> i == binary_column) || 
-	            		Arrays.stream(bit(Utils.camps_bitboard[row - 2])).anyMatch(i -> i == binary_column) || 
-	            			Arrays.stream(bit(Utils.castle_bitboard[row - 2])).anyMatch(i -> i == binary_column)) {
+	        if ((white_bitboard[row - 1] & binary_column) != 0) {
+	            if ((black_bitboard[row - 2] & binary_column) != 0 || 
+	            		(Utils.camps_bitboard[row - 2] & binary_column) != 0 || 
+	            			(Utils.castle_bitboard[row - 2] & binary_column) != 0) {
 	                white_bitboard[row - 1] ^= binary_column;
 	            }
 	        }
 	    }
 	    if (col <= 6) {
-	        if (Arrays.stream(bit(white_bitboard[row])).anyMatch(i -> i == (binary_column>>1))) {
-	            if (Arrays.stream(bit(black_bitboard[row])).anyMatch(i -> i == (binary_column>>2)) || 
-	            		Arrays.stream(bit(Utils.camps_bitboard[row])).anyMatch(i -> i == (binary_column>>2)) ||
-	            			Arrays.stream(bit(Utils.castle_bitboard[row])).anyMatch(i -> i == (binary_column>>2))) {
+	        if ((white_bitboard[row] & (binary_column>>1)) != 0) {
+	            if ((black_bitboard[row] & (binary_column>>2)) != 0 || 
+	            		(Utils.camps_bitboard[row] & (binary_column>>2)) != 0 ||
+	            			(Utils.castle_bitboard[row] & (binary_column>>2)) != 0) {
 	                white_bitboard[row] ^= (binary_column >> 1);
 	            }
 	        }
 	    }
 	    if (row <= 6) {
-	        if (Arrays.stream(bit(white_bitboard[row+1])).anyMatch(i -> i == binary_column)) {
-	            if (Arrays.stream(bit(black_bitboard[row+2])).anyMatch(i -> i == binary_column) || 
-	            		Arrays.stream(bit(Utils.camps_bitboard[row+2])).anyMatch(i -> i == binary_column) || 
-	            			Arrays.stream(bit(Utils.castle_bitboard[row+2])).anyMatch(i -> i == binary_column)) {
+	        if ((white_bitboard[row+1] & binary_column) != 0) {
+	            if ((black_bitboard[row+2] & binary_column) != 0 || 
+	            		(Utils.camps_bitboard[row+2] & binary_column) != 0 || 
+	            			(Utils.castle_bitboard[row+2] & binary_column) != 0) {
 	                white_bitboard[row + 1] ^= binary_column;
 	            }
 	        }
 	    }
 	    if (col >= 2) {
-	        if (Arrays.stream(bit(white_bitboard[row])).anyMatch(i -> i == (binary_column<<1))) {
-	            if (Arrays.stream(bit(black_bitboard[row])).anyMatch(i -> i == (binary_column<<2)) || 
-	            		Arrays.stream(bit(Utils.camps_bitboard[row])).anyMatch(i -> i == (binary_column<<2)) || 
-	            			Arrays.stream(bit(Utils.castle_bitboard[row])).anyMatch(i -> i == (binary_column<<2))) {
+	        if ((white_bitboard[row] & (binary_column<<1)) != 0) {
+	            if ((black_bitboard[row] & (binary_column<<2)) != 0 || 
+	            		(Utils.camps_bitboard[row] & (binary_column<<2)) != 0|| 
+	            			(Utils.castle_bitboard[row] & (binary_column<<2)) != 0) {
 	                white_bitboard[row] ^= (binary_column << 1);
 	            }
 	        }
@@ -214,46 +215,46 @@ public class Utils {
 
 	    int king_bin_col = 1 << (8 - king_col);
 	    if (king_row == 4 && king_col == 4) {
-	        if (Arrays.stream(bit(black_bitboard[king_row - 1])).anyMatch(i -> i == 16) && Arrays.stream(bit(black_bitboard[king_row + 1])).anyMatch(i -> i == 16) 
-	        		&& Arrays.stream(bit(black_bitboard[king_row])).anyMatch(i -> i == 32) && Arrays.stream(bit(black_bitboard[king_row])).anyMatch(i -> i == 8)) {
+	        if ((black_bitboard[king_row - 1] & 16) != 0 && (black_bitboard[king_row + 1] & 16) != 0 
+	        		&& (black_bitboard[king_row] & 32) != 0 && (black_bitboard[king_row] & 8) != 0) {
 	            king_bitboard[king_row] = 0;
 	        }
 	    }
 	    else if (king_row == 3 && king_col == 4) {
-	        if (Arrays.stream(bit(black_bitboard[king_row - 1])).anyMatch(i -> i == 16) && 
-	        		Arrays.stream(bit(black_bitboard[king_row])).anyMatch(i -> i == 32) && 
-	        			Arrays.stream(bit(black_bitboard[king_row])).anyMatch(i -> i == 8)) {
+	        if ((black_bitboard[king_row - 1] & 16) != 0 && 
+	        		(black_bitboard[king_row] & 32) != 0 && 
+	        			(black_bitboard[king_row] & 8) != 0) {
 	            king_bitboard[king_row] = 0;
 	        }
 	    }
 	    else if (king_row == 4 && king_col == 5) {
-	        if (Arrays.stream(bit(black_bitboard[king_row - 1])).anyMatch(i -> i == 8) && Arrays.stream(bit(black_bitboard[king_row + 1])).anyMatch(i -> i == 8)
-	                && Arrays.stream(bit(black_bitboard[king_row])).anyMatch(i -> i == 4)) {
+	        if ((black_bitboard[king_row - 1] & 8) != 0 && (black_bitboard[king_row + 1] & 8) != 0
+	                && (black_bitboard[king_row] & 4) != 0) {
 	            king_bitboard[king_row] = 0;
 	        }
 	    }
 	    else if (king_row == 5 && king_col == 4) {
-	        if (Arrays.stream(bit(black_bitboard[king_row + 1])).anyMatch(i -> i == 16) && Arrays.stream(bit(black_bitboard[king_row])).anyMatch(i -> i == 32) 
-	        		&& Arrays.stream(bit(black_bitboard[king_row])).anyMatch(i -> i == 8)) {
+	        if ((black_bitboard[king_row + 1] & 16) != 0 && (black_bitboard[king_row] & 32) != 0 
+	        		&& (black_bitboard[king_row] & 8) != 0) {
 	            king_bitboard[king_row] = 0;
 	        }
 	    }
 	    else if (king_row == 4 && king_col == 3) {
-	        if (Arrays.stream(bit(black_bitboard[king_row - 1])).anyMatch(i -> i == 32) && Arrays.stream(bit(black_bitboard[king_row + 1])).anyMatch(i -> i == 32)
-	                && Arrays.stream(bit(black_bitboard[king_row])).anyMatch(i -> i == 64)) {
+	        if ((black_bitboard[king_row - 1] & 32) != 0 && (black_bitboard[king_row + 1] & 32) != 0
+	                && (black_bitboard[king_row] & 64) != 0) {
 	            king_bitboard[king_row] = 0;
 	        }
 	    }
 	    else if (king_row == row) {
 	        int other_col = 2 * king_col - col;
 	        int other_col_bin = 1 << (8 - other_col);
-	        if (Arrays.stream(bit(black_bitboard[king_row])).anyMatch(i -> i == other_col_bin)) {
+	        if ((black_bitboard[king_row] & other_col_bin) != 0) {
 	            king_bitboard[king_row] = 0;
 	        }
 	    }
 	    else {
 	        int other_row = 2 * king_row - row;
-	        if (Arrays.stream(bit(black_bitboard[other_row])).anyMatch(i -> i == king_bin_col)) {
+	        if ((black_bitboard[other_row] & king_bin_col) != 0) {
 	            king_bitboard[king_row] = 0;
 	        }
 	    }
@@ -264,45 +265,45 @@ public class Utils {
 	    int binary_column = (1 << (8 - col));
 	    if (row >= 2) {
 	    	//upwards capture
-	        if (Arrays.stream(bit(black_bitboard[row-1])).anyMatch(i -> i == binary_column) && 
-	        		Arrays.stream(bit(black_bitboard[row-1] & Utils.camps_bitboard[row-1])).noneMatch(i -> i == binary_column)) {
+	        if ((black_bitboard[row-1] & binary_column) != 0 && 
+	        		((black_bitboard[row-1] & Utils.camps_bitboard[row-1]) & binary_column) != 0) {
 	            //a black pawn is above
-	        	if (Arrays.stream(bit(white_bitboard[row-2])).anyMatch(i -> i == binary_column) || 
-	            		Arrays.stream(bit(Utils.camps_bitboard[row-2])).anyMatch(i -> i == binary_column) ||
-	            			Arrays.stream(bit(Utils.castle_bitboard[row-2])).anyMatch(i -> i == binary_column)) {
+	        	if ((white_bitboard[row-2] & binary_column) != 0 || 
+	            		(Utils.camps_bitboard[row-2] & binary_column) != 0||
+	            			(Utils.castle_bitboard[row-2] & binary_column) != 0) {
 	                black_bitboard[row - 1] ^= binary_column;
 	            }
 	        }
 	    }
 	    if (col <= 6) {
 	    	//right capture
-	        if (Arrays.stream(bit(black_bitboard[row])).anyMatch(i -> i == (binary_column>>1)) && 
-	        		Arrays.stream(bit(black_bitboard[row] & Utils.camps_bitboard[row])).noneMatch(i -> i == (binary_column>>1))) {
-	            if (Arrays.stream(bit(white_bitboard[row])).anyMatch(i -> i == (binary_column>>2)) || 
-	            		Arrays.stream(bit(Utils.camps_bitboard[row])).anyMatch(i -> i == (binary_column>>2))
-	                    || Arrays.stream(bit(Utils.castle_bitboard[row])).anyMatch(i -> i == (binary_column>>2))) {
+	        if ((black_bitboard[row] & (binary_column>>1)) != 0 && 
+	        		((black_bitboard[row] & Utils.camps_bitboard[row]) & (binary_column>>1)) != 0) {
+	            if ((white_bitboard[row] & (binary_column>>2)) != 0 || 
+	            		(Utils.camps_bitboard[row] & (binary_column>>2)) != 0
+	                    || (Utils.castle_bitboard[row] & (binary_column>>2)) != 0) {
 	                black_bitboard[row] ^= (binary_column >> 1);
 	            }
 	        }
 	    }
 	    if (row <= 6) {
 	    	//downwards capture
-	        if (Arrays.stream(bit(black_bitboard[row+1])).anyMatch(i -> i == binary_column) && 
-	        		Arrays.stream(bit(black_bitboard[row+1] & Utils.camps_bitboard[row+1])).noneMatch(i -> i == binary_column)) {
-	            if (Arrays.stream(bit(white_bitboard[row+2])).anyMatch(i -> i == binary_column) || 
-	            		Arrays.stream(bit(Utils.camps_bitboard[row+2])).anyMatch(i -> i == binary_column) || 
-	            			Arrays.stream(bit(Utils.castle_bitboard[row+2])).anyMatch(i -> i == binary_column)) {
+	        if ((black_bitboard[row+1] & binary_column) != 0 && 
+	        		((black_bitboard[row+1] & Utils.camps_bitboard[row+1]) & binary_column) != 0) {
+	            if ((white_bitboard[row+2] & binary_column) != 0 || 
+	            		(Utils.camps_bitboard[row+2] & binary_column) != 0 || 
+	            			(Utils.castle_bitboard[row+2] & binary_column) != 0) {
 	                black_bitboard[row + 1] ^= binary_column;
 	            }
 	        }
 	    }
 	    if (col >= 2) {
 	    	//left capture
-	        if (Arrays.stream(bit(black_bitboard[row])).anyMatch(i -> i == (binary_column<<1)) && 
-	        		Arrays.stream(bit(black_bitboard[row] & Utils.camps_bitboard[row])).noneMatch(i -> i == (binary_column<<1))) {
-	            if (Arrays.stream(bit(white_bitboard[row])).anyMatch(i -> i == (binary_column<<2)) || 
-	            		Arrays.stream(bit(Utils.camps_bitboard[row])).anyMatch(i -> i == (binary_column<<2)) || 
-	            			Arrays.stream(bit(Utils.castle_bitboard[row])).anyMatch(i -> i == (binary_column<<2))) {
+	        if ((black_bitboard[row] & (binary_column<<1)) != 0 && 
+	        		((black_bitboard[row] & Utils.camps_bitboard[row]) & (binary_column<<1)) != 0) {
+	            if ((white_bitboard[row] & (binary_column<<2)) != 0|| 
+	            		(Utils.camps_bitboard[row] & (binary_column<<2)) != 0|| 
+	            			(Utils.castle_bitboard[row] & (binary_column<<2)) != 0) {
 	                black_bitboard[row] ^= (binary_column << 1);
 	            }
 	        }
