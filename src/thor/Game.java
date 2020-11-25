@@ -9,7 +9,7 @@ import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
 public class Game {
 	private int[][] possible_actions_hor = new int[9][9];
 	private int[][] possible_actions_ver = new int[9][9];
-	private int[] weights = null;
+	private int[] weights = {20, 0, 0, 40, 30, 100};
 	private String color;
 	
 	int[] getWeights() {
@@ -22,7 +22,7 @@ public class Game {
 
 	public Game(int[] weights, String color) {
 		super();
-		this.weights = weights;
+		//this.weights = weights;
 		this.color = color;
 		this.possible_actions_hor[0][0] = 0b011000000;
 		this.possible_actions_hor[0][1] = 0b101000000;

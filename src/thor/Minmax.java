@@ -27,7 +27,7 @@ public final class Minmax {
 		for (int i=0; i < 25; i++)
 			this.state_hash_table.put(i, new ConcurrentHashMap<Integer, StateDictEntry>());
         this.game = game;
-        this.max_depth = 2;
+        this.max_depth = 3;
     }
     
     private class MinMax_thread implements Callable<Double> {
@@ -43,11 +43,11 @@ public final class Minmax {
 		@Override
         public Double call() throws Exception {
 			//print for testing
-			/*System.out.println("Analizing action = " + action.get(0) + " "+ action.get(1) + " "+ action.get(2) + " "
-					+ action.get(3) + " " + action.get(4));*/
-            double value = minValue(new BitState(currentState, this.action), this.alpha, Double.POSITIVE_INFINITY, 1, 
+			
+            double value = minValue(new BitState(currentState, this.action), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1, 
                 		max_depth, state_hash_table);
-            
+            /*System.out.println("Analizing action = "+ action.get(1) + " "+ action.get(2) + " "
+					+ action.get(3) + " " + action.get(4) + "\t result = "+ value);*/
             return value;
         }
     }
