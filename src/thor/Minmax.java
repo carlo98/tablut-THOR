@@ -134,6 +134,14 @@ public final class Minmax {
         	return value;
         }
 
+        /*int state_hash = bitState.hashCode();
+        int index_checkers = Utils.MAX_NUM_CHECKERS-Utils.cont_pieces(bitState);
+        StateDictEntry hash_result = null;
+        if (state_hash_table.get(index_checkers).contains(state_hash)) {
+        	hash_result = state_hash_table.get(index_checkers).get(state_hash);
+        	if (hash_result.getMax_depth()-hash_result.getCurrent_depth() == max_depth-depth)
+        		return hash_result.getValue();
+        }*/
         double v = Double.NEGATIVE_INFINITY;
         /*if (all_actions == null) {
             all_actions = this.game.produce_actions(bitState);
@@ -150,10 +158,12 @@ public final class Minmax {
         for (List<Integer> action : all_actions) {
             v = Math.max(v, minValue(new BitState(bitState, action), alpha, beta, depth + 1, max_depth, state_hash_table));
             if (v >= beta) {
+            	//add_to_hash(state_hash_table, state_hash, v, all_actions, index_checkers, max_depth, depth);
                 return v;
             }
             alpha = Math.max(alpha, v);
         }
+        //add_to_hash(state_hash_table, state_hash, v, all_actions, index_checkers, max_depth, depth);
         return v;
     }
 
@@ -190,7 +200,14 @@ public final class Minmax {
         	//add_to_hash(state_hash_table, state_hash, value, all_actions, index_checkers, max_depth, depth);  // Add state and value to hash table
         	return value;
         }
-
+        /*int state_hash = bitState.hashCode();
+        int index_checkers = Utils.MAX_NUM_CHECKERS-Utils.cont_pieces(bitState);
+        StateDictEntry hash_result = null;
+        if (state_hash_table.get(index_checkers).contains(state_hash)) {
+        	hash_result = state_hash_table.get(index_checkers).get(state_hash);
+        	if (hash_result.getMax_depth()-hash_result.getCurrent_depth() == max_depth-depth)
+        		return hash_result.getValue();
+        }*/
         double v = Double.POSITIVE_INFINITY;
         /*if (all_actions == null) {
             all_actions = this.game.produce_actions(bitState);
@@ -207,10 +224,12 @@ public final class Minmax {
         for (List<Integer> action : all_actions) {
             v = Math.min(v, maxValue(new BitState(bitState, action), alpha, beta, depth + 1, max_depth, state_hash_table));
             if (v <= alpha) {
+            	//add_to_hash(state_hash_table, state_hash, v, all_actions, index_checkers, max_depth, depth);
                 return v;
             }
             beta = Math.min(beta, v);
         }
+        //add_to_hash(state_hash_table, state_hash, v, all_actions, index_checkers, max_depth, depth);
         return v;
     }
 
