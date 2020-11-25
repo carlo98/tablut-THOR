@@ -42,7 +42,9 @@ public final class Minmax {
 
 		@Override
         public Double call() throws Exception {
-            
+			//print for testing
+			/*System.out.println("Analizing action = " + action.get(0) + " "+ action.get(1) + " "+ action.get(2) + " "
+					+ action.get(3) + " " + action.get(4));*/
             double value = minValue(new BitState(currentState, this.action), this.alpha, Double.POSITIVE_INFINITY, 1, 
                 		max_depth, state_hash_table);
             
@@ -67,6 +69,7 @@ public final class Minmax {
         	values[i] = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < all_actions.size(); i++) {
         	choosen_action.add(executorService.submit(new MinMax_thread(all_actions.get(i), values[index_best])));
+        	
         	cont += 1;
         	if (((i%step == 0) && i != 0) || i==all_actions.size()-1) {
 	        	for (int k=i-cont+1;k<=i;k++) {

@@ -248,13 +248,16 @@ public class Utils {
 	    else if (king_row == row) {
 	        int other_col = 2 * king_col - col;
 	        int other_col_bin = 1 << (8 - other_col);
-	        if ((black_bitboard[king_row] & other_col_bin) != 0) {
+	        if ((black_bitboard[king_row] & other_col_bin) != 0 || 
+	        		(Utils.camps_bitboard[king_row] & other_col_bin) != 0) {
 	            king_bitboard[king_row] = 0;
+	        
 	        }
 	    }
 	    else {
 	        int other_row = 2 * king_row - row;
-	        if ((black_bitboard[other_row] & king_bin_col) != 0) {
+	        if ((black_bitboard[other_row] & king_bin_col) != 0 ||
+	        		(Utils.camps_bitboard[other_row] & king_bin_col) != 0) {
 	            king_bitboard[king_row] = 0;
 	        }
 	    }
