@@ -10,7 +10,7 @@ import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
 public class Utils {
 
 	static final int MAX_NUM_CHECKERS = 25;
-	static final int MAX_VAL_HEURISTIC = 5000;
+	static public final int MAX_VAL_HEURISTIC = 5000;
 	static final int DRAW_POINTS = MAX_VAL_HEURISTIC-1;
 	static final Hashtable<Integer, Integer> lut_positions = new Hashtable<Integer, Integer>() {private static final long serialVersionUID = 1L;
 																							  { put(1, 8); put(2, 7); 
@@ -112,14 +112,13 @@ public class Utils {
 	    }
 	}
 	
-	static void update_used(ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, StateDictEntry>> state_hash_table, BitState state, int[] weights, String color) {
+	static void update_used(ConcurrentHashMap<Integer, StateDictEntry> state_hash_table, BitState state, int[] weights, String color) {
 	    int state_hash = state.hashCode();
-	    int index_hash = MAX_NUM_CHECKERS - cont_pieces(state);
-	    if (state_hash_table.get(index_hash).contains(state_hash)) {
-	        state_hash_table.get(index_hash).get(state_hash).setUsed();
+	    if (state_hash_table.contains(state_hash)) {
+	        state_hash_table.get(state_hash).setUsed();
 	    }
 	    else {
-	        state_hash_table.get(index_hash).put(state_hash, new StateDictEntry(state_hash, state.compute_heuristic(weights, color), null, 1, 0, 0));
+	        state_hash_table.put(state_hash, new StateDictEntry(state_hash, state.compute_heuristic(weights, color), null, 1, 0, 0));
 	    }
 	}
 	

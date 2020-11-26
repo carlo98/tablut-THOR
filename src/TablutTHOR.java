@@ -75,6 +75,9 @@ public class TablutTHOR extends TablutClient {
 						flag = false;
 						if (action != null) {
 							best_action = action.stream().collect(Collectors.toList());
+							if(minmax.getBest_value() == Utils.MAX_VAL_HEURISTIC) {
+								break;
+							}
 						}
 					}
 					this.write(Utils.action_to_server_format(best_action));
@@ -83,7 +86,7 @@ public class TablutTHOR extends TablutClient {
 					System.out.println("Not my turn.");
 					best_action = null;
 		            action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
-		            minmax.setMax_depth(2);
+		            minmax.setMax_depth(3);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
