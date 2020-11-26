@@ -30,6 +30,7 @@
     <path id="classPath">
         <pathelement location="${lib.dir}/commons-cli-1.4.jar" />
         <pathelement location="${lib.dir}/gson-2.6.2.jar" />
+        <pathelement location="${lib.dir}/junit-jupiter-5.7.0.jar" />
     </path>
 
     <target name="jar" depends="compile">
@@ -49,17 +50,5 @@
     <target name="clean-build" depends="clean,jar"/>
 
     <target name="main" depends="clean,run"/>
-
-    <target name="test" depends="clean-build">
-        <junit printsummary="yes" haltonfailure="yes">
-            <classpath refid="classpath" />
-            <classpath>
-                <pathelement location="${build.dir}/jar/B2P-Penicillin.jar" />
-            </classpath>
-            <batchtest fork="no">
-                <zipfileset src="${build.dir}/jar/B2P-Penicillin.jar" includes="**/test/*Test.class" />
-            </batchtest>
-        </junit>
-    </target>
 
 </project>
