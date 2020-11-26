@@ -266,29 +266,34 @@ public class Utils {
 	
 	static int[] white_tries_capture_black_pawn(int[] white_bitboard, int[] black_bitboard, int row, int col) {
 	    int binary_column = (1 << (8 - col));
+	    //upwards capture
 	    if (row >= 2) {
-	    	//upwards capture
+	    	//check if there is a black pawn above
 	        if ((black_bitboard[row-1] & binary_column) != 0 ) {
-	            //a black pawn is above
+	        	//check if the black pawn is on a camp
 	        	if ((black_bitboard[row-1] & Utils.camps_bitboard[row-1]&(binary_column)) == 0) {
+	        		//not on a camp, can use pawns, camp or castle to capture
 		        	if ((white_bitboard[row-2] & binary_column) != 0 || 
 		            		(Utils.camps_bitboard[row-2] & binary_column) != 0||
 		            			(Utils.castle_bitboard[row-2] & binary_column) != 0) {
 		                black_bitboard[row - 1] ^= binary_column;
 		                
 		            }
-		        //rule added for when capture is inside camps
 	        	} else {
+	        		//black pawn on a camp, only pawns can capture it
 	        		if ((white_bitboard[row-2] & binary_column) != 0) {
 		                black_bitboard[row - 1] ^= binary_column;
 	        		}
 	        	}
 	        }
 	    }
+	    //right capture
 	    if (col <= 6) {
-	    	//right capture
+	    	//check if there is a black pawn to the right
 	        if ((black_bitboard[row] & (binary_column>>1)) != 0) {
+	        	//check if the black pawn is on a camp
 	        	if (((black_bitboard[row]&Utils.camps_bitboard[row])&(binary_column>>1)) == 0) {
+	        		//not on a camp, can use pawns, camp or castle to capture
 		            if ((white_bitboard[row] & (binary_column>>2)) != 0 || 
 		            		(Utils.camps_bitboard[row] & (binary_column>>2)) != 0
 		                    || (Utils.castle_bitboard[row] & (binary_column>>2)) != 0) {
@@ -296,16 +301,20 @@ public class Utils {
 		                
 		            }
 	        	} else {
+	        		//black pawn on a camp, only pawns can capture it
 	        		if ((white_bitboard[row] & (binary_column>>2)) != 0) {
 		                black_bitboard[row] ^= (binary_column >> 1);		                
 		            }
 	        	}
 	        }
 	    }
+	    //downwards capture
 	    if (row <= 6) {
-	    	//downwards capture
+	    	//check if there is a black below
 	        if ((black_bitboard[row+1] & binary_column) != 0) {
+	        	//check if the black pawn is on a camp
 	        	if (((black_bitboard[row+1]&Utils.camps_bitboard[row+1])&binary_column) == 0) {
+	        		//not on a camp, can use pawns, camp or castle to capture
 		            if ((white_bitboard[row+2] & binary_column) != 0 || 
 		            		(Utils.camps_bitboard[row+2] & binary_column) != 0 || 
 		            			(Utils.castle_bitboard[row+2] & binary_column) != 0) {
@@ -313,16 +322,20 @@ public class Utils {
 		                
 		            }
 	        	} else {
+	        		//black pawn on a camp, only pawns can capture it
 	        		if ((white_bitboard[row+2] & binary_column) != 0) {
 		                black_bitboard[row + 1] ^= binary_column;  
 		            }
 	        	}
 	        }
 	    }
+	    //left capture
 	    if (col >= 2) {
-	    	//left capture
+	    	//check if there is a black pawn to the left
 	        if ((black_bitboard[row] & (binary_column<<1)) != 0 ) {
+	        	//check if the black pawn is on a camp
 	        	if (((black_bitboard[row]&Utils.camps_bitboard[row])&(binary_column<<1)) == 0) {
+	        		//not on a camp, can use pawns, camp or castle to capture
 		            if ((white_bitboard[row] & (binary_column<<2)) != 0|| 
 		            		(Utils.camps_bitboard[row] & (binary_column<<2)) != 0|| 
 		            			(Utils.castle_bitboard[row] & (binary_column<<2)) != 0) {
@@ -330,6 +343,7 @@ public class Utils {
 		                
 		            }
 	        	} else {
+	        		//black pawn on a camp, only pawns can capture it
 	        		if ((white_bitboard[row] & (binary_column<<2)) != 0) {
 		                black_bitboard[row] ^= (binary_column << 1);
 		                
