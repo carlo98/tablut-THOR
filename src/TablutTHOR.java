@@ -1,5 +1,7 @@
 import it.unibo.ai.didattica.competition.tablut.client.TablutClient;
 import thor.BitState;
+import thor.BitStateBlackPlayer;
+import thor.BitStateWhitePlayer;
 import thor.Game;
 import thor.Minmax;
 import thor.Utils;
@@ -60,7 +62,10 @@ public class TablutTHOR extends TablutClient {
 			try{
 				this.read();
 				flag = true;
-				bitState = new BitState(this.getCurrentState().clone());
+				if (this.color=="WHITE")
+					bitState = new BitStateWhitePlayer(this.getCurrentState().clone());
+				else
+					bitState = new BitStateBlackPlayer(this.getCurrentState().clone());
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
