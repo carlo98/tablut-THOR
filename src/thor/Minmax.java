@@ -26,7 +26,7 @@ public final class Minmax {
     public Minmax(Game game) {
     	this.state_hash_table= new ConcurrentHashMap<Integer, StateDictEntry>();
         this.game = game;
-        this.max_depth = 5;
+        this.max_depth = 4;
         if (game.getColor() == "WHITE")
         	this.currentState = new BitStateWhitePlayer();
         else 
@@ -47,8 +47,8 @@ public final class Minmax {
 			
             double value = minValue(currentState.produceState(action), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1, 
                 		max_depth, state_hash_table);
-            System.out.println("Analizing action = "+ action.get(1) + " "+ action.get(2) + " "
-					+ action.get(3) + " " + action.get(4) + "\t result = "+ value);
+            /*System.out.println("Analizing action = "+ action.get(1) + " "+ action.get(2) + " "
+					+ action.get(3) + " " + action.get(4) + "\t result = "+ value);*/
             return value;
         }
     }

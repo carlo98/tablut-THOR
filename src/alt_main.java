@@ -1,4 +1,4 @@
-/*import java.io.IOException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,22 +14,25 @@ public class alt_main {
 
 	public static void main(String[] args) throws IOException {
 		BitState bs = new BitStateBlackPlayer();
-		int[] white_bitboard = {1, 0, 0, 16, 0, 0, 0, 0, 0};
-		int[] black_bitboard = {0, 0, 0, 72, 0, 0, 0, 0, 0};
-		int[] king_bitboard = {0, 0, 0, 32, 0, 0, 0, 0, 0};
+		//int[] white_bitboard = {0, 0, 16, 16, 108, 16, 16, 0, 0};
+		//int[] black_bitboard = {56, 16, 0, 257, 387, 257, 0, 16, 56};
+		//int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
+		int[] white_bitboard = {0, 0, 128, 16, 108, 16, 16, 0, 0};
+		int[] black_bitboard = {56, 16, 0, 257, 387, 257, 0, 16, 56};
+		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
 		bs.setBlack_bitboard(black_bitboard);
 		bs.setWhite_bitboard(white_bitboard);
 		bs.setKing_bitboard(king_bitboard);
-		bs.setTurn(Turn.WHITE);
+		bs.setTurn(Turn.BLACK);
 		
 		System.out.println(bs.compute_heuristic());
 		
 		int[] w = {20, 0, 0, 40, 20, 50};
-		String c = "WHITE";
+		String c = "BLACK";
 		Game game = new Game(w, c);
 		Minmax minmax = new Minmax(game);
 		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
-		action = minmax.makeDecision(20, bs, true);
+		action = minmax.makeDecision(10, bs, true);
 		System.out.println("case: game, action = " + action.get(0) + " "+ action.get(1) + " "+ action.get(2) + " "
 				+ action.get(3) + " " + action.get(4));
 		BitState bs_1 = bs.produceState(action);
@@ -39,4 +42,3 @@ public class alt_main {
 	}
 
 }
-*/
