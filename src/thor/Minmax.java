@@ -78,7 +78,7 @@ public final class Minmax {
 			            	break;
 			            }
 			            values[k] = choosen_action.get(k).get(max_time-(System.currentTimeMillis()/1000 - start_time), TimeUnit.SECONDS);
-			            if (values[k] >= values[index_best]) {
+			            if (values[k] > values[index_best]) {
 			            	index_best = k;
 			            }
 			        } catch (TimeoutException e) {
