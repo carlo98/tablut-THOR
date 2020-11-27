@@ -112,7 +112,7 @@ public class Utils {
 	    }
 	}
 	
-	static void update_used(ConcurrentHashMap<Integer, StateDictEntry> state_hash_table, BitState state, int[] weights, String color) {
+	static void update_used(ConcurrentHashMap<Integer, StateDictEntry> state_hash_table, BitState state, String color) {
 	    int state_hash = state.hashCode();
 	    if (state_hash_table.contains(state_hash)) {
 	        state_hash_table.get(state_hash).setUsed();

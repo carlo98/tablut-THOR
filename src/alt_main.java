@@ -6,7 +6,6 @@ import java.util.List;
 import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
 import thor.BitState;
 import thor.BitStateBlackPlayer;
-import thor.BitStateWhitePlayer;
 import thor.Game;
 import thor.Minmax;
 
@@ -27,9 +26,8 @@ public class alt_main {
 		
 		System.out.println(bs.compute_heuristic());
 		
-		int[] w = {20, 0, 0, 40, 20, 50};
 		String c = "BLACK";
-		Game game = new Game(w, c);
+		Game game = new Game(c);
 		Minmax minmax = new Minmax(game);
 		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
 		action = minmax.makeDecision(10, bs, true);

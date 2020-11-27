@@ -23,8 +23,6 @@ public class TablutTHOR extends TablutClient {
 	private final int max_time;
 	private String color;
 	private static final String PLAYER_NAME = "THOR";
-	private int[] weights = {20, 10, 0, 40, 30, 50};
-
 	
 	public TablutTHOR(String color, int max_time, String host) throws UnknownHostException, IOException {
 		super(color, PLAYER_NAME , max_time, host);
@@ -45,7 +43,7 @@ public class TablutTHOR extends TablutClient {
 		System.out.println("Player " + this.getPlayer().toString());
 		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
 		List<Integer> best_action = action.stream().collect(Collectors.toList());
-		Game game = new Game(this.weights, this.color);
+		Game game = new Game(this.color);
 		Minmax minmax = new Minmax(game);
 		BitState bitState = null;
 		long start_time;

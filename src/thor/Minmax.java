@@ -201,7 +201,7 @@ public final class Minmax {
     }
 
 	public void updateState_hash_table(BitState bitState) {
-		Utils.update_used(this.state_hash_table, bitState, this.game.getWeights(), this.game.getColor());
+		Utils.update_used(this.state_hash_table, bitState, this.game.getColor());
 	}
 
 	public int getMax_depth() {

@@ -29,9 +29,8 @@ class king_escape_test {
 		bs.setWhite_bitboard(white_bitboard);
 		bs.setKing_bitboard(king_bitboard);
 		bs.setTurn(Turn.WHITE);
-		int[] w = {20, 10, 0, 40, 30, 50};
 		String c = "WHITE";
-		Game game = new Game(w, c);
+		Game game = new Game(c);
 		Minmax minmax = new Minmax(game);
 		minmax.setMax_depth(1);
 		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
@@ -54,9 +53,8 @@ class king_escape_test {
 		bs.setWhite_bitboard(white_bitboard);
 		bs.setKing_bitboard(king_bitboard);
 		bs.setTurn(Turn.WHITE);
-		int[] w = {20, 10, 0, 40, 30, 50};
 		String c = "WHITE";
-		Game game = new Game(w, c);
+		Game game = new Game(c);
 		Minmax minmax = new Minmax(game);
 		minmax.setMax_depth(3);
 		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
@@ -80,9 +78,8 @@ class king_escape_test {
 		bs.setWhite_bitboard(white_bitboard);
 		bs.setKing_bitboard(king_bitboard);
 		bs.setTurn(Turn.WHITE);
-		int[] w = {20, 10, 0, 40, 30, 50};
 		String c = "WHITE";
-		Game game = new Game(w, c);
+		Game game = new Game(c);
 		Minmax minmax = new Minmax(game);
 		minmax.setMax_depth(1);
 		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
