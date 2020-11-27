@@ -60,7 +60,7 @@ public class TablutTHOR extends TablutClient {
 			try{
 				this.read();
 				flag = true;
-				if (this.color=="WHITE")
+				if (this.color.equalsIgnoreCase("WHITE"))
 					bitState = new BitStateWhitePlayer(this.getCurrentState().clone());
 				else
 					bitState = new BitStateBlackPlayer(this.getCurrentState().clone());

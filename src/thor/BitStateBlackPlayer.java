@@ -23,7 +23,7 @@ public class BitStateBlackPlayer extends BitState {
 	@Override
 	public double compute_heuristic() {
 		int blocks_occupied_by_black = 0;
-		int white_cnt = 0, black_cnt = 0;
+		int white_cnt = 1, black_cnt = 0;
         int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond;
         double blocks_cond;
 

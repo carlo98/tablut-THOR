@@ -6,7 +6,11 @@ import it.unibo.ai.didattica.competition.tablut.domain.State;
 
 public class BitStateWhitePlayer extends BitState {
 	
-	private int[] weights = {20, 0, 0, 40, 30, 100};
+	private int[][] lut = {{-Utils.MAX_VAL_HEURISTIC, 10, 40, 100, 150, 200, 250, 300, 350, 400},  // Remaining white
+							{Utils.MAX_VAL_HEURISTIC, -10, -20, -30, -40, -80, -120, -200, -250, -300, -330, -350, -390, -410, -420, -430, -450},  // Remaining black
+							{50, -5, -10, -50, -70, -80, -100, -450, -500},  // Open diagonal blocks
+							{0, 200, 1000, 2000, 4000}  // Aggressive king, number of path open to escapes
+							};
 	
 	public BitStateWhitePlayer(State state) {
 		super(state);
@@ -24,17 +28,19 @@ public class BitStateWhitePlayer extends BitState {
 	
 	@Override
 	public double compute_heuristic() {
-		int white_cnt = 0, black_cnt = 0;
-        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond;
+		int white_cnt = 1, black_cnt = 0;
+        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond, blocks_cond, blocks_occupied_by_black=8;
         int victory_cond = this.check_victory();
         
-        if (victory_cond == -1)  // King captured and white player -> Lose
+        if (victory_cond == -1)  // King captured
             return -Utils.MAX_VAL_HEURISTIC;
-        else if (victory_cond == 1)  // King escaped and white player -> Win
+        else if (victory_cond == 1)  // King escaped
             return Utils.MAX_VAL_HEURISTIC;
         
-        
-        //TODO add open blocks heuristic to focus there
+        for(int i = 0; i < this.black_bitboard.length; i++) {
+        	blocks_occupied_by_black -= Integer.bitCount(this.black_bitboard[i] & Utils.blocks_bitboard[i]);
+        }
+        blocks_cond = lut[2][blocks_occupied_by_black];
         
         for (int r = 0; r < this.black_bitboard.length; r++) {
             for (int c = 0; c < this.black_bitboard.length; c++) {
@@ -48,11 +54,11 @@ public class BitStateWhitePlayer extends BitState {
             }
         }
 
-        remaining_whites_cond =  weights[3] * white_cnt;
-        remaining_blacks_cond = -1* weights[4] * black_cnt;
+        remaining_whites_cond =  lut[0][white_cnt];
+        remaining_blacks_cond = lut[1][black_cnt];
 
-        ak_cond = weights[5] * this.open_king_paths();
-        return  remaining_whites_cond + remaining_blacks_cond + ak_cond;
+        ak_cond = lut[3][this.open_king_paths()];
+        return  remaining_whites_cond + remaining_blacks_cond + ak_cond + blocks_cond;
 	}
 	
 	@Override
