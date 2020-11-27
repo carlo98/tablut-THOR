@@ -54,4 +54,9 @@ public class BitStateWhitePlayer extends BitState {
         ak_cond = weights[5] * this.open_king_paths();
         return  remaining_whites_cond + remaining_blacks_cond + ak_cond;
 	}
+	
+	@Override
+	public BitState produceState(List<Integer> action) {
+		return new BitStateWhitePlayer(this, action);
+	}
 }
