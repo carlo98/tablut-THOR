@@ -26,7 +26,11 @@ public final class Minmax {
     public Minmax(Game game) {
     	this.state_hash_table= new ConcurrentHashMap<Integer, StateDictEntry>();
         this.game = game;
-        this.max_depth = 3;
+        this.max_depth = 5;
+        if (game.getColor() == "WHITE")
+        	this.currentState = new BitStateWhitePlayer();
+        else 
+        	this.currentState = new BitStateBlackPlayer();
     }
     
     private class MinMax_thread implements Callable<Double> {
@@ -41,10 +45,10 @@ public final class Minmax {
         public Double call() throws Exception {
 			//print for testing
 			
-            double value = minValue(new BitState(currentState, this.action), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1, 
+            double value = minValue(currentState.produceState(action), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1, 
                 		max_depth, state_hash_table);
-            /*System.out.println("Analizing action = "+ action.get(1) + " "+ action.get(2) + " "
-					+ action.get(3) + " " + action.get(4) + "\t result = "+ value);*/
+            System.out.println("Analizing action = "+ action.get(1) + " "+ action.get(2) + " "
+					+ action.get(3) + " " + action.get(4) + "\t result = "+ value);
             return value;
         }
     }
@@ -126,7 +130,7 @@ public final class Minmax {
         	    return -Utils.DRAW_POINTS;
         }
         if (cutoff_test(depth, max_depth)) { // If reached maximum depth or total time
-        	double value = bitState.compute_heuristic(this.game.getWeights(), this.game.getColor());  // If state not previously evaluated
+        	double value = bitState.compute_heuristic();  // If state not previously evaluated
         	return value;
         }
         
@@ -135,7 +139,7 @@ public final class Minmax {
         if (all_actions.size() == 0)
             return -Utils.MAX_VAL_HEURISTIC;
         for (List<Integer> action : all_actions) {
-            v = Math.max(v, minValue(new BitState(bitState, action), alpha, beta, depth + 1, max_depth, state_hash_table));
+            v = Math.max(v, minValue(bitState.produceState(action), alpha, beta, depth + 1, max_depth, state_hash_table));
             if (v >= beta) {
                 return v;
             }
@@ -168,7 +172,7 @@ public final class Minmax {
         	    return -Utils.DRAW_POINTS;
         }
         if (cutoff_test(depth, max_depth)) { // If reached maximum depth or total time
-        	double value = bitState.compute_heuristic(this.game.getWeights(), this.game.getColor());  // If state not previously evaluated
+        	double value = bitState.compute_heuristic();  // If state not previously evaluated
         	return value;
         }
         
@@ -177,7 +181,7 @@ public final class Minmax {
         if (all_actions.size() == 0)
             return Utils.MAX_VAL_HEURISTIC;
         for (List<Integer> action : all_actions) {
-            v = Math.min(v, maxValue(new BitState(bitState, action), alpha, beta, depth + 1, max_depth, state_hash_table));
+            v = Math.min(v, maxValue(bitState.produceState(action), alpha, beta, depth + 1, max_depth, state_hash_table));
             if (v <= alpha) {
                 return v;
             }

@@ -10,9 +10,9 @@ import it.unibo.ai.didattica.competition.tablut.domain.State.Pawn;
 import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
 
 public class BitState{
-	private int[] white_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-	private int[] black_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-	private int[] king_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	protected int[] white_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	protected int[] black_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	protected int[] king_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	private Turn turn = null;
 
 	public BitState(State state) {
@@ -149,49 +149,8 @@ public class BitState{
 		return true;
 	}
 
-	public double compute_heuristic(int[] weights, String color) {
-		int blocks_occupied_by_black = 0, blocks_occupied_by_white = 0;
-		int white_cnt = 0, black_cnt = 0;
-        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond;
-        double blocks_cond, open_blocks_cond;
-        int coeff_min_black = (int) Math.pow(-1, (color.equalsIgnoreCase("WHITE")) ? 1 : 0);
-        int coeff_min_white = (int) Math.pow(-1, (color.equalsIgnoreCase("BLACK")) ? 1 : 0);
-        int victory_cond = this.check_victory();
-        if (victory_cond == -1 && color == "BLACK")  // king captured and black player -> Win
-            return Utils.MAX_VAL_HEURISTIC;
-        else if (victory_cond == -1 && color == "WHITE")  // King captured and white player -> Lose
-            return -Utils.MAX_VAL_HEURISTIC;
-        else if (victory_cond == 1 && color == "BLACK")  // King escaped and black player -> Lose
-            return -Utils.MAX_VAL_HEURISTIC;
-        else if (victory_cond == 1 && color == "WHITE")  // King escaped and white player -> Win
-            return Utils.MAX_VAL_HEURISTIC;
-        
-        for(int i = 0; i < this.black_bitboard.length; i++) {
-        	blocks_occupied_by_black += Integer.bitCount(this.black_bitboard[i] & Utils.blocks_bitboard[i]);
-        }
-        for(int i = 0; i < this.black_bitboard.length; i++) {
-        	blocks_occupied_by_white += Integer.bitCount(this.white_bitboard[i] & Utils.blocks_bitboard[i]);
-        	blocks_occupied_by_white += Integer.bitCount(this.king_bitboard[i] & Utils.blocks_bitboard[i]);
-        }
-        blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black + coeff_min_white * weights[1] * blocks_occupied_by_white;
-        open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black);
-        for (int r = 0; r < this.black_bitboard.length; r++) {
-            for (int c = 0; c < this.black_bitboard.length; c++) {
-                curr_mask = (1 << (8 - c));
-                if ((this.white_bitboard[r] & curr_mask) != 0) {
-                    white_cnt += 1;
-                }
-                if ((this.black_bitboard[r] & curr_mask) != 0) {
-                    black_cnt += 1;
-                }
-            }
-        }
-
-        remaining_whites_cond = coeff_min_white * weights[3] * white_cnt;
-        remaining_blacks_cond = coeff_min_black * weights[4] * black_cnt;
-
-        ak_cond = coeff_min_white * weights[5] * this.open_king_paths();
-        return blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond;
+	public double compute_heuristic() {
+		return 0;
 	}
 	
 	int open_king_paths() {
@@ -270,5 +229,9 @@ public class BitState{
             locked_camps += 1;
         }
         return locked_camps;
+	}
+
+	public BitState produceState(List<Integer> action) {
+		return null;
 	}
 }

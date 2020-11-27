@@ -118,7 +118,7 @@ public class Utils {
 	        state_hash_table.get(state_hash).setUsed();
 	    }
 	    else {
-	        state_hash_table.put(state_hash, new StateDictEntry(state_hash, state.compute_heuristic(weights, color), null, 1, 0, 0));
+	        state_hash_table.put(state_hash, new StateDictEntry(state_hash, state.compute_heuristic(), null, 1, 0, 0));
 	    }
 	}
 	
