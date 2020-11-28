@@ -71,7 +71,7 @@ class white_capture_black {
 	@Test
 	void capture_up_king() throws IOException {
 		BitState bs = new BitStateWhitePlayer();
-		int[] white_bitboard = {64, 0, 4, 68, 112, 16, 16, 0, 0};
+		int[] white_bitboard = {64, 0, 4, 68, 64, 16, 16, 0, 0};
 		int[] black_bitboard = {0, 0, 8, 0, 0, 0, 0, 0, 33};
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
 		bs.setBlack_bitboard(black_bitboard);
@@ -166,5 +166,30 @@ class white_capture_black {
 		
 		int[] b_bitboard_expected = {0, 0, 0, 0, 32, 0, 0, 0, 0};
 		assertArrayEquals(b_bitboard_expected,new_bs.getBlack_bitboard());
+	}
+	
+	@Test
+	void capture_left_camp() throws IOException {
+		BitState bs = new BitStateBlackPlayer();
+		int[] white_bitboard = {0, 0, 0, 0, 0, 128, 16, 32, 0};
+		int[] black_bitboard = {32, 0, 272, 80, 131, 1, 72, 0, 56};
+		int[] king_bitboard = {0, 0, 0, 0, 0, 0, 32, 0, 0};
+		bs.setBlack_bitboard(black_bitboard);
+		bs.setWhite_bitboard(white_bitboard);
+		bs.setKing_bitboard(king_bitboard);
+		bs.setTurn(Turn.BLACK);
+		String c = "BLACK";
+		Game game = new Game(c);
+		Minmax minmax = new Minmax(game);
+		minmax.setMax_depth(1);
+		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
+		action = minmax.makeDecision(10, bs, true);
+		System.out.println("Left camp value:"+ minmax.getBest_value());
+		System.out.println("action = " + action.get(0) + " "+ action.get(1) + " "+ action.get(2) + " "
+				+ action.get(3) + " " + action.get(4));
+		BitState new_bs = bs.produceState(action);
+		
+		int[] w_bitboard_expected = {0, 0, 0, 0, 0, 0, 16, 32, 0};
+		assertArrayEquals(w_bitboard_expected,new_bs.getWhite_bitboard());
 	}
 }

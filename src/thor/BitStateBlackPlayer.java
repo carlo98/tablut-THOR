@@ -19,6 +19,10 @@ public class BitStateBlackPlayer extends BitState {
 	public BitStateBlackPlayer(State state) {
 		super(state);
 	}
+	
+	public BitStateBlackPlayer(BitState s) {
+		super(s);
+	}
 
 	@Override
 	public double compute_heuristic() {

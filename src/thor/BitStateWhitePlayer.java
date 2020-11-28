@@ -8,8 +8,8 @@ public class BitStateWhitePlayer extends BitState {
 	
 	private int[][] lut = {{-Utils.MAX_VAL_HEURISTIC, 10, 40, 100, 150, 200, 250, 300, 350, 400},  // Remaining white
 							{Utils.MAX_VAL_HEURISTIC, -10, -20, -30, -40, -80, -120, -200, -250, -300, -330, -350, -390, -410, -420, -430, -450},  // Remaining black
-							{50, -5, -10, -50, -70, -80, -100, -450, -500},  // Open diagonal blocks
-							{0, 200, 1000, 2000, 4000}  // Aggressive king, number of path open to escapes
+							{-300, -30, -20, 5, 10, 40, 50, 80, 100},  // Open diagonal blocks
+							{0, 80, 200, 1000, 4000}  // Aggressive king, number of path open to escapes
 							};
 	
 	public BitStateWhitePlayer(State state) {
@@ -26,10 +26,14 @@ public class BitStateWhitePlayer extends BitState {
 		
 	}
 	
+	public BitStateWhitePlayer(BitState s) {
+		super(s);
+	}
+	
 	@Override
 	public double compute_heuristic() {
 		int white_cnt = 1, black_cnt = 0;
-        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond, blocks_cond, blocks_occupied_by_black=8;
+        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond, blocks_cond, blocks_occupied=8;
         int victory_cond = this.check_victory();
         
         if (victory_cond == -1)  // King captured
@@ -38,9 +42,9 @@ public class BitStateWhitePlayer extends BitState {
             return Utils.MAX_VAL_HEURISTIC;
         
         for(int i = 0; i < this.black_bitboard.length; i++) {
-        	blocks_occupied_by_black -= Integer.bitCount(this.black_bitboard[i] & Utils.blocks_bitboard[i]);
+        	blocks_occupied -= Integer.bitCount((this.black_bitboard[i] & Utils.blocks_bitboard[i]) | (this.white_bitboard[i] & Utils.blocks_bitboard[i]));
         }
-        blocks_cond = lut[2][blocks_occupied_by_black];
+        blocks_cond = lut[2][blocks_occupied];
         
         for (int r = 0; r < this.black_bitboard.length; r++) {
             for (int c = 0; c < this.black_bitboard.length; c++) {

@@ -32,6 +32,13 @@ public class BitState{
 	    }
 	}
 	
+	public BitState(BitState bitState) {
+		this.turn = bitState.getTurn();
+		this.black_bitboard = bitState.getBlack_bitboard();
+		this.white_bitboard = bitState.getWhite_bitboard();
+		this.king_bitboard = bitState.getKing_bitboard();
+	}
+	
 	int[] getWhite_bitboard() {
 		return white_bitboard.clone();
 	}

@@ -26,7 +26,7 @@ public final class Minmax {
     public Minmax(Game game) {
     	this.state_hash_table= new ConcurrentHashMap<Integer, StateDictEntry>();
         this.game = game;
-        this.max_depth = 4;
+        this.max_depth = 5;
         if (game.getColor().equalsIgnoreCase("WHITE"))
         	this.currentState = new BitStateWhitePlayer();
         else 
@@ -130,7 +130,13 @@ public final class Minmax {
         	    return -Utils.DRAW_POINTS;
         }
         if (cutoff_test(depth, max_depth)) { // If reached maximum depth or total time
-        	double value = bitState.compute_heuristic();  // If state not previously evaluated
+        	double value;
+        	if (!bitState.getTurn().toString().equalsIgnoreCase(String.valueOf(this.game.getColor().charAt(0))))
+        		value = bitState.compute_heuristic();  // If state not previously evaluated
+        	else if (this.game.getColor().equalsIgnoreCase("WHITE"))
+        		value = -(new BitStateBlackPlayer(bitState)).compute_heuristic();  // If state not previously evaluated
+        	else
+        		value = -(new BitStateWhitePlayer(bitState)).compute_heuristic();  // If state not previously evaluated
         	return value;
         }
         
@@ -172,7 +178,13 @@ public final class Minmax {
         	    return -Utils.DRAW_POINTS;
         }
         if (cutoff_test(depth, max_depth)) { // If reached maximum depth or total time
-        	double value = bitState.compute_heuristic();  // If state not previously evaluated
+        	double value;
+        	if (!bitState.getTurn().toString().equalsIgnoreCase(String.valueOf(this.game.getColor().charAt(0))))
+        		value = bitState.compute_heuristic();  // If state not previously evaluated
+        	else if (this.game.getColor().equalsIgnoreCase("WHITE"))
+        		value = -(new BitStateBlackPlayer(bitState)).compute_heuristic();  // If state not previously evaluated
+        	else
+        		value = -(new BitStateWhitePlayer(bitState)).compute_heuristic();  // If state not previously evaluated
         	return value;
         }
         
