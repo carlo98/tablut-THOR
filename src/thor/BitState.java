@@ -164,7 +164,7 @@ public class BitState{
 				break;
 			}
 		king_bin_col = this.king_bitboard[king_row];
-	    king_col = 8 - Utils.lut_positions.get(king_bin_col);
+	    king_col = Utils.lut_positions.get(king_bin_col);
 
         //check for pawns/camps left and right
         left_mask = (king_bin_col << 1);
