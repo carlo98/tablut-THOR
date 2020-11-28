@@ -32,7 +32,7 @@ public class BitState{
 	    }
 	}
 	
-	public BitState(BitState bitState) {
+	public BitState(BitState bitState, int i) {
 		this.turn = bitState.getTurn();
 		this.black_bitboard = bitState.getBlack_bitboard();
 		this.white_bitboard = bitState.getWhite_bitboard();

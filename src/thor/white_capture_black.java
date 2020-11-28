@@ -156,7 +156,7 @@ class white_capture_black {
 		String c = "WHITE";
 		Game game = new Game(c);
 		Minmax minmax = new Minmax(game);
-		minmax.setMax_depth(1);
+		minmax.setMax_depth(2);
 		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
 		action = minmax.makeDecision(10, bs, true);
 		System.out.println("Pawn right value:"+ minmax.getBest_value());

@@ -6,8 +6,8 @@ import it.unibo.ai.didattica.competition.tablut.domain.State;
 
 public class BitStateWhitePlayer extends BitState {
 	
-	private int[][] lut = {{-Utils.MAX_VAL_HEURISTIC, 10, 40, 100, 150, 200, 250, 300, 350, 400},  // Remaining white
-							{Utils.MAX_VAL_HEURISTIC, -10, -20, -30, -40, -80, -120, -200, -250, -300, -330, -350, -390, -410, -420, -430, -450},  // Remaining black
+	private int[][] lut = {{-Utils.MAX_VAL_HEURISTIC, 10, 40, 100, 130, 150, 220, 280, 350, 420},  // Remaining white
+							{Utils.MAX_VAL_HEURISTIC, -10, -20, -30, -40, -80, -120, -200, -250, -300, -330, -350, -390, -430, -460, -480, -500},  // Remaining black
 							{-300, -30, -20, 5, 10, 40, 50, 80, 100},  // Open diagonal blocks
 							{0, 80, 200, 1000, 4000}  // Aggressive king, number of path open to escapes
 							};
@@ -27,7 +27,7 @@ public class BitStateWhitePlayer extends BitState {
 	}
 	
 	public BitStateWhitePlayer(BitState s) {
-		super(s);
+		super(s, 0);
 	}
 	
 	@Override

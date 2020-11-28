@@ -21,7 +21,7 @@ public class BitStateBlackPlayer extends BitState {
 	}
 	
 	public BitStateBlackPlayer(BitState s) {
-		super(s);
+		super(s, 0);
 	}
 
 	@Override
