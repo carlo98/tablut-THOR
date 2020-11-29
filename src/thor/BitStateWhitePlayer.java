@@ -6,10 +6,10 @@ import it.unibo.ai.didattica.competition.tablut.domain.State;
 
 public class BitStateWhitePlayer extends BitState {
 	
-	private int[][] lut = {{-Utils.MAX_VAL_HEURISTIC, 10, 40, 100, 130, 150, 220, 280, 350, 420},  // Remaining white
-							{Utils.MAX_VAL_HEURISTIC, -10, -20, -30, -40, -80, -120, -200, -250, -300, -330, -350, -390, -430, -460, -480, -500},  // Remaining black
-							{-300, -30, -20, 5, 10, 40, 50, 80, 100},  // Open diagonal blocks
-							{0, 80, 200, 1000, 4000}  // Aggressive king, number of path open to escapes
+	private int[][] lut = {{-Utils.MAX_VAL_HEURISTIC, 5, 10, 30, 90, 190, 270, 350, 400, 450},  // Remaining white
+							{Utils.MAX_VAL_HEURISTIC, -5, -10, -30, -90, -150, -170, -190, -220, -240, -260, -280, -300, -320, -340, -360, -540},  // Remaining black
+							{-600, -200, -100, -30, -20, 40, 50, 80, 100},  // Open diagonal blocks
+							{0, 200, 400, 1000, 4000}  // Aggressive king, number of path open to escapes
 							};
 	
 	public BitStateWhitePlayer(State state) {
@@ -33,7 +33,7 @@ public class BitStateWhitePlayer extends BitState {
 	@Override
 	public double compute_heuristic() {
 		int white_cnt = 1, black_cnt = 0;
-        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond, blocks_cond, blocks_occupied=8;
+        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond, blocks_cond, blocks_open=8;
         int victory_cond = this.check_victory();
         
         if (victory_cond == -1)  // King captured
@@ -42,9 +42,9 @@ public class BitStateWhitePlayer extends BitState {
             return Utils.MAX_VAL_HEURISTIC;
         
         for(int i = 0; i < this.black_bitboard.length; i++) {
-        	blocks_occupied -= Integer.bitCount((this.black_bitboard[i] & Utils.blocks_bitboard[i]) | (this.white_bitboard[i] & Utils.blocks_bitboard[i]));
+        	blocks_open -= Integer.bitCount(this.black_bitboard[i] & Utils.blocks_bitboard[i]);
         }
-        blocks_cond = lut[2][blocks_occupied];
+        blocks_cond = lut[2][blocks_open];
         
         for (int r = 0; r < this.black_bitboard.length; r++) {
             for (int c = 0; c < this.black_bitboard.length; c++) {

@@ -26,7 +26,7 @@ public final class Minmax {
     public Minmax(Game game) {
     	this.state_hash_table= new ConcurrentHashMap<Integer, StateDictEntry>();
         this.game = game;
-        this.max_depth = 5;
+        this.max_depth = 3;
         if (game.getColor().equalsIgnoreCase("WHITE"))
         	this.currentState = new BitStateWhitePlayer();
         else 
@@ -56,6 +56,7 @@ public final class Minmax {
     public List<Integer> makeDecision(long max_time, BitState state, Boolean flag) throws IOException {
     	this.best_value = 0;
         long start_time = System.currentTimeMillis()/1000;
+        List<List<Integer>> possible_actions = new ArrayList<>();
         List<Integer> to_be_returned = Arrays.asList(0, 0, 0, 0, 0);
         int index_best = 0;
         int cont = 0;
@@ -84,7 +85,11 @@ public final class Minmax {
 			            values[k] = choosen_action.get(k).get(max_time-(System.currentTimeMillis()/1000 - start_time), TimeUnit.SECONDS);
 			            if (values[k] > values[index_best]) {
 			            	index_best = k;
+                                        possible_actions.clear();
+                                        possible_actions.add(all_actions.get(k));
 			            }
+                                    else if(values[k] == values[index_best])
+                                        possible_actions.add(all_actions.get(k));
 			        } catch (TimeoutException e) {
 			            to_be_returned = null;
 			        } catch (Exception e) {
@@ -100,7 +105,7 @@ public final class Minmax {
         }
         if (to_be_returned != null) {
         	this.best_value = values[index_best];
-        	to_be_returned = all_actions.get(index_best);
+        	to_be_returned = possible_actions.get((int)possible_actions.size()/2);
         }
         System.out.println("Depth:" + Integer.toString(this.max_depth));
         return to_be_returned;
