@@ -131,7 +131,6 @@ public class BitState{
 		int result = 1;
 		result = prime * result + Arrays.hashCode(black_bitboard);
 		result = prime * result + Arrays.hashCode(king_bitboard);
-		result = prime * result + ((turn == null) ? 0 : turn.hashCode());
 		result = prime * result + Arrays.hashCode(white_bitboard);
 		return result;
 	}
@@ -148,8 +147,6 @@ public class BitState{
 		if (!Arrays.equals(black_bitboard, other.black_bitboard))
 			return false;
 		if (!Arrays.equals(king_bitboard, other.king_bitboard))
-			return false;
-		if (turn != other.turn)
 			return false;
 		if (!Arrays.equals(white_bitboard, other.white_bitboard))
 			return false;
