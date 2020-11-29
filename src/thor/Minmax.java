@@ -65,7 +65,7 @@ public final class Minmax {
 	    	this.currentState = state;
 	    	this.all_actions = this.game.produce_actions(currentState);
     	}
-    	int step = Runtime.getRuntime().availableProcessors() + 10;
+    	int step = all_actions.size();//Runtime.getRuntime().availableProcessors() + 10;
     	this.choosen_action = new ArrayList<>(all_actions.size());
         double[] values = new double[all_actions.size()];
         for(int i = 0; i< values.length; i++)

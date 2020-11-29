@@ -26,7 +26,7 @@ public class TablutTHOR extends TablutClient {
 	
 	public TablutTHOR(String color, int max_time, String host) throws UnknownHostException, IOException {
 		super(color, PLAYER_NAME , max_time, host);
-		this.max_time = max_time;
+		this.max_time = max_time-2;
 		this.color = color;
 	}
 
@@ -89,7 +89,7 @@ public class TablutTHOR extends TablutClient {
 					System.out.println("Not my turn.");
 					best_action = null;
 		            action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
-		            minmax.setMax_depth(3);
+		            minmax.setMax_depth(4);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
