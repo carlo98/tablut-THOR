@@ -64,7 +64,7 @@ public final class Minmax {
 	    	this.currentState = state;
 	    	this.all_actions = this.game.produce_actions(currentState);
     	}
-    	int step = Runtime.getRuntime().availableProcessors() + 10;
+    	int step = all_actions.size();//Runtime.getRuntime().availableProcessors() + 10;
     	this.choosen_action = new ArrayList<>(all_actions.size());
         double[] values = new double[all_actions.size()];
         for(int i = 0; i< values.length; i++)
@@ -83,6 +83,7 @@ public final class Minmax {
 			            }
 			            values[k] = choosen_action.get(k).get(max_time-(System.currentTimeMillis()/1000 - start_time), TimeUnit.SECONDS);
 			            if (values[k] > values[index_best]) {
+                                        System.out.println("Value: " + values[k]);
 			            	index_best = k;
 			            }
 			        } catch (TimeoutException e) {

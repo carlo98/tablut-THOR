@@ -9,7 +9,7 @@ public class BitStateWhitePlayer extends BitState {
 	private int[][] lut = {{-Utils.MAX_VAL_HEURISTIC, 10, 50, 110, 1800, 250, 300, 350, 400, 450},  // Remaining white
 							{Utils.MAX_VAL_HEURISTIC, -5, -10, -40, -80, -120, -150, -180, -200, -220, -240, -260, -280, -300, -320, -340, -360},  // Remaining black
 							{-300, -200, -180, -100, 70, 80, 100, 450, 500},  // Open diagonal blocks
-							{0, 200, 400, 2000, 4000}  // Aggressive king, number of path open to escapes
+							{0, 200, 320, 2000, 4000}  // Aggressive king, number of path open to escapes
 							};
 	
 	public BitStateWhitePlayer(State state) {
