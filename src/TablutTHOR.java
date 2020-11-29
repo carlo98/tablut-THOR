@@ -26,7 +26,7 @@ public class TablutTHOR extends TablutClient {
 	
 	public TablutTHOR(String color, int max_time, String host) throws UnknownHostException, IOException {
 		super(color, PLAYER_NAME , max_time, host);
-		this.max_time = max_time;
+		this.max_time = max_time-2;
 		this.color = color;
 	}
 
