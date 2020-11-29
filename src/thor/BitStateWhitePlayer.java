@@ -6,10 +6,10 @@ import it.unibo.ai.didattica.competition.tablut.domain.State;
 
 public class BitStateWhitePlayer extends BitState {
 	
-	private int[][] lut = {{-Utils.MAX_VAL_HEURISTIC, 10, 40, 100, 150, 200, 250, 300, 350, 400},  // Remaining white
-							{Utils.MAX_VAL_HEURISTIC, -10, -20, -30, -40, -80, -120, -200, -250, -300, -330, -350, -390, -410, -420, -430, -450},  // Remaining black
-							{50, -5, -10, -50, -70, -80, -100, -450, -500},  // Open diagonal blocks
-							{0, 200, 1000, 2000, 4000}  // Aggressive king, number of path open to escapes
+	private int[][] lut = {{-Utils.MAX_VAL_HEURISTIC, 10, 50, 110, 1800, 250, 300, 350, 400, 450},  // Remaining white
+							{Utils.MAX_VAL_HEURISTIC, -5, -10, -40, -80, -120, -150, -180, -200, -220, -240, -260, -280, -300, -320, -340, -360},  // Remaining black
+							{-300, -200, -180, -100, 70, 80, 100, 450, 500},  // Open diagonal blocks
+							{0, 200, 400, 2000, 4000}  // Aggressive king, number of path open to escapes
 							};
 	
 	public BitStateWhitePlayer(State state) {
