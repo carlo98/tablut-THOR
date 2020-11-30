@@ -61,10 +61,10 @@ public class TablutTHOR extends TablutClient {
 				this.read();
 				flag = true;
 				if (this.color.equalsIgnoreCase("WHITE"))
-					bitState = new BitStateWhitePlayer(this.getCurrentState().clone());
-				else
 					bitState = new BitStateBlackPlayer(this.getCurrentState().clone());
-				System.out.println(bitState.compute_heuristic());
+				else
+					bitState = new BitStateWhitePlayer(this.getCurrentState().clone());
+				System.out.println("Value of state for enemy: "+bitState.compute_heuristic());
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);

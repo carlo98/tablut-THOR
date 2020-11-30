@@ -18,7 +18,7 @@ public class alt_main {
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
 		//int[] white_bitboard = {0, 0, 16, 0, 0, 16, 0, 0, 0};
 		//int[] black_bitboard = {56, 16, 0, 257, 387, 257, 0, 16, 56};
-		//´int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
+		//int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
 		bs.setBlack_bitboard(black_bitboard);
 		bs.setWhite_bitboard(white_bitboard);
 		bs.setKing_bitboard(king_bitboard);

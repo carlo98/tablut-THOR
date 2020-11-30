@@ -97,7 +97,7 @@ public class BitStateBlackPlayer extends BitState {
 
 	@Override
 	public BitState produceState(List<Integer> action) {
-		return new BitStateBlackPlayer(this, action);
+		return new BitStateWhitePlayer(this, action);
 	}
 	
 	public int locked_wings() {
