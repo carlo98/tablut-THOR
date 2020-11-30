@@ -90,7 +90,7 @@ public class TablutTHOR extends TablutClient {
 					System.out.println("Not my turn.");
 					best_action = null;
 		            action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
-		            minmax.setMax_depth(4);
+		            minmax.setMax_depth(1);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
