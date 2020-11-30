@@ -21,7 +21,7 @@ class king_escape_test {
 @Test 
 	
 	void escape_king_up() throws IOException {
-		BitState bs = new BitStateWhitePlayer();
+		BitState bs = new BitStateBlackPlayer();
 		int[] white_bitboard = {256, 0, 72, 0, 0, 0, 0, 0, 0};
 		int[] black_bitboard = {0, 4, 16, 0, 0, 0, 0, 0, 0};
 		int[] king_bitboard = {0, 0, 0, 128, 0, 0, 0, 0, 0};
@@ -45,7 +45,7 @@ class king_escape_test {
 	}
 	@Test
 	void escape_king_right_left() throws IOException {
-		BitState bs = new BitStateWhitePlayer();
+		BitState bs = new BitStateBlackPlayer();
 		int[] white_bitboard = {32, 0, 0, 68, 112, 16, 16, 0, 0};
 		int[] black_bitboard = {56, 4, 0, 257, 385, 257, 0, 4, 33};
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
@@ -70,7 +70,7 @@ class king_escape_test {
 
 	@Test
 	void escape_king_down() throws IOException {
-		BitState bs = new BitStateWhitePlayer();
+		BitState bs = new BitStateBlackPlayer();
 		int[] white_bitboard = {256, 0, 0, 0, 0, 0, 0, 0, 0};
 		int[] black_bitboard = {64, 32, 0, 0, 0, 0, 257, 0, 160};
 		int[] king_bitboard = {0, 0, 0, 0, 0, 0, 64, 0, 0};

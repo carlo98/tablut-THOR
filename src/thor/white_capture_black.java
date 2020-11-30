@@ -20,7 +20,7 @@ class white_capture_black {
 
 	@Test 
 	void capture_up_camp_pawns() throws IOException {
-		BitState bs = new BitStateWhitePlayer();
+		BitState bs = new BitStateBlackPlayer();
 		int[] white_bitboard = {256, 8, 0, 16, 40, 16, 0, 0, 0};
 		int[] black_bitboard = {0, 16, 16, 0, 0, 0, 0, 0, 0};
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
@@ -45,7 +45,7 @@ class white_capture_black {
 
 	@Test
 	void capture_up_pawns() throws IOException {
-		BitState bs = new BitStateWhitePlayer();
+		BitState bs = new BitStateBlackPlayer();
 		int[] white_bitboard = {256, 0, 8, 16, 40, 16, 0, 0, 0};
 		int[] black_bitboard = {0, 16, 16, 0, 0, 0, 0, 0, 0};
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
@@ -59,7 +59,7 @@ class white_capture_black {
 		minmax.setMax_depth(1);
 		List<Integer> action = new ArrayList<>(Arrays.asList(0, 0, 0, 0, 0));
 		action = minmax.makeDecision(10, bs, true);
-		System.out.println("Up value:"+ minmax.getBest_value());
+		System.out.println("Up value2:"+ minmax.getBest_value());
 		System.out.println("action = " + action.get(0) + " "+ action.get(1) + " "+ action.get(2) + " "
 				+ action.get(3) + " " + action.get(4));
 		BitState new_bs = bs.produceState(action);
@@ -70,7 +70,7 @@ class white_capture_black {
 
 	@Test
 	void capture_up_king() throws IOException {
-		BitState bs = new BitStateWhitePlayer();
+		BitState bs = new BitStateBlackPlayer();
 		int[] white_bitboard = {64, 0, 4, 68, 64, 16, 16, 0, 0};
 		int[] black_bitboard = {0, 0, 8, 0, 0, 0, 0, 0, 33};
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
@@ -88,14 +88,13 @@ class white_capture_black {
 		System.out.println("action = " + action.get(0) + " "+ action.get(1) + " "+ action.get(2) + " "
 				+ action.get(3) + " " + action.get(4));
 		BitState new_bs = bs.produceState(action);
-		
 		int[] b_bitboard_expected = {0, 0, 0, 0, 0, 0, 0, 0, 33};
 		assertArrayEquals(b_bitboard_expected,new_bs.getBlack_bitboard());
 	}
 
 	@Test
 	void capture_pawn_camp() throws IOException {
-		BitState bs = new BitStateWhitePlayer();
+		BitState bs = new BitStateBlackPlayer();
 		int[] white_bitboard = {256, 128, 0, 16, 0, 16, 0, 0, 0};
 		int[] black_bitboard = {128, 32, 0, 0, 0, 0, 257, 0, 160};
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
@@ -120,7 +119,7 @@ class white_capture_black {
 	
 	@Test
 	void capture_pawn_throne() throws IOException {
-		BitState bs = new BitStateWhitePlayer();
+		BitState bs = new BitStateBlackPlayer();
 		int[] white_bitboard = {0, 64, 0, 16, 0, 16, 0, 0, 0};
 		int[] black_bitboard = {0, 0, 16, 0, 32, 0, 0, 0, 0};
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
@@ -145,7 +144,7 @@ class white_capture_black {
 	
 	@Test
 	void capture_right_pawn() throws IOException {
-		BitState bs = new BitStateWhitePlayer();
+		BitState bs = new BitStateBlackPlayer();
 		int[] white_bitboard = {0, 0, 18, 16, 0, 16, 0, 0, 0};
 		int[] black_bitboard = {0, 0, 4, 0, 32, 0, 0, 0, 0};
 		int[] king_bitboard = {0, 0, 0, 0, 16, 0, 0, 0, 0};
@@ -170,7 +169,7 @@ class white_capture_black {
 	
 	@Test
 	void capture_left_camp() throws IOException {
-		BitState bs = new BitStateBlackPlayer();
+		BitState bs = new BitStateWhitePlayer();
 		int[] white_bitboard = {0, 0, 0, 0, 0, 128, 16, 32, 0};
 		int[] black_bitboard = {32, 0, 272, 80, 131, 1, 72, 0, 56};
 		int[] king_bitboard = {0, 0, 0, 0, 0, 0, 32, 0, 0};
