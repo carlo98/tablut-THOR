@@ -26,7 +26,7 @@ public final class Minmax {
     public Minmax(Game game) {
     	this.state_hash_table= new ConcurrentHashMap<Integer, StateDictEntry>();
         this.game = game;
-        this.max_depth = 3;
+        this.max_depth = 1;
         if (game.getColor().equalsIgnoreCase("WHITE"))
         	this.currentState = new BitStateWhitePlayer();
         else 
