@@ -64,6 +64,7 @@ public class TablutTHOR extends TablutClient {
 					bitState = new BitStateWhitePlayer(this.getCurrentState().clone());
 				else
 					bitState = new BitStateBlackPlayer(this.getCurrentState().clone());
+				System.out.println(bitState.compute_heuristic());
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);

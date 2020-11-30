@@ -7,8 +7,8 @@ import java.util.List;
 import it.unibo.ai.didattica.competition.tablut.domain.State.Turn;
 
 public class Game {
-	private int[][] possible_actions_hor = new int[9][9];
-	private int[][] possible_actions_ver = new int[9][9];
+	int[][] possible_actions_hor = new int[9][9];
+	int[][] possible_actions_ver = new int[9][9];
 	private String color;
 	
 	String getColor() {

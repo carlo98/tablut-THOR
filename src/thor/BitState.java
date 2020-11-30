@@ -214,27 +214,8 @@ public class BitState{
         return open_paths;
 	}
 	
-	int locked_back_camps() {
-        int locked_camps = 0;
-        int hor_map = 0b000111000;
-        if ((this.black_bitboard[0] & hor_map) == 0b000111000) {
-            locked_camps += 1;
-        }
-        if ((this.black_bitboard[8] & hor_map) == 0b000111000) {
-            locked_camps += 1;
-        }
-        List<Integer> row4 = Arrays.stream(Utils.bit(this.black_bitboard[3])).boxed().collect(Collectors.toList());
-        List<Integer> row5 = Arrays.stream(Utils.bit(this.black_bitboard[4])).boxed().collect(Collectors.toList());
-        List<Integer> row6 = Arrays.stream(Utils.bit(this.black_bitboard[5])).boxed().collect(Collectors.toList());
-        if (row4.contains(256) && row5.contains(256) && row6.contains(256)) {
-            locked_camps += 1;
-        }
-        if (row4.contains(2) && row5.contains(2) && row6.contains(2)) {
-            locked_camps += 1;
-        }
-        return locked_camps;
-	}
-
+	
+	
 	public BitState produceState(List<Integer> action) {
 		return null;
 	}
