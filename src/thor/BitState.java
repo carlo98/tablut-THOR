@@ -21,7 +21,9 @@ public class BitState{
             {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195}  // Blocks occupied by white
 			};
 	
-	private int[][] lut_black = {{-110, -95, -90, -75, -60, -45,-30, -15,0} //wings in camps
+	private int[][] lut_black = {{-110, -95, -90, -75, -60, -45,-30, -15,0}, //wings in camps
+	{40,30,20,10,0}, //fronts if there are at least 4 blocks
+	{100,75,50,25,0} //fronts if there are not blocks
 	};
 	
 	public BitState(State state) {
@@ -159,7 +161,7 @@ public class BitState{
 		int color_mult=1;
 		int white_cnt = 1, black_cnt = 0;
         int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond, blocks_cond_black, blocks_cond_white, blocks_open=8, blocks_occupied=0;
-        int wings_cond;
+        int wings_cond,fronts_cond;
         int victory_cond = this.check_victory();
         int h_partial;
         
@@ -201,6 +203,13 @@ public class BitState{
         remaining_whites_cond =  lut_white[0][white_cnt];
         remaining_blacks_cond = lut_white[1][black_cnt];
         
+        
+        /*fronts*/
+        if (blocks_occupied <=4) {
+        	fronts_cond = lut_black[2][available_fronts()];
+        } else {
+        	fronts_cond = lut_black[1][available_fronts()];
+        }
         /*aggressive king*/
         ak_cond = lut_white[3][this.open_king_paths()];
         
@@ -209,7 +218,7 @@ public class BitState{
         
         /*partial heuristic*/
         h_partial = remaining_whites_cond + remaining_blacks_cond + ak_cond + blocks_cond_black + 
-        		blocks_cond_white +wings_cond;
+        		blocks_cond_white +wings_cond + fronts_cond;
         
         
         return color_mult * h_partial;
@@ -222,7 +231,14 @@ public class BitState{
         }
 		return locked_wings;
 	}
-	
+	int available_fronts() {
+		int fronts = 4;
+		fronts-=Integer.bitCount(this.black_bitboard[1] & Utils.fronts_bitboard[1]);
+		fronts-=Integer.bitCount(this.black_bitboard[4] & Utils.fronts_bitboard[4]);
+		fronts-=Integer.bitCount(this.black_bitboard[7] & Utils.fronts_bitboard[7]);
+		return fronts;
+		
+	}
 	int open_king_paths() {
         //king coordinates
 		int king_row, king_col, king_bin_col, left_mask, open_paths;
