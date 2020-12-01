@@ -18,9 +18,12 @@ public class BitState{
 			{Utils.MAX_VAL_HEURISTIC, -5, -10, -20, -30, -50, -70, -100, -160, -220, -280, -340, -400, -460, -520, -580, -640},  // Remaining black
 			{-600, -200, -100, -30, -20, 40, 50, 80, 100},  // Open diagonal blocks
 			{0, 200, 500, 1000, 4000},  // Aggressive king, number of path open to escapes
-                                        {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120}  // Blocks occupied by white
+            {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120}  // Blocks occupied by white
 			};
-
+	
+	private int[][] lut_black = {{-80, -70, -60, -50, -40, -30,-20, -10,0} //wings in camps
+	};
+	
 	public BitState(State state) {
 		this.turn = state.getTurn();
 	    for (int row = 0; row < state.getBoard().length; row++) {
@@ -153,14 +156,24 @@ public class BitState{
 	}
 
 	public double compute_heuristic(String color) {
+		int color_mult=1;
 		int white_cnt = 1, black_cnt = 0;
         int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond, blocks_cond_black, blocks_cond_white, blocks_open=8, blocks_occupied=0;
+        int wings_cond;
         int victory_cond = this.check_victory();
+        int h_partial;
+        
+        if (color.equalsIgnoreCase("WHITE")) {
+        	color_mult = 1;
+        } else {
+        	color_mult = -1;
+        }
         
         if (victory_cond == -1)  // King captured
-            return -Utils.MAX_VAL_HEURISTIC;
+            return color_mult*(-Utils.MAX_VAL_HEURISTIC);
         else if (victory_cond == 1)  // King escaped
-            return Utils.MAX_VAL_HEURISTIC;
+            return color_mult*(Utils.MAX_VAL_HEURISTIC);
+        
         
         for(int i = 0; i < this.black_bitboard.length; i++) {
         	blocks_open -= Integer.bitCount(this.black_bitboard[i] & Utils.blocks_bitboard[i]);
@@ -168,10 +181,11 @@ public class BitState{
         blocks_cond_black = lut_white[2][blocks_open];
 
         for(int i = 0; i < this.white_bitboard.length; i++) {
-        	blocks_occupied += Integer.bitCount(this.white_bitboard[i] & Utils.blocks_bitboard[i]);
+        	blocks_occupied += Integer.bitCount(this.white_bitboard[i] & Utils.blocksWhite_bitboard[i]);
         }
         blocks_cond_white = lut_white[4][blocks_occupied];
         
+        /*remaining pieces*/
         for (int r = 0; r < this.black_bitboard.length; r++) {
             for (int c = 0; c < this.black_bitboard.length; c++) {
                 curr_mask = (1 << (8 - c));
@@ -186,9 +200,26 @@ public class BitState{
 
         remaining_whites_cond =  lut_white[0][white_cnt];
         remaining_blacks_cond = lut_white[1][black_cnt];
-
+        
+        /*aggressive king*/
         ak_cond = lut_white[3][this.open_king_paths()];
-        return  remaining_whites_cond + remaining_blacks_cond + ak_cond + blocks_cond_black + 2*blocks_cond_white;
+        
+        /*camp wings*/
+        wings_cond = lut_black[0][locked_wings()];
+        
+        /*partial heuristic*/
+        h_partial = remaining_whites_cond + remaining_blacks_cond + ak_cond + blocks_cond_black + blocks_cond_white;
+        
+        
+        return color_mult * h_partial;
+	}
+	
+	int locked_wings() {
+		int locked_wings = 0;
+		for(int i = 0; i < this.black_bitboard.length; i++) {
+        	locked_wings += Integer.bitCount(this.black_bitboard[i] & Utils.wings_bitboard[i]);
+        }
+		return locked_wings;
 	}
 	
 	int open_king_paths() {
