@@ -21,7 +21,7 @@ public class BitState{
             {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195}  // Blocks occupied by white
 			};
 	
-	private int[][] lut_black = {{-80, -70, -60, -50, -40, -30,-20, -10,0} //wings in camps
+	private int[][] lut_black = {{-110, -95, -90, -75, -60, -45,-30, -15,0} //wings in camps
 	};
 	
 	public BitState(State state) {
