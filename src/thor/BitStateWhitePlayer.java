@@ -10,7 +10,7 @@ public class BitStateWhitePlayer extends BitState {
 			{Utils.MAX_VAL_HEURISTIC, -5, -10, -20, -30, -50, -70, -100, -160, -220, -280, -340, -400, -460, -520, -580, -640},  // Remaining black
 			{-600, -200, -100, -30, -20, 40, 50, 80, 100},  // Open diagonal blocks
 			{0, 200, 500, 1000, 4000},  // Aggressive king, number of path open to escapes
-                                        {0, 10, 20, 30, 40, 50, 50, 50, 50}  // Blocks occupied by white
+                                        {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120}  // Blocks occupied by white
 			};
 	
 	public BitStateWhitePlayer(State state) {
@@ -64,7 +64,7 @@ public class BitStateWhitePlayer extends BitState {
         remaining_blacks_cond = lut[1][black_cnt];
 
         ak_cond = lut[3][this.open_king_paths()];
-        return  remaining_whites_cond + remaining_blacks_cond + ak_cond + blocks_cond_black + 1*blocks_cond_white;
+        return  remaining_whites_cond + remaining_blacks_cond + ak_cond + blocks_cond_black + 2*blocks_cond_white;
 	}
 	
 	@Override
