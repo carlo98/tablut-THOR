@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 
 public final class Minmax {
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private ConcurrentHashMap<Integer, StateDictEntry> state_hash_table;
     private int max_depth;
     private final Game game;
