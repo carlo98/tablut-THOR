@@ -14,11 +14,11 @@ public class BitState{
 	private int[] black_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	private int[] king_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	private Turn turn = null;
-	private int[][] lut_white = {{-Utils.MAX_VAL_HEURISTIC, 5, 10, 30, 90, 190, 270, 350, 400, 450},  // Remaining white
-			{Utils.MAX_VAL_HEURISTIC, -5, -10, -20, -30, -50, -70, -100, -160, -220, -280, -340, -400, -460, -520, -580, -640},  // Remaining black
+	private int[][] lut_white = {{-Utils.MAX_VAL_HEURISTIC, 50, 100, 150, 200, 250, 340, 390, 420, 450},  // Remaining white
+			{Utils.MAX_VAL_HEURISTIC, -30, -60, -90, -120, -150, -180, -210, -240, -270, -300, -330, -400, -420, -440, -460, -480},  // Remaining black
 			{-600, -200, -100, -30, -20, 40, 50, 80, 100},  // Open diagonal blocks
-			{0, 200, 500, 1000, 4000},  // Aggressive king, number of path open to escapes
-            {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 115, 120, 125, 130, 135}  // Blocks occupied by white
+			{0, 200, 500, 1000, Utils.MAX_VAL_HEURISTIC},  // Aggressive king, number of path open to escapes
+            {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195}  // Blocks occupied by white
 			};
 	
 	private int[][] lut_black = {{-80, -70, -60, -50, -40, -30,-20, -10,0} //wings in camps

@@ -54,15 +54,15 @@ public class Utils {
 								    0b010000010,
 								    0b001000100,
 								    0b000000000};
-	static int[] blocksWhite_bitboard = {0b100000001,
-									    0b000101000,
-									    0b001000100,
+	static int[] blocksWhite_bitboard = {0b111000111,
+									    0b100101001,
+									    0b100000001,
 									    0b010000010,
 									    0b000000000,
 									    0b010000010,
-									    0b001000100,
-									    0b000101000,
-									    0b100000001};
+									    0b100000001,
+									    0b100101001,
+									    0b111000111};
 public static int[] wings_bitboard = {0b000101000,
 									0b000000000,
 									0b000000000,
