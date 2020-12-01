@@ -208,7 +208,8 @@ public class BitState{
         wings_cond = lut_black[0][locked_wings()];
         
         /*partial heuristic*/
-        h_partial = remaining_whites_cond + remaining_blacks_cond + ak_cond + blocks_cond_black + blocks_cond_white;
+        h_partial = remaining_whites_cond + remaining_blacks_cond + ak_cond + blocks_cond_black + 
+        		blocks_cond_white +wings_cond;
         
         
         return color_mult * h_partial;
