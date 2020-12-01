@@ -15,6 +15,11 @@ public class BitState{
 	protected int[] king_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	private Turn turn = null;
 
+	
+	//used for testing
+	public BitState() { 
+	}
+	
 	public BitState(State state) {
 		this.turn = state.getTurn();
 	    for (int row = 0; row < state.getBoard().length; row++) {
@@ -30,42 +35,6 @@ public class BitState{
 	            	this.king_bitboard[row] ^= 1;
 	    	}
 	    }
-	}
-	
-	int[] getWhite_bitboard() {
-		return white_bitboard.clone();
-	}
-
-	int[] getBlack_bitboard() {
-		return black_bitboard.clone();
-	}
-
-	int[] getKing_bitboard() {
-		return king_bitboard.clone();
-	}
-
-	Turn getTurn() {
-		return turn;
-	}
-	
-	//used for testing
-	public BitState() { 
-	}
-	
-	public void setWhite_bitboard(int[] white_bitboard) {
-		this.white_bitboard = white_bitboard;
-	}
-
-	public void setBlack_bitboard(int[] black_bitboard) {
-		this.black_bitboard = black_bitboard;
-	}
-
-	public void setKing_bitboard(int[] king_bitboard) {
-		this.king_bitboard = king_bitboard;
-	}
-
-	public void setTurn(Turn turn) {
-		this.turn = turn;
 	}
 
 	public BitState(BitState s, List<Integer> action) {
@@ -230,5 +199,41 @@ public class BitState{
 
 	public BitState produceState(List<Integer> action) {
 		return null;
+	}
+	
+	
+	//getters and setters
+	int[] getWhite_bitboard() {
+		return white_bitboard.clone();
+	}
+
+	int[] getBlack_bitboard() {
+		return black_bitboard.clone();
+	}
+
+	int[] getKing_bitboard() {
+		return king_bitboard.clone();
+	}
+
+	public Turn getTurn() {
+		return turn;
+	}
+	
+	
+	
+	public void setWhite_bitboard(int[] white_bitboard) {
+		this.white_bitboard = white_bitboard;
+	}
+
+	public void setBlack_bitboard(int[] black_bitboard) {
+		this.black_bitboard = black_bitboard;
+	}
+
+	public void setKing_bitboard(int[] king_bitboard) {
+		this.king_bitboard = king_bitboard;
+	}
+
+	public void setTurn(Turn turn) {
+		this.turn = turn;
 	}
 }
