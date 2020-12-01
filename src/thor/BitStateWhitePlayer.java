@@ -44,7 +44,7 @@ public class BitStateWhitePlayer extends BitState {
         blocks_cond_black = lut[2][blocks_open];
 
         for(int i = 0; i < this.white_bitboard.length; i++) {
-        	blocks_occupied += Integer.bitCount(this.white_bitboard[i] & Utils.blocks_bitboard[i]);
+        	blocks_occupied += Integer.bitCount(this.white_bitboard[i] & Utils.blocksWhite_bitboard[i]);
         }
         blocks_cond_white = lut[4][blocks_occupied];
         
