@@ -18,7 +18,7 @@ public class BitState{
 			{Utils.MAX_VAL_HEURISTIC, -5, -10, -20, -30, -50, -70, -100, -160, -220, -280, -340, -400, -460, -520, -580, -640},  // Remaining black
 			{-600, -200, -100, -30, -20, 40, 50, 80, 100},  // Open diagonal blocks
 			{0, 200, 500, 1000, 4000},  // Aggressive king, number of path open to escapes
-            {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120}  // Blocks occupied by white
+            {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 115, 120, 125, 130, 135}  // Blocks occupied by white
 			};
 	
 	private int[][] lut_black = {{-80, -70, -60, -50, -40, -30,-20, -10,0} //wings in camps
