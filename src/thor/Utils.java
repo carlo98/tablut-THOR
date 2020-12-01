@@ -54,6 +54,15 @@ public class Utils {
 								    0b010000010,
 								    0b001000100,
 								    0b000000000};
+	static int[] blocksWhite_bitboard = {0b000000000,
+									    0b001000100,
+									    0b011000110,
+									    0b000000000,
+									    0b000000000,
+									    0b000000000,
+									    0b011000110,
+									    0b001000100,
+									    0b000000000};
 	
 	static int build_column(int[] bitboard, int mask) {
 	    int num = 0;
