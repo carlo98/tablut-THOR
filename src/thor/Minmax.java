@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 
 public final class Minmax {
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private ConcurrentHashMap<Integer, StateDictEntry> state_hash_table;
     private int max_depth;
     private final Game game;
@@ -26,7 +26,7 @@ public final class Minmax {
     public Minmax(Game game) {
     	this.state_hash_table= new ConcurrentHashMap<Integer, StateDictEntry>();
         this.game = game;
-        this.max_depth = 3;
+        this.max_depth = 1;
     }
     
     private class MinMax_thread implements Callable<Double> {
@@ -52,6 +52,7 @@ public final class Minmax {
     public List<Integer> makeDecision(long max_time, BitState state, Boolean flag) throws IOException {
     	this.best_value = 0;
         long start_time = System.currentTimeMillis()/1000;
+        List<List<Integer>> possible_actions = new ArrayList<>();
         List<Integer> to_be_returned = Arrays.asList(0, 0, 0, 0, 0);
         int index_best = 0;
         int cont = 0;
@@ -60,7 +61,7 @@ public final class Minmax {
 	    	this.currentState = state;
 	    	this.all_actions = this.game.produce_actions(currentState);
     	}
-    	int step = Runtime.getRuntime().availableProcessors() + 10;
+    	int step = all_actions.size();
     	this.choosen_action = new ArrayList<>(all_actions.size());
         double[] values = new double[all_actions.size()];
         for(int i = 0; i< values.length; i++)
@@ -80,7 +81,11 @@ public final class Minmax {
 			            values[k] = choosen_action.get(k).get(max_time-(System.currentTimeMillis()/1000 - start_time), TimeUnit.SECONDS);
 			            if (values[k] > values[index_best]) {
 			            	index_best = k;
+			            	possible_actions.clear();
+                            possible_actions.add(all_actions.get(k));
 			            }
+			            else if(values[k] == values[index_best])
+                            possible_actions.add(all_actions.get(k));
 			        } catch (TimeoutException e) {
 			            to_be_returned = null;
 			        } catch (Exception e) {
@@ -96,7 +101,7 @@ public final class Minmax {
         }
         if (to_be_returned != null) {
         	this.best_value = values[index_best];
-        	to_be_returned = all_actions.get(index_best);
+        	to_be_returned = possible_actions.get((int)possible_actions.size()/2);
         }
         System.out.println("Depth:" + Integer.toString(this.max_depth));
         return to_be_returned;
@@ -123,11 +128,10 @@ public final class Minmax {
         	hash_result = state_hash_table.get(state_hash);
         if (hash_result != null) {
         	if (hash_result.getUsed() == 1)
-        	    return -Utils.DRAW_POINTS;
+        	    return Utils.DRAW_POINTS;
         }
         if (cutoff_test(depth, max_depth)) { // If reached maximum depth or total time
-        	double value = bitState.compute_heuristic(this.game.getWeights(), this.game.getColor());  // If state not previously evaluated
-        	return value;
+        	return bitState.compute_heuristic(this.game.getColor());
         }
         
         double v = Double.NEGATIVE_INFINITY;
@@ -168,8 +172,7 @@ public final class Minmax {
         	    return -Utils.DRAW_POINTS;
         }
         if (cutoff_test(depth, max_depth)) { // If reached maximum depth or total time
-        	double value = bitState.compute_heuristic(this.game.getWeights(), this.game.getColor());  // If state not previously evaluated
-        	return value;
+        	return bitState.compute_heuristic(this.game.getColor());
         }
         
         double v = Double.POSITIVE_INFINITY;
@@ -197,7 +200,7 @@ public final class Minmax {
     }
 
 	public void updateState_hash_table(BitState bitState) {
-		Utils.update_used(this.state_hash_table, bitState, this.game.getWeights(), this.game.getColor());
+		Utils.update_used(this.state_hash_table, bitState, this.game.getColor());
 	}
 
 	public int getMax_depth() {

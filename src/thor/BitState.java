@@ -14,6 +14,12 @@ public class BitState{
 	private int[] black_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	private int[] king_bitboard = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	private Turn turn = null;
+	private int[][] lut_white = {{-Utils.MAX_VAL_HEURISTIC, 5, 10, 30, 90, 190, 270, 350, 400, 450},  // Remaining white
+			{Utils.MAX_VAL_HEURISTIC, -5, -10, -20, -30, -50, -70, -100, -160, -220, -280, -340, -400, -460, -520, -580, -640},  // Remaining black
+			{-600, -200, -100, -30, -20, 40, 50, 80, 100},  // Open diagonal blocks
+			{0, 200, 500, 1000, 4000},  // Aggressive king, number of path open to escapes
+                                        {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120}  // Blocks occupied by white
+			};
 
 	public BitState(State state) {
 		this.turn = state.getTurn();
@@ -146,32 +152,26 @@ public class BitState{
 		return true;
 	}
 
-	public double compute_heuristic(int[] weights, String color) {
-		int blocks_occupied_by_black = 0, blocks_occupied_by_white = 0;
-		int white_cnt = 0, black_cnt = 0;
-        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond;
-        double blocks_cond, open_blocks_cond;
-        int coeff_min_black = (int) Math.pow(-1, (color.equalsIgnoreCase("WHITE")) ? 1 : 0);
-        int coeff_min_white = (int) Math.pow(-1, (color.equalsIgnoreCase("BLACK")) ? 1 : 0);
+	public double compute_heuristic(String color) {
+		int white_cnt = 1, black_cnt = 0;
+        int curr_mask, remaining_whites_cond, remaining_blacks_cond, ak_cond, blocks_cond_black, blocks_cond_white, blocks_open=8, blocks_occupied=0;
         int victory_cond = this.check_victory();
-        if (victory_cond == -1 && color == "BLACK")  // king captured and black player -> Win
-            return Utils.MAX_VAL_HEURISTIC;
-        else if (victory_cond == -1 && color == "WHITE")  // King captured and white player -> Lose
+        
+        if (victory_cond == -1)  // King captured
             return -Utils.MAX_VAL_HEURISTIC;
-        else if (victory_cond == 1 && color == "BLACK")  // King escaped and black player -> Lose
-            return -Utils.MAX_VAL_HEURISTIC;
-        else if (victory_cond == 1 && color == "WHITE")  // King escaped and white player -> Win
+        else if (victory_cond == 1)  // King escaped
             return Utils.MAX_VAL_HEURISTIC;
         
         for(int i = 0; i < this.black_bitboard.length; i++) {
-        	blocks_occupied_by_black += Integer.bitCount(this.black_bitboard[i] & Utils.blocks_bitboard[i]);
+        	blocks_open -= Integer.bitCount(this.black_bitboard[i] & Utils.blocks_bitboard[i]);
         }
-        for(int i = 0; i < this.black_bitboard.length; i++) {
-        	blocks_occupied_by_white += Integer.bitCount(this.white_bitboard[i] & Utils.blocks_bitboard[i]);
-        	blocks_occupied_by_white += Integer.bitCount(this.king_bitboard[i] & Utils.blocks_bitboard[i]);
+        blocks_cond_black = lut_white[2][blocks_open];
+
+        for(int i = 0; i < this.white_bitboard.length; i++) {
+        	blocks_occupied += Integer.bitCount(this.white_bitboard[i] & Utils.blocks_bitboard[i]);
         }
-        blocks_cond = coeff_min_black * weights[0] * blocks_occupied_by_black + coeff_min_white * weights[1] * blocks_occupied_by_white;
-        open_blocks_cond = coeff_min_white * weights[2] * (8 - blocks_occupied_by_white - blocks_occupied_by_black);
+        blocks_cond_white = lut_white[4][blocks_occupied];
+        
         for (int r = 0; r < this.black_bitboard.length; r++) {
             for (int c = 0; c < this.black_bitboard.length; c++) {
                 curr_mask = (1 << (8 - c));
@@ -184,11 +184,11 @@ public class BitState{
             }
         }
 
-        remaining_whites_cond = coeff_min_white * weights[3] * white_cnt;
-        remaining_blacks_cond = coeff_min_black * weights[4] * black_cnt;
+        remaining_whites_cond =  lut_white[0][white_cnt];
+        remaining_blacks_cond = lut_white[1][black_cnt];
 
-        ak_cond = coeff_min_white * weights[5] * this.open_king_paths();
-        return blocks_cond + remaining_whites_cond + remaining_blacks_cond + open_blocks_cond + ak_cond;
+        ak_cond = lut_white[3][this.open_king_paths()];
+        return  remaining_whites_cond + remaining_blacks_cond + ak_cond + blocks_cond_black + 2*blocks_cond_white;
 	}
 	
 	int open_king_paths() {
@@ -202,7 +202,7 @@ public class BitState{
 				break;
 			}
 		king_bin_col = this.king_bitboard[king_row];
-	    king_col = 8 - Utils.lut_positions.get(king_bin_col);
+	    king_col = Utils.lut_positions.get(king_bin_col);
 
         //check for pawns/camps left and right
         left_mask = (king_bin_col << 1);
