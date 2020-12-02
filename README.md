@@ -2,11 +2,11 @@
 Tablut using Ashton's rules, team THOR
 
 From VM, in "/tablut", launch player from terminal:
-- ./runmyplayer "white" time ip server
-- ./runmyplayer "black" time ip server
+- ./runmyplayer "white" time ip_server
+- ./runmyplayer "black" time ip_server
 
 time: time available to find action, in seconds, int
 
-ip server: String
+ip_server: String
  
  
