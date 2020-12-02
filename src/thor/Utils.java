@@ -72,15 +72,6 @@ public static int[] wings_bitboard = {0b000101000,
 									0b000000000,
 									0b000000000,
 									0b000101000};
-public static int[] fronts_bitboard = {0b000000000,
-										0b000010000,
-										0b000000000,
-										0b000000000,
-										0b010000010,
-										0b000000000,
-										0b000000000,
-										0b000010000,
-										0b000000000};
 	
 static int build_column(int[] bitboard, int mask) {
     int num = 0;
