@@ -2,6 +2,7 @@
 Agent for University of Bologna Fundamentals of Artificial Intelligence tablut competition:
 The agent plays Tablut using Ashton's rules.
 The time limit for a single move is 60s.
+
 Third position, 2020.
 
 ## Instructions
